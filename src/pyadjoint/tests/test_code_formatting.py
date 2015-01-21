@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythonG
 # -*- coding: utf-8 -*-
 """
 Tests all Python files of the project with flake8. This ensure PEP8 conformance
@@ -48,7 +48,7 @@ def test_flake8():
 
     report = flake8_style.check_files(files)
 
-    # Make sure at least 10 files are tested.
-    assert report.counters["files"] > 10
+    # Make sure at least 4 files are tested.
+    assert report.counters["files"] >= 4
     # And no errors occured.
     assert report.get_count() == 0
