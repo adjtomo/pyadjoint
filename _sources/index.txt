@@ -1,0 +1,68 @@
+
+Pyadjoint
+=========
+
+``Pyadjoint`` is a Python package to measure misfit and calculate
+adjoint sources.
+
+Installation
+------------
+
+``Pyadjoint`` utilizes `ObsPy <http://obspy.org>`_ (and some of its
+dependencies) for the processing and data handling. As a first step,
+please follow the `installation instructions of
+ObsPy <https://github.com/obspy/obspy/wiki#installation>`_ for your
+given platform (we recommend the installation with
+`Anaconda <https://github.com/obspy/obspy/wiki/Installation-via-Anaconda>`_
+as it will most likely result in the least amount of problems).
+``Pyadjoint`` should work with Python versions 2.6, 2.7, 3.3, and 3.4
+(mainly depends on the used ObsPy version). To install it, best use
+``pip`` (not working yet!):
+
+::
+
+    $ pip install pyadjoint
+
+If you want the latest development version, or want to work on the code,
+you will have to install with the help of ``git``.
+
+::
+
+    $ git clone https://github.com/krischer/pyadjoint.git
+    $ cd pyadjoint
+    $ pip install -v -e .
+
+Tests
+-----
+
+To assure the installation is valid and everything works as expected,
+run the tests with
+
+::
+
+    $ python -m pyadjoint.tests
+
+Usage
+-----
+
+The first step is to import ObsPy and Pyadjoint.
+
+.. code:: python
+
+    import obspy
+    import pyadjoint
+Logging
+-------
+
+By default, ``Pyadjoint`` is fairly quiet and will only raise exceptions
+and warnings in case they occur. ``Pyadjoint`` utilizes Python's
+`logging facilities <https://docs.python.org/2/library/logging.html>`_
+so if you want more information you can hook into them. This approach is
+very flexible as it allows you to install custom logging handlers and
+channels.
+
+.. code:: python
+
+    import logging
+    logger = logging.getLogger("pyadjoint")
+    logger.setLevel(logging.DEBUG)

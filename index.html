@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Pyadjoint &mdash; Pyadjoint 0.0.1a documentation</title>
+    
+    <link rel="stylesheet" href="_static/readable.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Pyadjoint 0.0.1a documentation" href="#" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+  
+  
+  <div class="indexwrapper">
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="#">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="pyadjoint">
+<h1>Pyadjoint<a class="headerlink" href="#pyadjoint" title="Permalink to this headline">¶</a></h1>
+<p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> is a Python package to measure misfit and calculate
+adjoint sources.</p>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> utilizes <a class="reference external" href="http://obspy.org">ObsPy</a> (and some of its
+dependencies) for the processing and data handling. As a first step,
+please follow the <a class="reference external" href="https://github.com/obspy/obspy/wiki#installation">installation instructions of
+ObsPy</a> for your
+given platform (we recommend the installation with
+<a class="reference external" href="https://github.com/obspy/obspy/wiki/Installation-via-Anaconda">Anaconda</a>
+as it will most likely result in the least amount of problems).
+<tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> should work with Python versions 2.6, 2.7, 3.3, and 3.4
+(mainly depends on the used ObsPy version). To install it, best use
+<tt class="docutils literal"><span class="pre">pip</span></tt> (not working yet!):</p>
+<div class="highlight-python"><div class="highlight"><pre>$ pip install pyadjoint
+</pre></div>
+</div>
+<p>If you want the latest development version, or want to work on the code,
+you will have to install with the help of <tt class="docutils literal"><span class="pre">git</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre>$ git clone https://github.com/krischer/pyadjoint.git
+$ cd pyadjoint
+$ pip install -v -e .
+</pre></div>
+</div>
+</div>
+<div class="section" id="tests">
+<h2>Tests<a class="headerlink" href="#tests" title="Permalink to this headline">¶</a></h2>
+<p>To assure the installation is valid and everything works as expected,
+run the tests with</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python -m pyadjoint.tests
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<p>The first step is to import ObsPy and Pyadjoint.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">obspy</span>
+<span class="kn">import</span> <span class="nn">pyadjoint</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="logging">
+<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
+<p>By default, <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> is fairly quiet and will only raise exceptions
+and warnings in case they occur. <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> utilizes Python&#8217;s
+<a class="reference external" href="https://docs.python.org/2/library/logging.html">logging facilities</a>
+so if you want more information you can hook into them. This approach is
+very flexible as it allows you to install custom logging handlers and
+channels.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">logging</span>
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&quot;pyadjoint&quot;</span><span class="p">)</span>
+<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Pyadjoint</a><ul>
+<li><a class="reference internal" href="#installation">Installation</a></li>
+<li><a class="reference internal" href="#tests">Tests</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#logging">Logging</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation index</a><ul>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2015, Lion Krischer.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+  </div>
+  
+  </div>
+  
+  </body>
+</html>
