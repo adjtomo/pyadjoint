@@ -8,7 +8,7 @@ python:
 
 env:
   global:
-    secure: "I7YRXirCGWcerGJi3NDEYvpPrZhSHmnByk7bIh7mcp4mtyQ8pNx8AfdvxH1ZkCpnXRJyN9gtJd9pomlbczdPgam/0TR9kpK7KQK8FQ5zy/GI5Y/WbKozzXWbpVDNxCaVKX0oFLGDUxyWy6FcKxDLrvyrV3N1dfaX9GoZmVJ6yUk="
+    secure: "lA8kB2x48k7Y4fkdIX5ecOtD/DJgJWCTI6rSkSjshNYwaTTBN6rK4qeRGWZXueYW/P28oJ3A5wdb+JsK2OMlLM0iTnwoX3SwCuD7SI0QpzWn6xcX1+vQgOTMq3fsI7jIbVjjLXxi2vx7oTtXlH6icAr1rqB5lW45AYjTdORkXws="
 
 before_install:
   - sudo apt-get install -qq gfortran pandoc
