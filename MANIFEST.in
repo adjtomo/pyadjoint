@@ -1,0 +1,3 @@
+include src/pyadjoint/tests/data/*
+include src/pyadjoint/tests/baseline_images/*
+include *.md

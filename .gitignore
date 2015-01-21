@@ -1,0 +1,10 @@
+*.egg-info
+*.pyc
+*/__pycache__
+/doc/index.rst
+/doc/_build/*
+/doc/index_files/*
+*.ipynb_checkpoints*
+dist/*
+.coverage
+htmlcov
