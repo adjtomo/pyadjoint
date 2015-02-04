@@ -2,8 +2,10 @@
 *.pyc
 */__pycache__
 /doc/index.rst
+/doc/example_dataset.rst
 /doc/_build/*
 /doc/index_files/*
+/doc/example_dataset_files/*
 *.ipynb_checkpoints*
 dist/*
 .coverage

@@ -15,8 +15,9 @@ def clean_for_doc(nb):
     """
     new_cells = []
     for cell in nb.worksheets[0].cells:
-        # Remove the pylab inline line.
-        if "input" in cell and cell["input"].strip() == "%pylab inline":
+        # Remove the pylab inline line cells.
+        if "input" in cell and \
+                cell["input"].strip().startswith("%pylab inline"):
             continue
         # Remove output resulting from the stream/trace method chaining.
         if "outputs" in cell:
@@ -43,12 +44,13 @@ def strip_output(nb):
 def convert_nb(nbname):
     os.system("runipy --o %s.ipynb --matplotlib --quiet" % nbname)
     os.system("rm -rf ./index_files")
+    os.system("rm -rf ./example_dataset_files")
 
     filename = "%s.ipynb" % nbname
     with io.open(filename, 'r', encoding='utf8') as f:
         nb = current.read(f, 'json')
     nb = clean_for_doc(nb)
-    print "Writing to", filename
+    print("Writing to", filename)
     with io.open(filename, 'w', encoding='utf8') as f:
         current.write(nb, f, 'json')
 
@@ -58,7 +60,7 @@ def convert_nb(nbname):
     with io.open(filename, 'r', encoding='utf8') as f:
         nb = current.read(f, 'json')
     nb = strip_output(nb)
-    print "Writing to", filename
+    print("Writing to", filename)
     with io.open(filename, 'w', encoding='utf8') as f:
         current.write(nb, f, 'json')
 

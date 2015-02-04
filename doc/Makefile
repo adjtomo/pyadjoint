@@ -51,6 +51,7 @@ clean:
 
 html:
 	python ./convert.py index
+	python ./convert.py example_dataset
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	rm -f windows.json
 	@echo
