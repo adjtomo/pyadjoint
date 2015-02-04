@@ -42,4 +42,4 @@ script:
 
 after_success:
   - cd $TRAVIS_BUILD_DIR; coveralls
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
