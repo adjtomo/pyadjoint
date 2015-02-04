@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Example Data Set used in Pyadjoint &mdash; Pyadjoint 0.0.1a documentation</title>
+    
+    <link rel="stylesheet" href="_static/readable.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Pyadjoint 0.0.1a documentation" href="index.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+  
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="example-data-set-used-in-pyadjoint">
+<h1>Example Data Set used in Pyadjoint<a class="headerlink" href="#example-data-set-used-in-pyadjoint" title="Permalink to this headline">¶</a></h1>
+<p>This document illustrates where the example data used in Pyadjoint
+originates from. It uses a set of 3D synthetics from the Shakemovie
+project and the same event extraced from a 2 second Instaseis database
+with the AK135 Earth model. Thus we effectively compare the results of a
+3D simulation including topography, ellipticity, ... versus a simulation
+on a 1D background model with a spherical Earth. We will compare data in
+a period band from 20 to 100 seconds.</p>
+<p>To establish a more practical terminology, the Shakemovie seismograms
+will serve as our observed data, whereas the ones from Instaseis will be
+considered synthetics.</p>
+<div class="section" id="source-and-receiver">
+<h2>Source and Receiver<a class="headerlink" href="#source-and-receiver" title="Permalink to this headline">¶</a></h2>
+<p>We use an event from the GCMT catalog:</p>
+<div class="highlight-python"><div class="highlight"><pre>Event name: 201411150231A
+CMT origin time: 2014-11-15T02:31:50.260000Z
+Assumed half duration:  8.2
+Mw = 7.0   Scalar Moment = 4.71e+19
+Latitude:  1.97
+Longitude: 126.42
+Depth in km: 37.3
+
+Exponent for moment tensor:  19    units: N-m
+         Mrr     Mtt     Mpp     Mrt     Mrp     Mtp
+CMT     3.970  -0.760  -3.210   0.173  -2.220  -1.970
+</pre></div>
+</div>
+<p>recorded at station <tt class="docutils literal"><span class="pre">SY.DBO</span></tt> (<tt class="docutils literal"><span class="pre">SY</span></tt> denotes the synthetic data
+network from the Shakemovie project):</p>
+<div class="highlight-python"><div class="highlight"><pre>Latitude: 43.12, Longitude: -123.24, Elevation: 984.0 m
+</pre></div>
+</div>
+<div class="section" id="setup-variables">
+<h3>Setup Variables<a class="headerlink" href="#setup-variables" title="Permalink to this headline">¶</a></h3>
+<p>Sets up some values we&#8217;ll need throughout this document.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">obspy</span>
+
+<span class="n">event_longitude</span> <span class="o">=</span> <span class="mf">126.42</span>
+<span class="n">event_latitude</span> <span class="o">=</span> <span class="mf">1.97</span>
+<span class="n">event_depth_in_km</span> <span class="o">=</span> <span class="mf">37.3</span>
+
+<span class="n">station_longitude</span> <span class="o">=</span> <span class="o">-</span><span class="mf">123.24</span>
+<span class="n">station_latitude</span> <span class="o">=</span> <span class="mf">43.12</span>
+
+<span class="n">max_period</span> <span class="o">=</span> <span class="mf">100.0</span>
+<span class="n">min_period</span> <span class="o">=</span> <span class="mf">20.0</span>
+
+<span class="n">cmt_time</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">UTCDateTime</span><span class="p">(</span><span class="mi">2014</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mf">50.26</span><span class="p">)</span>
+
+<span class="c"># Desired properties after the data processing.</span>
+<span class="n">sampling_rate</span> <span class="o">=</span> <span class="mf">1.0</span>
+<span class="n">npts</span> <span class="o">=</span> <span class="mi">3600</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="map-of-source-and-receiver">
+<h3>Map of Source and Receiver<a class="headerlink" href="#map-of-source-and-receiver" title="Permalink to this headline">¶</a></h3>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="kn">as</span> <span class="nn">sns</span>
+<span class="kn">from</span> <span class="nn">mpl_toolkits.basemap</span> <span class="kn">import</span> <span class="n">Basemap</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+<span class="c"># Equal area mollweide projection.</span>
+<span class="n">m</span> <span class="o">=</span> <span class="n">Basemap</span><span class="p">(</span><span class="n">projection</span><span class="o">=</span><span class="s">&quot;moll&quot;</span><span class="p">,</span> <span class="n">lon_0</span><span class="o">=</span><span class="mf">180.0</span><span class="p">,</span> <span class="n">resolution</span><span class="o">=</span><span class="s">&quot;c&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">drawmapboundary</span><span class="p">(</span><span class="n">fill_color</span><span class="o">=</span><span class="s">&quot;#cccccc&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">fillcontinents</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s">&quot;white&quot;</span><span class="p">,</span> <span class="n">lake_color</span><span class="o">=</span><span class="s">&quot;#cccccc&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">m</span><span class="o">.</span><span class="n">drawgreatcircle</span><span class="p">(</span><span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span>
+                  <span class="n">station_latitude</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;green&quot;</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;red&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">&quot;*&quot;</span><span class="p">,</span>
+          <span class="n">latlon</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">m</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">station_longitude</span><span class="p">,</span> <span class="n">station_latitude</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;blue&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s">&quot;v&quot;</span><span class="p">,</span>
+          <span class="n">latlon</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="_images/example_dataset_4_0.png" src="_images/example_dataset_4_0.png" />
+</div>
+</div>
+<div class="section" id="data">
+<h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
+<p><em>&#8220;Raw&#8221;</em> data.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">shakemovie_data</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;../src/pyadjoint/example_data/shakemovie_data.mseed&quot;</span><span class="p">)</span>
+<span class="n">instaseis_data</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s">&quot;../src/pyadjoint/example_data/instaseis_data.mseed&quot;</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">shakemovie_data</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">instaseis_data</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>3 Trace(s) in Stream:
+SY.DBO.S3.MXE | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
+SY.DBO.S3.MXN | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
+SY.DBO.S3.MXZ | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
+3 Trace(s) in Stream:
+SY.DBO..LXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
+SY.DBO..LXN | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
+SY.DBO..LXE | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
+</pre></div>
+</div>
+</div>
+<div class="section" id="data-processing">
+<h2>Data Processing<a class="headerlink" href="#data-processing" title="Permalink to this headline">¶</a></h2>
+<p>Both data and synthetics are processed to have similar spectral content
+and to ensure they are sampled at the same points in time. The
+processing applied is similar to the typical preprocessing workflow
+applied to data in full waveform inversions using adjoint techniques.
+This example lacks instrument removal as both data samples are
+synthetics.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">obspy.signal.invsim</span> <span class="kn">import</span> <span class="n">c_sac_taper</span>
+<span class="kn">from</span> <span class="nn">obspy.core.util.geodetics</span> <span class="kn">import</span> <span class="n">gps2DistAzimuth</span>
+
+<span class="n">f2</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">max_period</span>
+<span class="n">f3</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">min_period</span>
+<span class="n">f1</span> <span class="o">=</span> <span class="mf">0.8</span> <span class="o">*</span> <span class="n">f2</span>
+<span class="n">f4</span> <span class="o">=</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="n">f3</span>
+<span class="n">pre_filt</span> <span class="o">=</span> <span class="p">(</span><span class="n">f1</span><span class="p">,</span> <span class="n">f2</span><span class="p">,</span> <span class="n">f3</span><span class="p">,</span> <span class="n">f4</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">process_function</span><span class="p">(</span><span class="n">st</span><span class="p">):</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="s">&quot;linear&quot;</span><span class="p">)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="s">&quot;demean&quot;</span><span class="p">)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">taper</span><span class="p">(</span><span class="n">max_percentage</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;hann&quot;</span><span class="p">)</span>
+
+    <span class="c"># Perform a frequency domain taper like during the response removal</span>
+    <span class="c"># just without an actual response...</span>
+    <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">tr</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c"># smart calculation of nfft dodging large primes</span>
+        <span class="kn">from</span> <span class="nn">obspy.signal.util</span> <span class="kn">import</span> <span class="n">_npts2nfft</span>
+        <span class="n">nfft</span> <span class="o">=</span> <span class="n">_npts2nfft</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+
+        <span class="n">fy</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">)</span>
+        <span class="n">freqs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">fy</span><span class="p">,</span> <span class="n">nfft</span> <span class="o">//</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c"># Transform data to Frequency domain</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">nfft</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">*=</span> <span class="n">c_sac_taper</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">flimit</span><span class="o">=</span><span class="n">pre_filt</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.0j</span>
+        <span class="c"># transform data back into the time domain</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span>
+        <span class="c"># assign processed data and store processing information</span>
+        <span class="n">tr</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+
+    <span class="n">st</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="s">&quot;linear&quot;</span><span class="p">)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">detrend</span><span class="p">(</span><span class="s">&quot;demean&quot;</span><span class="p">)</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">taper</span><span class="p">(</span><span class="n">max_percentage</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s">&quot;hann&quot;</span><span class="p">)</span>
+
+    <span class="n">st</span><span class="o">.</span><span class="n">interpolate</span><span class="p">(</span><span class="n">sampling_rate</span><span class="o">=</span><span class="n">sampling_rate</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="n">cmt_time</span><span class="p">,</span>
+                   <span class="n">npts</span><span class="o">=</span><span class="n">npts</span><span class="p">)</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">baz</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">gps2DistAzimuth</span><span class="p">(</span><span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span>
+                                <span class="n">event_latitude</span><span class="p">,</span> <span class="n">event_longitude</span><span class="p">)</span>
+
+    <span class="n">components</span> <span class="o">=</span> <span class="p">[</span><span class="n">tr</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">tr</span> <span class="ow">in</span> <span class="n">st</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s">&quot;N&quot;</span> <span class="ow">in</span> <span class="n">components</span> <span class="ow">and</span> <span class="s">&quot;E&quot;</span> <span class="ow">in</span> <span class="n">components</span><span class="p">:</span>
+        <span class="n">st</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s">&quot;NE-&gt;RT&quot;</span><span class="p">,</span> <span class="n">back_azimuth</span><span class="o">=</span><span class="n">baz</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">st</span>
+</pre></div>
+</div>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># From now one we will refer to them as observed data and synthetics.</span>
+<span class="n">observed</span> <span class="o">=</span> <span class="n">process_function</span><span class="p">(</span><span class="n">shakemovie_data</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+<span class="n">synthetic</span> <span class="o">=</span> <span class="n">process_function</span><span class="p">(</span><span class="n">instaseis_data</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">synthetic</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>---------------------------------------------------------------------------
+NameError                                 Traceback (most recent call last)
+
+&lt;ipython-input-5-a6f1bae8e3fd&gt; in &lt;module&gt;()
+      1 # From now one we will refer to them as observed data and synthetics.
+----&gt; 2 observed = process_function(shakemovie_data.copy())
+      3 synthetic = process_function(instaseis_data.copy())
+      4
+      5 print(observed)
+
+
+&lt;ipython-input-4-68c398353454&gt; in process_function(st)
+     16     # just without an actual response...
+     17     for tr in st:
+---&gt; 18         data = tr.data.astype(np.float64)
+     19
+     20         # smart calculation of nfft dodging large primes
+
+
+NameError: name &#39;np&#39; is not defined
+</pre></div>
+</div>
+</div>
+<div class="section" id="data-plots">
+<h2>Data Plots<a class="headerlink" href="#data-plots" title="Permalink to this headline">¶</a></h2>
+<p>We first define a function to plot both data sets.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">obspy.core.util</span> <span class="kn">import</span> <span class="n">geodetics</span>
+<span class="kn">from</span> <span class="nn">obspy.taup</span> <span class="kn">import</span> <span class="n">getTravelTimes</span>
+
+<span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">sampling_rate</span> <span class="o">*</span> <span class="n">npts</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">311</span><span class="p">)</span>
+
+    <span class="n">obs_z</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">syn_z</span> <span class="o">=</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">obs_r</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;R&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">syn_r</span> <span class="o">=</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;R&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">obs_t</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;T&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">syn_t</span> <span class="o">=</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;T&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">y_range</span> <span class="o">=</span> <span class="p">[</span><span class="n">obs_z</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">obs_z</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+               <span class="n">syn_z</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">syn_z</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+               <span class="n">obs_r</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">obs_r</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+               <span class="n">syn_r</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">syn_r</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+               <span class="n">obs_t</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">obs_t</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+               <span class="n">syn_t</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">syn_t</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">start</span><span class="p">:</span> <span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
+    <span class="n">y_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">abs</span><span class="p">,</span> <span class="n">y_range</span><span class="p">))</span>
+    <span class="n">y_range</span> <span class="o">*=</span> <span class="mf">1.1</span>
+
+    <span class="n">dist_in_deg</span> <span class="o">=</span> <span class="n">geodetics</span><span class="o">.</span><span class="n">locations2degrees</span><span class="p">(</span>
+        <span class="n">station_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span>
+        <span class="n">event_latitude</span><span class="p">,</span> <span class="n">event_longitude</span><span class="p">)</span>
+    <span class="n">tts</span> <span class="o">=</span> <span class="n">getTravelTimes</span><span class="p">(</span><span class="n">dist_in_deg</span><span class="p">,</span> <span class="n">event_depth_in_km</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="s">&quot;ak135&quot;</span><span class="p">)</span>
+    <span class="n">x_range</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="n">start</span>
+    <span class="n">tts</span> <span class="o">=</span> <span class="p">[</span><span class="n">_i</span> <span class="k">for</span> <span class="n">_i</span> <span class="ow">in</span> <span class="n">tts</span>
+           <span class="k">if</span> <span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">x_range</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_i</span><span class="p">[</span><span class="s">&quot;time&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">end</span> <span class="o">-</span> <span class="mf">0.05</span> <span class="o">*</span> <span class="n">x_range</span><span class="p">)]</span>
+
+    <span class="k">def</span> <span class="nf">plot_tts</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">_i</span><span class="p">,</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tts</span><span class="p">):</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">_i</span> <span class="o">%</span> <span class="mi">2</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+            <span class="n">va</span> <span class="o">=</span> <span class="s">&quot;top&quot;</span> <span class="k">if</span> <span class="n">f</span> <span class="ow">is</span> <span class="mi">1</span> <span class="k">else</span> <span class="s">&quot;bottom&quot;</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">tt</span><span class="p">[</span><span class="s">&quot;time&quot;</span><span class="p">],</span> <span class="n">f</span> <span class="o">*</span> <span class="n">y_range</span> <span class="o">*</span> <span class="mf">0.96</span><span class="p">,</span> <span class="n">tt</span><span class="p">[</span><span class="s">&quot;phase_name&quot;</span><span class="p">],</span>
+                     <span class="n">color</span><span class="o">=</span><span class="s">&quot;0.2&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s">&quot;center&quot;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="n">va</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="s">&quot;900&quot;</span><span class="p">,</span>
+                     <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">obs_z</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">obs_z</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;observed&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">syn_z</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">syn_z</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;red&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;synthetic&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">show_tts</span><span class="p">:</span>
+        <span class="n">plot_tts</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="n">y_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Velocity in m/s&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Vertical component&quot;</span><span class="p">)</span>
+
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">312</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">obs_r</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">obs_r</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;observed&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">syn_r</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">syn_r</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;red&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;synthetic&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">show_tts</span><span class="p">:</span>
+        <span class="n">plot_tts</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="n">y_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Velocity in m/s&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Radial component&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">313</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">obs_t</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">obs_t</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;observed&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">syn_t</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">syn_t</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;red&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;synthetic&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">show_tts</span><span class="p">:</span>
+        <span class="n">plot_tts</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">&quot;Velocity in m/s&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="n">y_range</span><span class="p">,</span> <span class="n">y_range</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Seconds since event&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s">&quot;Transverse component&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">();</span>
+</pre></div>
+</div>
+<div class="section" id="plot-of-all-data">
+<h3>Plot of All Data<a class="headerlink" href="#plot-of-all-data" title="Permalink to this headline">¶</a></h3>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="plot-of-first-arrivals">
+<h3>Plot of First Arrivals<a class="headerlink" href="#plot-of-first-arrivals" title="Permalink to this headline">¶</a></h3>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="plot-of-some-later-arrivals">
+<h3>Plot of Some Later Arrivals<a class="headerlink" href="#plot-of-some-later-arrivals" title="Permalink to this headline">¶</a></h3>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">(</span><span class="mi">1400</span><span class="p">,</span> <span class="mi">1900</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Example Data Set used in Pyadjoint</a><ul>
+<li><a class="reference internal" href="#source-and-receiver">Source and Receiver</a><ul>
+<li><a class="reference internal" href="#setup-variables">Setup Variables</a></li>
+<li><a class="reference internal" href="#map-of-source-and-receiver">Map of Source and Receiver</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#data">Data</a></li>
+<li><a class="reference internal" href="#data-processing">Data Processing</a></li>
+<li><a class="reference internal" href="#data-plots">Data Plots</a><ul>
+<li><a class="reference internal" href="#plot-of-all-data">Plot of All Data</a></li>
+<li><a class="reference internal" href="#plot-of-first-arrivals">Plot of First Arrivals</a></li>
+<li><a class="reference internal" href="#plot-of-some-later-arrivals">Plot of Some Later Arrivals</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation index</a><ul>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2015, Lion Krischer.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+  </div>
+  
+  </body>
+</html>

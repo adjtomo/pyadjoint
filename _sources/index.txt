@@ -66,3 +66,6 @@ channels.
     import logging
     logger = logging.getLogger("pyadjoint")
     logger.setLevel(logging.DEBUG)
+                
+:doc:`example_dataset`
+                
