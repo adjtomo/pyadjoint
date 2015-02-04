@@ -24,8 +24,8 @@ before_install:
   - sudo rm -rf /dev/shm
   - sudo ln -s /run/shm /dev/shm
   - conda install --yes python=$TRAVIS_PYTHON_VERSION atlas numpy scipy matplotlib nose pytest flake8 sphinx lxml sqlalchemy mock ipython-notebook nose
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install --use-mirrors sphinx-readable-theme ; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install --use-mirrors runipy ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then pip install --use-mirrors sphinx-readable-theme runipy; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then conda install --yes basemap seaborn; fi
   - pip install --use-mirrors future
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install obspy ; fi
   - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then pip install obspy ; fi
@@ -38,7 +38,7 @@ install:
 
 script:
   - coverage run --source=src/pyadjoint -m pyadjoint.tests
-  - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
 
 after_success:
   - cd $TRAVIS_BUILD_DIR; coveralls
