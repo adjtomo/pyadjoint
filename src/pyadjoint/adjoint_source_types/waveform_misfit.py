@@ -14,19 +14,39 @@ sources to Pyadjoint.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from scipy.integrate import simps
+
 from ..utils import generic_adjoint_source_plot, taper_window
 
 
+# This is the verbose and pretty name of the adjoint source defined in this
+# function.
 VERBOSE_NAME = "Waveform Misfit"
 
+# Long and detailed description of the adjoint source defined in this file.
+# Don't spare any details. This will be rendered as restructured text in the
+# documentation.
 DESCRIPTION = r"""
 This is the simplest of all misfits and is defined as the squared difference
-of observed and synthetic data.
+of observed and synthetic data. The misfit :math:`\chi(\bm{m})` for a given
+Earth model :math:`\bm{m}` and a single receiver and component is given by
 
 .. math::
 
-    \frac{1}{2} \int_0^T
+    \chi (\bm{m}) = \frac{1}{2} \int_0^T \left| \bm{d}(t) - \bm{s}(t, \bm{m})
+    \right| ^ 2 dt
 
+:math:`\bm{d}(t)` is the observed data and :math:`\bm{s}(t, \bm{m})` the
+synthetic data.
+
+The adjoint source for the same receiver and component is given by
+
+.. math::
+
+    f^{\dag}(t) = - \left[ \bm{d}(T - t) - \bm{s}(T - t, \bm{m}) \right]
+
+For the sake of simplicity we omit the spatial Kronecker delta and define
+the source as acting only at the receiver's location.
 """
 
 
@@ -75,9 +95,12 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     s = synthetic.data
 
     diff = d - s
-    ret_val["misfit"] = 0.5 * (diff ** 2).sum()
+
+    # Integrate with the composite Simpson's rule.
+    ret_val["misfit"] = 0.5 * simps(y=diff ** 2, dx=observed.stats.delta)
 
     if adjoint_src is True:
+        # Reverse in time and reverse the actual values.
         ret_val["adjoint_source"] = (-1.0 * diff)[::-1]
 
     if figure:
