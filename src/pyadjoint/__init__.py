@@ -10,7 +10,6 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 from future.builtins import *  # NOQA
 
-import collections
 import logging
 
 
@@ -30,13 +29,6 @@ class PyadjointWarning(UserWarning):
     pass
 
 
-Event = collections.namedtuple("Event", ["latitude", "longitude",
-                                         "depth_in_m", "origin_time"])
-
-
-Station = collections.namedtuple("Station", ["latitude", "longitude"])
-
-
 __version__ = "0.0.1a"
 
 
@@ -52,3 +44,7 @@ FORMAT = "[%(asctime)s] - %(name)s - %(levelname)s: %(message)s"
 formatter = logging.Formatter(FORMAT)
 ch.setFormatter(formatter)
 logger.addHandler(ch)
+
+
+# Main objects and functions available at the top level.
+from .adjoint_source import AdjointSource, calculate_adjoint_source  # NOQA

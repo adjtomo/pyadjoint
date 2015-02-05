@@ -11,16 +11,43 @@ Adjoint source class definition.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import inspect
+import matplotlib.pylab as plt
 import numpy as np
 import obspy
+import os
+import pkgutil
 import warnings
 
 from . import PyadjointError, PyadjointWarning
 
 
 class AdjointSource(object):
-    def __init__(self, adj_src_type):
+    # Dictionary of available adjoint source. The key is the name, the value
+    # the function to call.
+    _ad_srcs = {}
+
+    def __init__(self, adj_src_type, misfit, dt, component,
+                 adjoint_source=None, network=None, station=None):
+        if adj_src_type not in self._ad_srcs:
+            raise ValueError("Unknown adjoint source type '%s'." %
+                             adj_src_type)
         self.adj_src_type = adj_src_type
+        self.adj_src_name = self._ad_srcs[adj_src_type][1]
+        self.misfit = misfit
+        self.dt = dt
+        self.component = component
+        self.network = network
+        self.station = station
+        self.adjoint_source = adjoint_source
+
+    def __str__(self):
+        return (
+            "{name} Adjoint Source for component {component}\n"
+        ).format(
+            name=self.adj_src_name,
+            component=self.component
+        )
 
 
 def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
@@ -60,12 +87,62 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
     :param plot: Also produce a plot of the adjoint source. This will force
         the adjoint source to be calculated regardless of the value of
         ``adjoint_src``.
-    :type plot: bool
+    :type plot: bool or empty :class:`matplotlib.figure.Figure` instance
     :param plot_filename: If given, the plot of the adjoint source will be
         saved there. Only used if ``plot`` is ``True``.
     :type plot_filename: str
     """
     observed, synthetic = _sanity_checks(observed, synthetic)
+
+    if adj_src_type not in AdjointSource._ad_srcs:
+        raise PyadjointError(
+            "Adjoint Source type '%s' is unknown. Available types: %s" % (
+                adj_src_type, ", ".join(
+                    sorted(AdjointSource._ad_srcs.keys()))))
+
+    fct = AdjointSource._ad_srcs[adj_src_type]
+
+    if plot:
+        # The plot kwargs overwrites the adjoint_src kwarg.
+        adjoint_src = True
+        if plot is True:
+            figure = plt.figure(figsize=(12, 6))
+        else:
+            # Assume plot is a preexisting figure instance
+            figure = plot
+    else:
+        figure = None
+    try:
+        ret_val = fct(observed=observed, syntehtic=synthetic,
+                      min_period=min_period, max_period=max_period,
+                      left_window_border=left_window_border,
+                      right_window_border=right_window_border,
+                      adjoint_src=adjoint_src, figure=figure, **kwargs)
+
+        if plot and plot_filename:
+            figure.savefig(plot_filename)
+    finally:
+        # Assure the figure is closed. Otherwise matplotlib will leak
+        # memory. If the figure has been created outside of Pyadjoint,
+        # it will not be closed.
+        if plot is True:
+            plt.close()
+
+    if adjoint_src and "adjoint_source" not in ret_val:
+        raise PyadjointError("The actual adjoint source was not calculated "
+                             "by the underlying function although it was "
+                             "requested.")
+
+    misfit = ret_val["misfit"]
+    adjoint_source = ret_val["adjoint_source"] if adjoint_src else None
+
+    return AdjointSource(adj_src_type, misfit=misfit,
+                         adjoint_source=adjoint_source,
+                         dt=observed.stats.delta,
+                         network=observed.stats.network,
+                         station=observed.stats.station,
+                         component=observed.stats.channel[-1])
+
 
 
 def _sanity_checks(observed, synthetic):
@@ -131,3 +208,51 @@ def _sanity_checks(observed, synthetic):
                                 requirements=["C"])
 
     return observed, synthetic
+
+
+def _discover_adjoint_sources():
+    """
+    Discovers the available adjoint sources. This should work no matter if
+    pyadjoint is checked out from git, packaged as .egg or in any other
+    possibility.
+    """
+    from . import adjoint_source_types
+
+    AdjointSource._ad_srcs = {}
+
+    FCT_NAME = "calculate_adjoint_source"
+    NAME_ATTR = "VERBOSE_NAME"
+    DESC_ATTR = "DESCRIPTION"
+
+    path = os.path.join(
+        os.path.dirname(inspect.getfile(inspect.currentframe())),
+        "adjoint_source_types")
+    for importer, modname, _ in pkgutil.iter_modules(
+            [path], prefix=adjoint_source_types.__name__ + "."):
+        m = importer.find_module(modname).load_module(modname)
+        if not hasattr(m, FCT_NAME):
+            continue
+        fct = getattr(m, FCT_NAME)
+        if not callable(fct):
+            continue
+
+        name = modname.split('.')[-1]
+
+        if not hasattr(m, NAME_ATTR):
+            raise PyadjointError(
+                "Adjoint source '%s' does not have a variable named %s." %
+                (name, NAME_ATTR))
+
+        if not hasattr(m, DESC_ATTR):
+            raise PyadjointError(
+                "Adjoint source '%s' does not have a variable named %s." %
+                (name, DESC_ATTR))
+
+        # Add tuple of name, verbose name, and description.
+        AdjointSource._ad_srcs[name] = (
+            fct,
+            getattr(m, NAME_ATTR),
+            getattr(m, DESC_ATTR))
+
+
+_discover_adjoint_sources()
