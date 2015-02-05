@@ -81,6 +81,7 @@ network from the Shakemovie project):</p>
 <h3>Setup Variables<a class="headerlink" href="#setup-variables" title="Permalink to this headline">¶</a></h3>
 <p>Sets up some values we&#8217;ll need throughout this document.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">obspy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
 
 <span class="n">event_longitude</span> <span class="o">=</span> <span class="mf">126.42</span>
 <span class="n">event_latitude</span> <span class="o">=</span> <span class="mf">1.97</span>
@@ -214,26 +215,14 @@ synthetics.</p>
 <span class="k">print</span><span class="p">(</span><span class="n">synthetic</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>---------------------------------------------------------------------------
-NameError                                 Traceback (most recent call last)
-
-&lt;ipython-input-5-a6f1bae8e3fd&gt; in &lt;module&gt;()
-      1 # From now one we will refer to them as observed data and synthetics.
-----&gt; 2 observed = process_function(shakemovie_data.copy())
-      3 synthetic = process_function(instaseis_data.copy())
-      4
-      5 print(observed)
-
-
-&lt;ipython-input-4-68c398353454&gt; in process_function(st)
-     16     # just without an actual response...
-     17     for tr in st:
----&gt; 18         data = tr.data.astype(np.float64)
-     19
-     20         # smart calculation of nfft dodging large primes
-
-
-NameError: name &#39;np&#39; is not defined
+<div class="highlight-python"><div class="highlight"><pre>3 Trace(s) in Stream:
+SY.DBO.S3.MXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+SY.DBO.S3.MXR | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+SY.DBO.S3.MXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+3 Trace(s) in Stream:
+SY.DBO..LXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+SY.DBO..LXR | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+SY.DBO..LXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
 </pre></div>
 </div>
 </div>
@@ -325,18 +314,21 @@ NameError: name &#39;np&#39; is not defined
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">()</span>
 </pre></div>
 </div>
+<img alt="_images/example_dataset_13_0.png" src="_images/example_dataset_13_0.png" />
 </div>
 <div class="section" id="plot-of-first-arrivals">
 <h3>Plot of First Arrivals<a class="headerlink" href="#plot-of-first-arrivals" title="Permalink to this headline">¶</a></h3>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
+<img alt="_images/example_dataset_15_0.png" src="_images/example_dataset_15_0.png" />
 </div>
 <div class="section" id="plot-of-some-later-arrivals">
 <h3>Plot of Some Later Arrivals<a class="headerlink" href="#plot-of-some-later-arrivals" title="Permalink to this headline">¶</a></h3>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">(</span><span class="mi">1400</span><span class="p">,</span> <span class="mi">1900</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
+<img alt="_images/example_dataset_17_0.png" src="_images/example_dataset_17_0.png" />
 </div>
 </div>
 </div>

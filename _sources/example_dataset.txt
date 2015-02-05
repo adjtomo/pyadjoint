@@ -48,6 +48,7 @@ Sets up some values we'll need throughout this document.
 .. code:: python
 
     import obspy
+    import numpy as np
     
     event_longitude = 126.42
     event_latitude = 1.97
@@ -188,29 +189,16 @@ synthetics.
     print(observed)
     print(synthetic)
 
-::
+.. parsed-literal::
 
-
-    ---------------------------------------------------------------------------
-    NameError                                 Traceback (most recent call last)
-
-    <ipython-input-5-a6f1bae8e3fd> in <module>()
-          1 # From now one we will refer to them as observed data and synthetics.
-    ----> 2 observed = process_function(shakemovie_data.copy())
-          3 synthetic = process_function(instaseis_data.copy())
-          4 
-          5 print(observed)
-
-
-    <ipython-input-4-68c398353454> in process_function(st)
-         16     # just without an actual response...
-         17     for tr in st:
-    ---> 18         data = tr.data.astype(np.float64)
-         19 
-         20         # smart calculation of nfft dodging large primes
-
-
-    NameError: name 'np' is not defined
+    3 Trace(s) in Stream:
+    SY.DBO.S3.MXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+    SY.DBO.S3.MXR | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+    SY.DBO.S3.MXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+    3 Trace(s) in Stream:
+    SY.DBO..LXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+    SY.DBO..LXR | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
+    SY.DBO..LXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
 
 
 Data Plots
@@ -304,15 +292,30 @@ Plot of All Data
 .. code:: python
 
     plot_data()
+
+
+.. image:: example_dataset_files/example_dataset_13_0.png
+
+
 Plot of First Arrivals
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
     plot_data(700, 1200, show_tts=True)
+
+
+.. image:: example_dataset_files/example_dataset_15_0.png
+
+
 Plot of Some Later Arrivals
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
     plot_data(1400, 1900, show_tts=True)
+
+
+.. image:: example_dataset_files/example_dataset_17_0.png
+
+
