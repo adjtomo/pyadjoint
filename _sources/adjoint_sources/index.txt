@@ -1,0 +1,8 @@
+===============
+Adjoint Sources
+===============
+
+``Pyadjoint`` currently contains the following adjoint sources:
+
+
+:doc:`waveform_misfit`

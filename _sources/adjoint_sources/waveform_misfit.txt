@@ -1,0 +1,10 @@
+===============
+Waveform Misfit
+===============
+
+This is the simplest of all misfits and is defined as the squared difference
+of observed and synthetic data.
+
+.. math::
+
+    \frac{1}{2} \int_0^T

@@ -60,6 +60,11 @@
 <span class="sd">:license:</span>
 <span class="sd">    BSD 3-Clause (&quot;BSD New&quot; or &quot;BSD Simplified&quot;)</span>
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">obspy</span>
 
 
 <div class="viewcode-block" id="taper_window"><a class="viewcode-back" href="../../utils.html#pyadjoint.utils.taper_window">[docs]</a><span class="k">def</span> <span class="nf">taper_window</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">left_border_in_seconds</span><span class="p">,</span> <span class="n">right_border_in_seconds</span><span class="p">,</span>
@@ -117,7 +122,103 @@
     <span class="n">trace</span><span class="o">.</span><span class="n">taper</span><span class="p">(</span><span class="n">max_percentage</span><span class="o">=</span><span class="n">taper_percentage</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">taper_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="n">trace</span><span class="o">.</span><span class="n">trim</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="c"># Enable method chaining.</span>
-    <span class="k">return</span> <span class="n">trace</span></div>
+    <span class="k">return</span> <span class="n">trace</span>
+
+</div>
+<div class="viewcode-block" id="get_example_data"><a class="viewcode-back" href="../../utils.html#pyadjoint.utils.get_example_data">[docs]</a><span class="k">def</span> <span class="nf">get_example_data</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function returning example data for Pyadjoint.</span>
+
+<span class="sd">    The returned data is fully preprocessed and ready to be used with Pyflex.</span>
+
+<span class="sd">    :returns: Tuple of observed and synthetic streams</span>
+<span class="sd">    :rtype: tuple of :class:`obspy.core.stream.Stream` objects</span>
+
+<span class="sd">    .. rubric:: Example</span>
+
+<span class="sd">    &gt;&gt;&gt; from pyadjoint.utils import get_example_data</span>
+<span class="sd">    &gt;&gt;&gt; observed, synthetic = get_example_data()</span>
+<span class="sd">    &gt;&gt;&gt; print(observed)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">    3 Trace(s) in Stream:</span>
+<span class="sd">    SY.DBO.S3.MXR | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples</span>
+<span class="sd">    SY.DBO.S3.MXT | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples</span>
+<span class="sd">    SY.DBO.S3.MXZ | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples</span>
+<span class="sd">    &gt;&gt;&gt; print(synthetic)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE</span>
+<span class="sd">    3 Trace(s) in Stream:</span>
+<span class="sd">    SY.DBO..LXR   | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples</span>
+<span class="sd">    SY.DBO..LXT   | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples</span>
+<span class="sd">    SY.DBO..LXZ   | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())),</span>
+        <span class="s">&quot;example_data&quot;</span><span class="p">)</span>
+    <span class="n">observed</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;observed_processed.mseed&quot;</span><span class="p">))</span>
+    <span class="n">observed</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+    <span class="n">synthetic</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s">&quot;synthetic_processed.mseed&quot;</span><span class="p">))</span>
+    <span class="n">synthetic</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span>
+
+</div>
+<div class="viewcode-block" id="generic_adjoint_source_plot"><a class="viewcode-back" href="../../utils.html#pyadjoint.utils.generic_adjoint_source_plot">[docs]</a><span class="k">def</span> <span class="nf">generic_adjoint_source_plot</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">adjoint_source</span><span class="p">,</span> <span class="n">misfit</span><span class="p">,</span>
+                                <span class="n">left_window_border</span><span class="p">,</span> <span class="n">right_window_border</span><span class="p">,</span>
+                                <span class="n">adjoint_source_name</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generic plotting function for adjoint sources and data.</span>
+
+<span class="sd">    Many types of adjoint sources can be represented in the same manner.</span>
+<span class="sd">    This is a convenience function that can be called by different</span>
+<span class="sd">    the implementations for different adjoint sources.</span>
+
+<span class="sd">    :param observed: The observed data.</span>
+<span class="sd">    :type observed: :class:`obspy.core.trace.Trace`</span>
+<span class="sd">    :param synthetic: The synthetic data.</span>
+<span class="sd">    :type synthetic: :class:`obspy.core.trace.Trace`</span>
+<span class="sd">    :param adjoint_source: The adjoint source.</span>
+<span class="sd">    :type adjoint_source: `numpy.ndarray`</span>
+<span class="sd">    :param misfit: The associated misfit value.</span>
+<span class="sd">    :float misfit: misfit value</span>
+<span class="sd">    :param left_window_border: Left border of the window to be tapered in</span>
+<span class="sd">        seconds since the first sample in the data arrays.</span>
+<span class="sd">    :type left_window_border: float</span>
+<span class="sd">    :param right_window_border: Right border of the window to be tapered in</span>
+<span class="sd">        seconds since the first sample in the data arrays.</span>
+<span class="sd">    :type right_window_border: float</span>
+<span class="sd">    :param adjoint_source_name: The name of the adjoint source.</span>
+<span class="sd">    :type adjoint_source_name: str</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x_range</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">endtime</span> <span class="o">-</span> <span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span>
+    <span class="n">buf</span> <span class="o">=</span> <span class="p">(</span><span class="n">right_window_border</span> <span class="o">-</span> <span class="n">left_window_border</span><span class="p">)</span> <span class="o">*</span> <span class="mf">1.0</span>
+    <span class="n">left_window_border</span> <span class="o">-=</span> <span class="n">buf</span>
+    <span class="n">right_window_border</span> <span class="o">+=</span> <span class="n">buf</span>
+    <span class="n">left_window_border</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">left_window_border</span><span class="p">)</span>
+    <span class="n">right_window_border</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">x_range</span><span class="p">,</span> <span class="n">right_window_border</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">211</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">observed</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">observed</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;0.2&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s">&quot;Observed&quot;</span><span class="p">,</span>
+             <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">synthetic</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;#bb474f&quot;</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s">&quot;Synthetic&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">left_window_border</span><span class="p">,</span> <span class="n">right_window_border</span><span class="p">)</span>
+    <span class="n">ylim</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">abs</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="n">ylim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">212</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">observed</span><span class="o">.</span><span class="n">times</span><span class="p">(),</span> <span class="n">adjoint_source</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s">&quot;#2f8d5b&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+             <span class="n">label</span><span class="o">=</span><span class="s">&quot;Adjoint Source&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fancybox</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">framealpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">x_range</span> <span class="o">-</span> <span class="n">right_window_border</span><span class="p">,</span> <span class="n">x_range</span> <span class="o">-</span> <span class="n">left_window_border</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">&quot;Time in seconds since first sample&quot;</span><span class="p">)</span>
+    <span class="n">ylim</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">abs</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">()))</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylim</span><span class="p">(</span><span class="o">-</span><span class="n">ylim</span><span class="p">,</span> <span class="n">ylim</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s">&quot;</span><span class="si">%s</span><span class="s"> Adjoint Source with a Misfit of </span><span class="si">%.3g</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+        <span class="n">adjoint_source_name</span><span class="p">,</span> <span class="n">misfit</span><span class="p">))</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span></div>
 </pre></div>
 
           </div>

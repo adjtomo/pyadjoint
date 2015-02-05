@@ -69,4 +69,5 @@ channels.
                 
 :doc:`example_dataset`
 :doc:`utils`
+:doc:`adjoint_sources/index`
                 
