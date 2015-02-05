@@ -41,7 +41,7 @@ for key, value in srcs:
             upper="=" * len(value[1].strip()),
             name=value[1].strip(),
             lower="=" * len(value[1].strip()),
-            description=value[2].strip()
+            description=value[2].lstrip()
         ))
 
 INDEX = """
