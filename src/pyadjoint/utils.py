@@ -8,6 +8,10 @@ Utility functions for Pyadjoint.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
+import inspect
+import os
+
+import obspy
 
 
 def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
@@ -66,3 +70,38 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
     trace.trim(s, e, pad=True, fill_value=0.0)
     # Enable method chaining.
     return trace
+
+
+def get_example_data():
+    """
+    Helper function returning example data for Pyadjoint.
+
+    The returned data is fully preprocessed and ready to be used with Pyflex.
+
+    :returns: Tuple of observed and synthetic streams
+    :rtype: tuple of :class:`obspy.core.stream.Stream` objects
+
+    .. rubric:: Example
+
+    >>> from pyadjoint.utils import get_example_data
+    >>> observed, synthetic = get_example_data()
+    >>> print(observed)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    3 Trace(s) in Stream:
+    SY.DBO.S3.MXR | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples
+    SY.DBO.S3.MXT | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples
+    SY.DBO.S3.MXZ | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples
+    >>> print(synthetic)  # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+    3 Trace(s) in Stream:
+    SY.DBO..LXR   | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples
+    SY.DBO..LXT   | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples
+    SY.DBO..LXZ   | 2014-11-15T02:31:50.259999Z - ... | 1.0 Hz, 3600 samples
+    """
+    path = os.path.join(
+        os.path.dirname(inspect.getfile(inspect.currentframe())),
+        "example_data")
+    observed = obspy.read(os.path.join(path, "observed_processed.mseed"))
+    observed.sort()
+    synthetic = obspy.read(os.path.join(path, "synthetic_processed.mseed"))
+    synthetic.sort()
+
+    return observed, synthetic
