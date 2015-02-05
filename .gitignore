@@ -3,6 +3,7 @@
 */__pycache__
 /doc/index.rst
 /doc/example_dataset.rst
+/doc/adjoint_sources/
 /doc/_build/*
 /doc/index_files/*
 /doc/example_dataset_files/*

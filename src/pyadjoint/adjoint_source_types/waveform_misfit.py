@@ -19,7 +19,7 @@ from ..utils import generic_adjoint_source_plot, taper_window
 
 VERBOSE_NAME = "Waveform Misfit"
 
-DESCRIPTION = """
+DESCRIPTION = r"""
 This is the simplest of all misfits and is defined as the squared difference
 of observed and synthetic data.
 

@@ -52,6 +52,7 @@ clean:
 html:
 	python ./convert.py index
 	python ./convert.py example_dataset
+	python ./create_sphinx_files_for_adjoint_sources.py
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	rm -f windows.json
 	@echo
