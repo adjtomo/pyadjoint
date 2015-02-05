@@ -48,6 +48,10 @@ help:
 
 clean:
 	rm -rf $(BUILDDIR)/*
+	rm -rf example_dataset.rst
+	rm -rf example_dataset_files
+	rm -rf index.rst
+	rm -rf adjoint_sources
 
 html:
 	python ./convert.py index

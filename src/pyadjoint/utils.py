@@ -57,6 +57,7 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
         tr = obspy.read()[0]
         tr.plot()
 
+    >>> from pyadjoint.utils import taper_window
     >>> taper_window(tr, 4, 11, taper_percentage=0.10, taper_type="hann")
     >>> tr.plot()
 

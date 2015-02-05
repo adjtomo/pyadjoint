@@ -246,6 +246,7 @@ def _discover_adjoint_sources():
     FCT_NAME = "calculate_adjoint_source"
     NAME_ATTR = "VERBOSE_NAME"
     DESC_ATTR = "DESCRIPTION"
+    ADD_ATTR = "ADDITIONAL_PARAMETERS"
 
     path = os.path.join(
         os.path.dirname(inspect.getfile(inspect.currentframe())),
@@ -275,7 +276,8 @@ def _discover_adjoint_sources():
         AdjointSource._ad_srcs[name] = (
             fct,
             getattr(m, NAME_ATTR),
-            getattr(m, DESC_ATTR))
+            getattr(m, DESC_ATTR),
+            getattr(m, ADD_ATTR) if hasattr(m, ADD_ATTR) else None)
 
 
 _discover_adjoint_sources()

@@ -27,11 +27,37 @@ TEMPLATE = """
 
 {description}
 
+{additional_parameters}
+
+Usage
+-----
+
+.. doctest::
+
+    >>> import pyadjoint
+    >>> obs, syn = pyadjoint.utils.get_example_data()
+    >>> obs = obs.select(component="Z")[0]
+    >>> syn = syn.select(component="Z")[0]
+    >>> start, end = pyadjoint.utils.EXAMPLE_DATA_PDIFF
+    >>> adj_src = pyadjoint.calculate_adjoint_source(
+    ...     adj_src_type="{short_name}", observed=obs, synthetic=syn,
+    ...     min_period=20.0, max_period=100.0, left_window_border=start,
+    ...     right_window_border=end)
+    >>> print(adj_src)
+    {name} Adjoint Source for component Z at station SY.DBO
+        Misfit: 4.26e-11
+        Adjoint source available with 3600 samples
+
 Example Plots
 -------------
 
+The following shows plots of the :doc:`../example_dataset` for some phases.
+
 Pdiff Phase on Vertical Component
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This example contains *Pdif* and some surface reflected diffracted phases
+recorded on the vertical component.
 
 .. plot::
 
@@ -50,6 +76,9 @@ Pdiff Phase on Vertical Component
 Sdiff Phase on Transverse Component
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+This example contains *Sdif* and some surface reflected diffracted phases
+recorded on the transverse component.
+
 .. plot::
 
     import pyadjoint
@@ -62,8 +91,20 @@ Sdiff Phase on Transverse Component
     pyadjoint.calculate_adjoint_source("{short_name}", obs, syn, 20.0, 100.0,
                                        start, end, adjoint_src=True, plot=fig)
     plt.show()
-
 """.lstrip()
+
+
+
+ADDITIONAL_PARAMETERS_TEMPLATE = """
+Additional Parameters
+---------------------
+
+Additional parameters in addition to the default ones in the central
+:func:`~pyadjoint.adjoint_source.calculate_adjoint_source` function.
+
+{params}
+""".strip()
+
 
 srcs = pyadjoint.AdjointSource._ad_srcs
 
@@ -73,13 +114,19 @@ srcs = sorted(srcs, key=lambda x: x[1][1])
 for key, value in srcs:
     filename = os.path.join(folder, "%s.rst" % key)
 
+    additional_params = ""
+    if value[3]:
+        additional_params = ADDITIONAL_PARAMETERS_TEMPLATE.format(
+            params=value[3])
+
     with open(filename, "wt") as fh:
         fh.write(TEMPLATE.format(
             upper="=" * len(value[1].strip()),
             name=value[1].strip(),
             lower="=" * len(value[1].strip()),
             description=value[2].lstrip(),
-            short_name=key
+            short_name=key,
+            additional_parameters=additional_params
         ))
 
 INDEX = """

@@ -28,54 +28,53 @@ VERBOSE_NAME = "Waveform Misfit"
 # documentation.
 DESCRIPTION = r"""
 This is the simplest of all misfits and is defined as the squared difference
-of observed and synthetic data. The misfit :math:`\chi(\bm{m})` for a given
-Earth model :math:`\bm{m}` and a single receiver and component is given by
+of observed and synthetic data. The misfit :math:`\chi(\mathbf{m})` for a given
+Earth model :math:`\mathbf{m}` and a single receiver and component is given by
 
 .. math::
 
-    \chi (\bm{m}) = \frac{1}{2} \int_0^T \left| \bm{d}(t) - \bm{s}(t, \bm{m})
-    \right| ^ 2 dt
+    \chi (\mathbf{m}) = \frac{1}{2} \int_0^T \left| \mathbf{d}(t) -
+    \mathbf{s}(t, \mathbf{m}) \right| ^ 2 dt
 
-:math:`\bm{d}(t)` is the observed data and :math:`\bm{s}(t, \bm{m})` the
-synthetic data.
+:math:`\mathbf{d}(t)` is the observed data and
+:math:`\mathbf{s}(t, \mathbf{m})` the synthetic data.
 
 The adjoint source for the same receiver and component is given by
 
 .. math::
 
-    f^{\dag}(t) = - \left[ \bm{d}(T - t) - \bm{s}(T - t, \bm{m}) \right]
+    f^{\dagger}(t) = - \left[ \mathbf{d}(T - t) -
+    \mathbf{s}(T - t, \mathbf{m}) \right]
 
 For the sake of simplicity we omit the spatial Kronecker delta and define
-the source as acting only at the receiver's location.
+the adjoint source as acting solely at the receiver's location. For more
+details, please see [Tromp2005]_ and [Bozdag2011]_.
+"""
+
+# Optional: document any additional parameters this particular adjoint sources
+# receives in addition to the ones passed to the central adjoint source
+# calculation function. Make sure to indicate the default values. This is a
+# bit redundant but the only way I could figure out to make it work with the
+#  rest of the architecture.
+ADDITIONAL_PARAMETERS = r"""
+**taper_percentage** (:class:`float`)
+    Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
+    ``0.5`` (50%)). Defauls to ``0.15``.
+
+**taper_type** (:class:`float`)
+    The taper type, supports anything :meth:`obspy.core.trace.Trace.taper`
+    can use. Defaults to ``"hann"``.
 """
 
 
+# Each adjoint source file must contain a calculate_adjoint_source()
+# function. It must take observed, synthetic, min_period, max_period,
+# left_window_border, right_window_border, adjoint_src, and figure as
+# parameters. Other optional keywork arguments are possible.
 def calculate_adjoint_source(observed, synthetic, min_period, max_period,
                              left_window_border, right_window_border,
                              adjoint_src, figure, taper_percentage=0.15,
                              taper_type="hann"):  # NOQA
-    """
-    :param observed: The observed data.
-    :type observed: :class:`obspy.core.trace.Trace`
-    :param synthetic: The synthetic data.
-    :type synthetic: :class:`obspy.core.trace.Trace`
-    :param min_period: The minimum period of the spectral content of the data.
-    :type min_period: float
-    :param max_period: The maximum period of the spectral content of the data.
-    :type max_period: float
-    :param left_window_border: Left border of the window to be tapered in
-        seconds since the first sample in the data arrays.
-    :type left_window_border: float
-    :param right_window_border: Right border of the window to be tapered in
-        seconds since the first sample in the data arrays.
-    :type right_window_border: float
-    :param adjoint_src: Only calculate the misfit or also derive
-        the adjoint source.
-    :type adjoint_src: bool
-    :param figure: If given, use it to plot a representation of the data and
-        adjoint source to it.
-    :type figure: :class:`matplotlib.figure.Figure`
-    """
     # There is no need to perform any sanity checks on the passed trace
     # object. At this point they will be guaranteed to have the same
     # sampling rate, be sampled at the same points in time and a couple

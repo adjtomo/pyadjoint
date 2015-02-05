@@ -22,6 +22,10 @@ import sphinx_readable_theme
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
 
+
+html_theme_path = [sphinx_readable_theme.get_html_theme_path()]
+html_theme = 'readable'
+
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -34,7 +38,8 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
-    'sphinx.ext.pngmath',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.doctest',
     'matplotlib.sphinxext.plot_directive'
 ]
 
@@ -114,9 +119,6 @@ pygments_style = 'sphinx'
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-
-html_theme_path = [sphinx_readable_theme.get_html_theme_path()]
-html_theme = 'readable'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
