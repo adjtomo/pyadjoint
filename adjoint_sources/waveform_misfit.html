@@ -23,6 +23,7 @@
     <script type="text/javascript" src="../_static/jquery.js"></script>
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Pyadjoint 0.0.1a documentation" href="../index.html" />
    
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -50,7 +51,71 @@
   <div class="section" id="waveform-misfit">
 <h1>Waveform Misfit<a class="headerlink" href="#waveform-misfit" title="Permalink to this headline">¶</a></h1>
 <p>This is the simplest of all misfits and is defined as the squared difference
-of observed and synthetic data.</p>
+of observed and synthetic data. The misfit <span class="math">\(\chi(\mathbf{m})\)</span> for a given
+Earth model <span class="math">\(\mathbf{m}\)</span> and a single receiver and component is given by</p>
+<div class="math">
+\[\chi (\mathbf{m}) = \frac{1}{2} \int_0^T \left| \mathbf{d}(t) -
+\mathbf{s}(t, \mathbf{m}) \right| ^ 2 dt\]</div>
+<p><span class="math">\(\mathbf{d}(t)\)</span> is the observed data and
+<span class="math">\(\mathbf{s}(t, \mathbf{m})\)</span> the synthetic data.</p>
+<p>The adjoint source for the same receiver and component is given by</p>
+<div class="math">
+\[f^{\dagger}(t) = - \left[ \mathbf{d}(T - t) -
+\mathbf{s}(T - t, \mathbf{m}) \right]\]</div>
+<p>For the sake of simplicity we omit the spatial Kronecker delta and define
+the adjoint source as acting solely at the receiver&#8217;s location. For more
+details, please see <a class="reference internal" href="../citations.html#tromp2005" id="id1">[Tromp2005]</a> and <a class="reference internal" href="../citations.html#bozdag2011" id="id2">[Bozdag2011]</a>.</p>
+<div class="section" id="additional-parameters">
+<h2>Additional Parameters<a class="headerlink" href="#additional-parameters" title="Permalink to this headline">¶</a></h2>
+<p>Additional parameters in addition to the default ones in the central
+<tt class="xref py py-func docutils literal"><span class="pre">calculate_adjoint_source()</span></tt> function.</p>
+<dl class="docutils">
+<dt><strong>taper_percentage</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">float</span></tt></a>)</dt>
+<dd>Decimal percentage of taper at one end (ranging from <tt class="docutils literal"><span class="pre">0.0</span></tt> (0%) to
+<tt class="docutils literal"><span class="pre">0.5</span></tt> (50%)). Defauls to <tt class="docutils literal"><span class="pre">0.15</span></tt>.</dd>
+<dt><strong>taper_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">float</span></tt></a>)</dt>
+<dd>The taper type, supports anything <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.taper.html#obspy.core.trace.Trace.taper" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-meth docutils literal"><span class="pre">obspy.core.trace.Trace.taper()</span></tt></a>
+can use. Defaults to <tt class="docutils literal"><span class="pre">&quot;hann&quot;</span></tt>.</dd>
+</dl>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">pyadjoint</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">EXAMPLE_DATA_PDIFF</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">adj_src</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">min_period</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">left_window_border</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">right_window_border</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">adj_src</span><span class="p">)</span>
+<span class="go">Waveform Misfit Adjoint Source for component Z at station SY.DBO</span>
+<span class="go">    Misfit: 4.26e-11</span>
+<span class="go">    Adjoint source available with 3600 samples</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="example-plots">
+<h2>Example Plots<a class="headerlink" href="#example-plots" title="Permalink to this headline">¶</a></h2>
+<p>The following shows plots of the <a class="reference internal" href="../example_dataset.html"><em>Example Data Set used in Pyadjoint</em></a> for some phases.</p>
+<div class="section" id="pdiff-phase-on-vertical-component">
+<h3>Pdiff Phase on Vertical Component<a class="headerlink" href="#pdiff-phase-on-vertical-component" title="Permalink to this headline">¶</a></h3>
+<p>This example contains <em>Pdif</em> and some surface reflected diffracted phases
+recorded on the vertical component.</p>
+<div class="figure">
+<img alt="../_images/waveform_misfit-1.png" src="../_images/waveform_misfit-1.png" />
+</div>
+</div>
+<div class="section" id="sdiff-phase-on-transverse-component">
+<h3>Sdiff Phase on Transverse Component<a class="headerlink" href="#sdiff-phase-on-transverse-component" title="Permalink to this headline">¶</a></h3>
+<p>This example contains <em>Sdif</em> and some surface reflected diffracted phases
+recorded on the transverse component.</p>
+<div class="figure">
+<img alt="../_images/waveform_misfit-2.png" src="../_images/waveform_misfit-2.png" />
+</div>
+</div>
+</div>
 </div>
 
 
@@ -58,7 +123,21 @@ of observed and synthetic data.</p>
         </div>
       </div>
       <div class="sphinxsidebar">
-        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Waveform Misfit</a><ul>
+<li><a class="reference internal" href="#additional-parameters">Additional Parameters</a></li>
+<li><a class="reference internal" href="#usage">Usage</a></li>
+<li><a class="reference internal" href="#example-plots">Example Plots</a><ul>
+<li><a class="reference internal" href="#pdiff-phase-on-vertical-component">Pdiff Phase on Vertical Component</a></li>
+<li><a class="reference internal" href="#sdiff-phase-on-transverse-component">Sdiff Phase on Transverse Component</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation index</a><ul>
   </ul></li>

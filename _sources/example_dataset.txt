@@ -319,3 +319,10 @@ Plot of Some Later Arrivals
 .. image:: example_dataset_files/example_dataset_17_0.png
 
 
+.. code:: python
+
+    plot_data(2000, 3000, show_tts=True)
+
+
+.. image:: example_dataset_files/example_dataset_18_0.png
+

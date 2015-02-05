@@ -23,6 +23,7 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Pyadjoint 0.0.1a documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
@@ -67,6 +68,10 @@
 <span class="kn">import</span> <span class="nn">obspy</span>
 
 
+<span class="n">EXAMPLE_DATA_PDIFF</span> <span class="o">=</span> <span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">900</span><span class="p">)</span>
+<span class="n">EXAMPLE_DATA_SDIFF</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1500</span><span class="p">,</span> <span class="mi">1600</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="taper_window"><a class="viewcode-back" href="../../utils.html#pyadjoint.utils.taper_window">[docs]</a><span class="k">def</span> <span class="nf">taper_window</span><span class="p">(</span><span class="n">trace</span><span class="p">,</span> <span class="n">left_border_in_seconds</span><span class="p">,</span> <span class="n">right_border_in_seconds</span><span class="p">,</span>
                  <span class="n">taper_percentage</span><span class="p">,</span> <span class="n">taper_type</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -105,6 +110,7 @@
 <span class="sd">        tr = obspy.read()[0]</span>
 <span class="sd">        tr.plot()</span>
 
+<span class="sd">    &gt;&gt;&gt; from pyadjoint.utils import taper_window</span>
 <span class="sd">    &gt;&gt;&gt; taper_window(tr, 4, 11, taper_percentage=0.10, taper_type=&quot;hann&quot;)</span>
 <span class="sd">    &gt;&gt;&gt; tr.plot()</span>
 
