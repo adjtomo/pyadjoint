@@ -42,27 +42,26 @@ def strip_output(nb):
 
 
 def convert_nb(nbname):
-    os.system("runipy --o %s.ipynb --matplotlib --quiet" % nbname)
+    rst_name = "%s.rst" % nbname
+    nbname = "%s.ipynb" % nbname
+
+    # Do nothing if already built.
+    if os.path.exists(rst_name) and \
+            os.path.getmtime(rst_name) >= os.path.getmtime(nbname):
+        return
+
+    os.system("runipy --o %s --matplotlib --quiet" % nbname)
     os.system("rm -rf ./index_files")
     os.system("rm -rf ./example_dataset_files")
 
-    filename = "%s.ipynb" % nbname
-    with io.open(filename, 'r', encoding='utf8') as f:
+    with io.open(nbname, 'r', encoding='utf8') as f:
         nb = current.read(f, 'json')
     nb = clean_for_doc(nb)
-    print("Writing to", filename)
-    with io.open(filename, 'w', encoding='utf8') as f:
+    print("Writing to", nbname)
+    with io.open(nbname, 'w', encoding='utf8') as f:
         current.write(nb, f, 'json')
 
-    os.system("ipython nbconvert --to rst %s.ipynb" % nbname)
-
-    filename = "%s.ipynb" % nbname
-    with io.open(filename, 'r', encoding='utf8') as f:
-        nb = current.read(f, 'json')
-    nb = strip_output(nb)
-    print("Writing to", filename)
-    with io.open(filename, 'w', encoding='utf8') as f:
-        current.write(nb, f, 'json')
+    os.system("ipython nbconvert --to rst %s" % nbname)
 
 
 if __name__ == "__main__":

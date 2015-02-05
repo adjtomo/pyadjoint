@@ -34,7 +34,14 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'matplotlib.sphinxext.plot_directive'
 ]
+
+# Configuration options for the plot directive
+plot_include_source = False
+plot_html_show_source_link = False
+plot_html_show_formats = False
+
 
 autoclass_content = 'both'
 
