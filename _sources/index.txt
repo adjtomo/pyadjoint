@@ -68,4 +68,5 @@ channels.
     logger.setLevel(logging.DEBUG)
                 
 :doc:`example_dataset`
+:doc:`utils`
                 
