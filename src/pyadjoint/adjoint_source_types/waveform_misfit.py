@@ -14,7 +14,7 @@ sources to Pyadjoint.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from ..utils import taper_window
+from ..utils import generic_adjoint_source_plot, taper_window
 
 
 VERBOSE_NAME = "Waveform Misfit"
@@ -46,7 +46,7 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     :param left_window_border: Left border of the window to be tapered in
         seconds since the first sample in the data arrays.
     :type left_window_border: float
-    :param left_window_border: Right border of the window to be tapered in
+    :param right_window_border: Right border of the window to be tapered in
         seconds since the first sample in the data arrays.
     :type right_window_border: float
     :param adjoint_src: Only calculate the misfit or also derive
@@ -81,6 +81,9 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
         ret_val["adjoint_source"] = (-1.0 * diff)[::-1]
 
     if figure:
-        pass
+        generic_adjoint_source_plot(
+            observed, synthetic, ret_val["adjoint_source"], ret_val["misfit"],
+            left_window_border, right_window_border,
+            VERBOSE_NAME)
 
     return ret_val

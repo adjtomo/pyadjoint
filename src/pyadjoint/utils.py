@@ -9,6 +9,7 @@ Utility functions for Pyadjoint.
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
 import inspect
+import matplotlib.pyplot as plt
 import os
 
 import obspy
@@ -105,3 +106,64 @@ def get_example_data():
     synthetic.sort()
 
     return observed, synthetic
+
+
+def generic_adjoint_source_plot(observed, synthetic, adjoint_source, misfit,
+                                left_window_border, right_window_border,
+                                adjoint_source_name):
+    """
+    Generic plotting function for adjoint sources and data.
+
+    Many types of adjoint sources can be represented in the same manner.
+    This is a convenience function that can be called by different
+    the implementations for different adjoint sources.
+
+    :param observed: The observed data.
+    :type observed: :class:`obspy.core.trace.Trace`
+    :param synthetic: The synthetic data.
+    :type synthetic: :class:`obspy.core.trace.Trace`
+    :param adjoint_source: The adjoint source.
+    :type adjoint_source: `numpy.ndarray`
+    :param misfit: The associated misfit value.
+    :float misfit: misfit value
+    :param left_window_border: Left border of the window to be tapered in
+        seconds since the first sample in the data arrays.
+    :type left_window_border: float
+    :param right_window_border: Right border of the window to be tapered in
+        seconds since the first sample in the data arrays.
+    :type right_window_border: float
+    :param adjoint_source_name: The name of the adjoint source.
+    :type adjoint_source_name: str
+    """
+    x_range = observed.stats.endtime - observed.stats.starttime
+    buf = (right_window_border - left_window_border) * 1.0
+    left_window_border -= buf
+    right_window_border += buf
+    left_window_border = max(0, left_window_border)
+    right_window_border = min(x_range, right_window_border)
+
+    plt.subplot(211)
+    plt.plot(observed.times(), observed.data, color="0.2", label="Observed",
+             lw=2)
+    plt.plot(synthetic.times(), synthetic.data, color="#bb474f",
+             label="Synthetic", lw=2)
+    plt.grid()
+    plt.legend(fancybox=True, framealpha=0.5)
+    plt.xlim(left_window_border, right_window_border)
+    ylim = max(map(abs, plt.ylim()))
+    plt.ylim(-ylim, ylim)
+
+    plt.subplot(212)
+    plt.plot(observed.times(), adjoint_source, color="#2f8d5b", lw=2,
+             label="Adjoint Source")
+    plt.grid()
+    plt.legend(fancybox=True, framealpha=0.5)
+    plt.xlim(x_range - right_window_border, x_range - left_window_border)
+    plt.xlabel("Time in seconds since first sample")
+    ylim = max(map(abs, plt.ylim()))
+    plt.ylim(-ylim, ylim)
+
+    plt.suptitle("%s Adjoint Source with a Misfit of %.3g" % (
+        adjoint_source_name, misfit))
+
+    plt.tight_layout()

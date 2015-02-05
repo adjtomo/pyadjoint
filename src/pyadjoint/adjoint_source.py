@@ -94,7 +94,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
     :param left_window_border: Left border of the window to be tapered in
         seconds since the first sample in the data arrays.
     :type left_window_border: float
-    :param left_window_border: Right border of the window to be tapered in
+    :param right_window_border: Right border of the window to be tapered in
         seconds since the first sample in the data arrays.
     :type right_window_border: float
     :param adjoint_src: Only calculate the misfit or also derive
@@ -137,6 +137,9 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
 
         if plot and plot_filename:
             figure.savefig(plot_filename)
+        elif plot is True:
+            plt.show()
+
     finally:
         # Assure the figure is closed. Otherwise matplotlib will leak
         # memory. If the figure has been created outside of Pyadjoint,
