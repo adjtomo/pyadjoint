@@ -24,7 +24,7 @@ from . import PyadjointError, PyadjointWarning
 
 class AdjointSource(object):
     # Dictionary of available adjoint source. The key is the name, the value
-    # the function to call.
+    # a tuple of function, verbose name, and description.
     _ad_srcs = {}
 
     def __init__(self, adj_src_type, misfit, dt, component,
@@ -42,11 +42,27 @@ class AdjointSource(object):
         self.adjoint_source = adjoint_source
 
     def __str__(self):
+        if self.network and self.station:
+            station = " at station %s.%s" % (self.network, self.station)
+        else:
+            station = ""
+
+        if self.adjoint_source is not None:
+            adj_src_status = "available with %i samples" % (len(
+                self.adjoint_source))
+        else:
+            adj_src_status = "has not been calculated"
+
         return (
-            "{name} Adjoint Source for component {component}\n"
+            "{name} Adjoint Source for component {component}{station}\n"
+            "    Misfit: {misfit}\n"
+            "    Adjoint source {adj_src_status}"
         ).format(
             name=self.adj_src_name,
-            component=self.component
+            component=self.component,
+            station=station,
+            misfit=self.misfit,
+            adj_src_status=adj_src_status
         )
 
 
@@ -100,7 +116,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
                 adj_src_type, ", ".join(
                     sorted(AdjointSource._ad_srcs.keys()))))
 
-    fct = AdjointSource._ad_srcs[adj_src_type]
+    fct = AdjointSource._ad_srcs[adj_src_type][0]
 
     if plot:
         # The plot kwargs overwrites the adjoint_src kwarg.
@@ -113,7 +129,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
     else:
         figure = None
     try:
-        ret_val = fct(observed=observed, syntehtic=synthetic,
+        ret_val = fct(observed=observed, synthetic=synthetic,
                       min_period=min_period, max_period=max_period,
                       left_window_border=left_window_border,
                       right_window_border=right_window_border,
@@ -144,7 +160,6 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
                          component=observed.stats.channel[-1])
 
 
-
 def _sanity_checks(observed, synthetic):
     """
     Perform a number of basic sanity checks to assure the data is valid
@@ -152,6 +167,11 @@ def _sanity_checks(observed, synthetic):
 
     It checks the types of both, the start time, sampling rate, number of
     samples, ...
+
+    :param observed: The observed data.
+    :type observed: :class:`obspy.core.trace.Trace`
+    :param synthetic: The synthetic data.
+    :type synthetic: :class:`obspy.core.trace.Trace`
 
     :raises: :class:`~pyadjoint.PyadjointError`
     """
@@ -213,7 +233,7 @@ def _sanity_checks(observed, synthetic):
 def _discover_adjoint_sources():
     """
     Discovers the available adjoint sources. This should work no matter if
-    pyadjoint is checked out from git, packaged as .egg or in any other
+    pyadjoint is checked out from git, packaged as .egg or for any other
     possibility.
     """
     from . import adjoint_source_types

@@ -33,7 +33,7 @@ of observed and synthetic data.
 def calculate_adjoint_source(observed, synthetic, min_period, max_period,
                              left_window_border, right_window_border,
                              adjoint_src, figure, taper_percentage=0.05,
-                             taper_type="hann"):
+                             taper_type="hann"):  # NOQA
     """
     :param observed: The observed data.
     :type observed: :class:`obspy.core.trace.Trace`
@@ -71,7 +71,10 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
 
     ret_val = {}
 
-    diff = observed - synthetic
+    d = observed.data
+    s = synthetic.data
+
+    diff = d - s
     ret_val["misfit"] = 0.5 * (diff ** 2).sum()
 
     if adjoint_src is True:
