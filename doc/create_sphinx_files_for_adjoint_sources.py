@@ -26,7 +26,44 @@ TEMPLATE = """
 {lower}
 
 {description}
-""".strip()
+
+Example Plots
+-------------
+
+Pdiff Phase on Vertical Component
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. plot::
+
+    import pyadjoint
+    import matplotlib.pylab as plt
+    fig = plt.figure(figsize=(12, 6))
+    obs, syn = pyadjoint.utils.get_example_data()
+    obs = obs.select(component="Z")[0]
+    syn = syn.select(component="Z")[0]
+    start, end = pyadjoint.utils.EXAMPLE_DATA_PDIFF
+    pyadjoint.calculate_adjoint_source("{short_name}", obs, syn, 20.0, 100.0,
+                                       start, end, adjoint_src=True, plot=fig)
+    plt.show()
+
+
+Sdiff Phase on Transverse Component
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. plot::
+
+    import pyadjoint
+    import matplotlib.pylab as plt
+    fig = plt.figure(figsize=(12, 6))
+    obs, syn = pyadjoint.utils.get_example_data()
+    obs = obs.select(component="T")[0]
+    syn = syn.select(component="T")[0]
+    start, end = pyadjoint.utils.EXAMPLE_DATA_SDIFF
+    pyadjoint.calculate_adjoint_source("{short_name}", obs, syn, 20.0, 100.0,
+                                       start, end, adjoint_src=True, plot=fig)
+    plt.show()
+
+""".lstrip()
 
 srcs = pyadjoint.AdjointSource._ad_srcs
 
@@ -41,7 +78,8 @@ for key, value in srcs:
             upper="=" * len(value[1].strip()),
             name=value[1].strip(),
             lower="=" * len(value[1].strip()),
-            description=value[2].lstrip()
+            description=value[2].lstrip(),
+            short_name=key
         ))
 
 INDEX = """

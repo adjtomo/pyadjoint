@@ -32,7 +32,7 @@ of observed and synthetic data.
 
 def calculate_adjoint_source(observed, synthetic, min_period, max_period,
                              left_window_border, right_window_border,
-                             adjoint_src, figure, taper_percentage=0.05,
+                             adjoint_src, figure, taper_percentage=0.15,
                              taper_type="hann"):  # NOQA
     """
     :param observed: The observed data.

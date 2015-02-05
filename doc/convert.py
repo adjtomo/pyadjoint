@@ -62,7 +62,12 @@ def convert_nb(nbname):
         current.write(nb, f, 'json')
 
     os.system("ipython nbconvert --to rst %s" % nbname)
-
+    with io.open(nbname, 'r', encoding='utf8') as f:
+        nb = current.read(f, 'json')
+    nb = strip_output(nb)
+    print("Writing to", nbname)
+    with io.open(nbname, 'w', encoding='utf8') as f:
+        current.write(nb, f, 'json')
 
 if __name__ == "__main__":
     for nbname in sys.argv[1:]:

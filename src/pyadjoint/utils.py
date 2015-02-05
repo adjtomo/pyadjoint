@@ -15,6 +15,10 @@ import os
 import obspy
 
 
+EXAMPLE_DATA_PDIFF = (800, 900)
+EXAMPLE_DATA_SDIFF = (1500, 1600)
+
+
 def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
                  taper_percentage, taper_type, **kwargs):
     """
