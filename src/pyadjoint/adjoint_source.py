@@ -84,6 +84,62 @@ class AdjointSource(object):
             adj_src_status=adj_src_status
         )
 
+    def write(self, filename, format, **kwargs):
+        """
+        Write the adjoint source to a file.
+
+        :param filename: Determines where the adjoint source is saved.
+        :type filename: str, open file, or file-like object
+        :param format: The format of the adjoint source. Currently available
+            are: ``"SPECFEM"``
+        :type format: str
+
+        .. rubric:: SPECFEM
+
+        SPECFEM requires one additional parameter: the temporal offset of the
+        first sample in seconds. The following example sets the time of the
+        first sample in the adjoint source to ``-10``.
+
+        >>> adj_src.write("NET.STA.CHAN.adj", format="SPECFEM",
+        ...               time_offset=-10)  # doctest: +SKIP
+        """
+        if self.adjoint_source is None:
+            raise ValueError("Can only write adjoint sources if the adjoint "
+                             "source has been calculated.")
+
+        format = format.upper()
+        available_formats = ["SPECFEM"]
+        if format not in available_formats:
+            raise ValueError("format '%s' not known. Available formats: %s" %
+                             (format, ", ".join(available_formats)))
+
+        if not hasattr(filename, "write"):
+            with open(filename, "wb") as fh:
+                self._write(fh, format=format, **kwargs)
+        else:
+            self._write(filename, format=format, **kwargs)
+
+    def _write(self, buf, format, **kwargs):
+        if format == "SPECFEM":
+            self._write_specfem(buf=buf, time_offset=kwargs["time_offset"])
+        else:
+            raise NotImplementedError
+
+    def _write_specfem(self, buf, time_offset):
+        """
+        Write the adjoint source for SPECFEM.
+        """
+        l = len(self.adjoint_source)
+
+        to_write = np.empty((l, 2))
+
+        to_write[:, 0] = np.linspace(0, (l - 1) * self.dt, l)
+        to_write[:, 0] += time_offset
+        # SPECFEM expects non-time reversed adjoint sources.
+        to_write[:, 1] += self.adjoint_source[::-1]
+
+        np.savetxt(buf, to_write)
+
 
 def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
                              max_period, left_window_border,
