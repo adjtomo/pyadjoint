@@ -53,8 +53,8 @@ Example Plots
 
 The following shows plots of the :doc:`../example_dataset` for some phases.
 
-Pdiff Phase on Vertical Component
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Pdif Phase on Vertical Component
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This example contains *Pdif* and some surface reflected diffracted phases
 recorded on the vertical component.
@@ -73,8 +73,8 @@ recorded on the vertical component.
     plt.show()
 
 
-Sdiff Phase on Transverse Component
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Sdif Phase on Transverse Component
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This example contains *Sdif* and some surface reflected diffracted phases
 recorded on the transverse component.
@@ -100,7 +100,7 @@ Additional Parameters
 ---------------------
 
 Additional parameters in addition to the default ones in the central
-:func:`~pyadjoint.adjoint_source.calculate_adjoint_source` function.
+:func:`~pyadjoint.adjoint_source.calculate_adjoint_source` function:
 
 {params}
 """.strip()
@@ -134,17 +134,11 @@ INDEX = """
 Adjoint Sources
 ===============
 
-``Pyadjoint`` currently contains the following adjoint sources:
-
-
-
-{sources}
-
-
-**Table of Contents:**
+``Pyadjoint`` can currently calculate the following misfits measurements and
+associated adjoint sources:
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     {contents}
 """.strip()
@@ -152,5 +146,4 @@ Adjoint Sources
 index_filename = os.path.join(folder, "index.rst")
 with open(index_filename, "wt") as fh:
     fh.write(INDEX.format(
-        sources="\n".join([":doc:`%s`" % _i[0] for _i in srcs]),
         contents="\n    ".join([_i[0] for _i in srcs])))

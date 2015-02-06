@@ -28,8 +28,9 @@ VERBOSE_NAME = "Waveform Misfit"
 # documentation.
 DESCRIPTION = r"""
 This is the simplest of all misfits and is defined as the squared difference
-of observed and synthetic data. The misfit :math:`\chi(\mathbf{m})` for a given
-Earth model :math:`\mathbf{m}` and a single receiver and component is given by
+between observed and synthetic data. The misfit :math:`\chi(\mathbf{m})` for a
+given Earth model :math:`\mathbf{m}` and a single receiver and component is
+given by
 
 .. math::
 
@@ -49,13 +50,18 @@ The adjoint source for the same receiver and component is given by
 For the sake of simplicity we omit the spatial Kronecker delta and define
 the adjoint source as acting solely at the receiver's location. For more
 details, please see [Tromp2005]_ and [Bozdag2011]_.
+
+This particular implementation here uses
+`Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
+to evaluate the
+definite integral.
 """
 
 # Optional: document any additional parameters this particular adjoint sources
 # receives in addition to the ones passed to the central adjoint source
 # calculation function. Make sure to indicate the default values. This is a
 # bit redundant but the only way I could figure out to make it work with the
-#  rest of the architecture.
+# rest of the architecture of pyadjoint.
 ADDITIONAL_PARAMETERS = r"""
 **taper_percentage** (:class:`float`)
     Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to

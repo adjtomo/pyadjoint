@@ -11,6 +11,7 @@ Cross correlation traveltime misfit.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+from obspy.signal.cross_correlation import xcorrPickCorrection
 import numpy as np
 
 from ..utils import generic_adjoint_source_plot, taper_window
@@ -36,6 +37,13 @@ ADDITIONAL_PARAMETERS = r"""
     can use. Defaults to ``"hann"``.
 """
 
+
+def subsample_xcorr_shift(d, s):
+    """
+    Calculate the correlation time shift around the maximum amplitude of the
+    synthetic trace with subsample accuracy.
+    """
+    pass
 
 def _xcorr_shift(d, s):
     cc = np.correlate(d, s, mode="full")
