@@ -175,18 +175,61 @@ Many types of adjoint sources have additional arguments that can be passed to it
         Adjoint source available with 3600 samples
 
 
+Saving to Disc
+~~~~~~~~~~~~~~
+
+                
+One of course wants to serialize the calculated adjoint sources to disc at one point in time. You need to pass the filename and the desired format as well as some format specific parameters to the :meth:`~pyadjoint.adjoint_source.AdjointSource.write` method of the :class:`~pyadjoint.adjoint_source.AdjointSource` object. Instead of a filename you can also pass an open file or a file-like object. Please refer to its documentation for more details.
+
+
+                
+.. code:: python
+
+    adj_src.write(filename="NET.STA.CHA.adj_src",
+                  format="SPECFEM", time_offset=-10)
+.. code:: python
+
+    !head NET.STA.CHA.adj_src
+    !rm NET.STA.CHA.adj_src
+
+.. parsed-literal::
+
+    -1.000000000000000000e+01 2.365265945910239742e-310
+    -9.000000000000000000e+00 2.703872664742873289e-316
+    -8.000000000000000000e+00 0.000000000000000000e+00
+    -7.000000000000000000e+00 0.000000000000000000e+00
+    -6.000000000000000000e+00 0.000000000000000000e+00
+    -5.000000000000000000e+00 0.000000000000000000e+00
+    -4.000000000000000000e+00 0.000000000000000000e+00
+    -3.000000000000000000e+00 0.000000000000000000e+00
+    -2.000000000000000000e+00 0.000000000000000000e+00
+    -1.000000000000000000e+00 0.000000000000000000e+00
+
+
                 
 Detailed Documentation
 ----------------------
+
+Further Pages
+~~~~~~~~~~~~~
+
+
+.. toctree::
+    :maxdepth: 2
+
+    adjoint_sources/index
+    example_dataset
+    citations
+
+
+API
+~~~
 
 .. toctree::
     :maxdepth: 2
     
     adjoint_source
-    adjoint_sources/index
-    example_dataset
     utils
-    citations
 
 
                 

@@ -1,6 +1,6 @@
 import pyadjoint
 import matplotlib.pylab as plt
-fig = plt.figure(figsize=(12, 6))
+fig = plt.figure(figsize=(12, 7))
 obs, syn = pyadjoint.utils.get_example_data()
 obs = obs.select(component="T")[0]
 syn = syn.select(component="T")[0]

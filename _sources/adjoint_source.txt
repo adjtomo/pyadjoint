@@ -1,6 +1,6 @@
-============================
-Central Pyadjoint Interfaces
-============================
+========================
+pyadjoint.adjoint_source
+========================
 
 .. autoclass:: pyadjoint.adjoint_source.AdjointSource
     :members:
