@@ -137,6 +137,62 @@
             <span class="n">adj_src_status</span><span class="o">=</span><span class="n">adj_src_status</span>
         <span class="p">)</span>
 
+<div class="viewcode-block" id="AdjointSource.write"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.AdjointSource.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the adjoint source to a file.</span>
+
+<span class="sd">        :param filename: Determines where the adjoint source is saved.</span>
+<span class="sd">        :type filename: str, open file, or file-like object</span>
+<span class="sd">        :param format: The format of the adjoint source. Currently available</span>
+<span class="sd">            are: ``&quot;SPECFEM&quot;``</span>
+<span class="sd">        :type format: str</span>
+
+<span class="sd">        .. rubric:: SPECFEM</span>
+
+<span class="sd">        SPECFEM requires one additional parameter: the temporal offset of the</span>
+<span class="sd">        first sample in seconds. The following example sets the time of the</span>
+<span class="sd">        first sample in the adjoint source to ``-10``.</span>
+
+<span class="sd">        &gt;&gt;&gt; adj_src.write(&quot;NET.STA.CHAN.adj&quot;, format=&quot;SPECFEM&quot;,</span>
+<span class="sd">        ...               time_offset=-10)  # doctest: +SKIP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Can only write adjoint sources if the adjoint &quot;</span>
+                             <span class="s">&quot;source has been calculated.&quot;</span><span class="p">)</span>
+
+        <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">available_formats</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;SPECFEM&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_formats</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;format &#39;</span><span class="si">%s</span><span class="s">&#39; not known. Available formats: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">available_formats</span><span class="p">)))</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;write&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s">&quot;SPECFEM&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_specfem</span><span class="p">(</span><span class="n">buf</span><span class="o">=</span><span class="n">buf</span><span class="p">,</span> <span class="n">time_offset</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&quot;time_offset&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span> <span class="nf">_write_specfem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">time_offset</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Write the adjoint source for SPECFEM.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">)</span>
+
+        <span class="n">to_write</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="n">to_write</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="n">to_write</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_offset</span>
+        <span class="c"># SPECFEM expects non-time reversed adjoint sources.</span>
+        <span class="n">to_write</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">to_write</span><span class="p">)</span>
+
 </div>
 <div class="viewcode-block" id="calculate_adjoint_source"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">adj_src_type</span><span class="p">,</span> <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span>
                              <span class="n">max_period</span><span class="p">,</span> <span class="n">left_window_border</span><span class="p">,</span>
