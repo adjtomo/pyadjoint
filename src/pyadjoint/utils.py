@@ -170,5 +170,3 @@ def generic_adjoint_source_plot(observed, synthetic, adjoint_source, misfit,
 
     plt.suptitle("%s Adjoint Source with a Misfit of %.3g" % (
         adjoint_source_name, misfit))
-
-    plt.tight_layout()
