@@ -25,7 +25,9 @@ VERBOSE_NAME = "Waveform Misfit"
 
 # Long and detailed description of the adjoint source defined in this file.
 # Don't spare any details. This will be rendered as restructured text in the
-# documentation.
+# documentation. Be careful to escape the string with an ``r`` prefix.
+# Otherwise most backslashes will have a special meaning which messes with the
+# TeX like formulas.
 DESCRIPTION = r"""
 This is the simplest of all misfits and is defined as the squared difference
 between observed and synthetic data. The misfit :math:`\chi(\mathbf{m})` for a
@@ -66,7 +68,7 @@ ADDITIONAL_PARAMETERS = r"""
     Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
     ``0.5`` (50%)). Defauls to ``0.15``.
 
-**taper_type** (:class:`float`)
+**taper_type** (:class:`str`)
     The taper type, supports anything :meth:`obspy.core.trace.Trace.taper`
     can use. Defaults to ``"hann"``.
 """
