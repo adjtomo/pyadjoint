@@ -19,6 +19,11 @@ def clean_for_doc(nb):
         if "input" in cell and \
                 cell["input"].strip().startswith("%pylab inline"):
             continue
+
+        # Make sure all cells are padded at the top and bottom.
+        if "source" in cell:
+            cell["source"] = "\n" + cell["source"].strip() + "\n\n"
+
         # Remove output resulting from the stream/trace method chaining.
         if "outputs" in cell:
             outputs = [_i for _i in cell["outputs"] if "text" not in _i or
@@ -48,11 +53,10 @@ def convert_nb(nbname):
     # Do nothing if already built.
     if os.path.exists(rst_name) and \
             os.path.getmtime(rst_name) >= os.path.getmtime(nbname):
+        print("\t%s is up to date; nothing to do." % rst_name)
         return
 
     os.system("runipy --o %s --matplotlib --quiet" % nbname)
-    os.system("rm -rf ./index_files")
-    os.system("rm -rf ./example_dataset_files")
 
     with io.open(nbname, 'r', encoding='utf8') as f:
         nb = current.read(f, 'json')
@@ -61,7 +65,9 @@ def convert_nb(nbname):
     with io.open(nbname, 'w', encoding='utf8') as f:
         current.write(nb, f, 'json')
 
+    # Convert to rst.
     os.system("ipython nbconvert --to rst %s" % nbname)
+
     with io.open(nbname, 'r', encoding='utf8') as f:
         nb = current.read(f, 'json')
     nb = strip_output(nb)

@@ -135,10 +135,22 @@ Adjoint Sources
 ===============
 
 ``Pyadjoint`` currently contains the following adjoint sources:
+
+
+
+{sources}
+
+
+**Table of Contents:**
+
+.. toctree::
+    :maxdepth: 2
+
+    {contents}
 """.strip()
 
 index_filename = os.path.join(folder, "index.rst")
 with open(index_filename, "wt") as fh:
-    fh.write(INDEX)
-    fh.write("\n\n\n")
-    fh.write("\n".join([":doc:`%s`" % _i[0] for _i in srcs]))
+    fh.write(INDEX.format(
+        sources="\n".join([":doc:`%s`" % _i[0] for _i in srcs]),
+        contents="\n    ".join([_i[0] for _i in srcs])))
