@@ -1,10 +1,9 @@
-========================
-pyadjoint.adjoint_source
-========================
+============================
+Central Pyadjoint Interfaces
+============================
 
 .. autoclass:: pyadjoint.adjoint_source.AdjointSource
     :members:
 
 
-.. automodule:: pyadjoint.adjoint_source
-    :members:
+.. autofunction:: pyadjoint.adjoint_source.calculate_adjoint_source
