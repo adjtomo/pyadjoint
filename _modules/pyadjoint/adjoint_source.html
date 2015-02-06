@@ -238,6 +238,10 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span> <span class="o">=</span> <span class="n">_sanity_checks</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">)</span>
 
+    <span class="c"># Get number of samples now as the adjoint source calculation function</span>
+    <span class="c"># are allowed to mess with the trace objects.</span>
+    <span class="n">npts</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span>
+
     <span class="k">if</span> <span class="n">adj_src_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AdjointSource</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
             <span class="s">&quot;Adjoint Source type &#39;</span><span class="si">%s</span><span class="s">&#39; is unknown. Available types: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
@@ -275,13 +279,45 @@
         <span class="k">if</span> <span class="n">plot</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
+    <span class="c"># Get misfit an warn for a negative one.</span>
+    <span class="n">misfit</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ret_val</span><span class="p">[</span><span class="s">&quot;misfit&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">misfit</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;The misfit value is negative. Be cautious!&quot;</span><span class="p">,</span>
+                      <span class="n">PyadjointWarning</span><span class="p">)</span>
+
     <span class="k">if</span> <span class="n">adjoint_src</span> <span class="ow">and</span> <span class="s">&quot;adjoint_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret_val</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s">&quot;The actual adjoint source was not calculated &quot;</span>
                              <span class="s">&quot;by the underlying function although it was &quot;</span>
                              <span class="s">&quot;requested.&quot;</span><span class="p">)</span>
 
-    <span class="n">misfit</span> <span class="o">=</span> <span class="n">ret_val</span><span class="p">[</span><span class="s">&quot;misfit&quot;</span><span class="p">]</span>
-    <span class="n">adjoint_source</span> <span class="o">=</span> <span class="n">ret_val</span><span class="p">[</span><span class="s">&quot;adjoint_source&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">adjoint_src</span> <span class="k">else</span> <span class="bp">None</span>
+    <span class="c"># Be very defensive. This assures future adjoint source types can be</span>
+    <span class="c"># integrated smoothly.</span>
+    <span class="k">if</span> <span class="n">adjoint_src</span><span class="p">:</span>
+        <span class="n">adjoint_source</span> <span class="o">=</span> <span class="n">ret_val</span><span class="p">[</span><span class="s">&quot;adjoint_source&quot;</span><span class="p">]</span>
+        <span class="c"># Raise if wrong type.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adjoint_source</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> \
+                <span class="n">adjoint_source</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s">&quot;The adjoint source calculated by the &quot;</span>
+                                 <span class="s">&quot;underlying function is no numpy array with &quot;</span>
+                                 <span class="s">&quot;a `float64` dtype.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">adjoint_source</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
+                <span class="s">&quot;The underlying function returned at adjoint source with &quot;</span>
+                <span class="s">&quot;shape </span><span class="si">%s</span><span class="s">. It must return a one-dimensional array.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span>
+                    <span class="n">adjoint_source</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">adjoint_source</span><span class="p">)</span> <span class="o">!=</span> <span class="n">npts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
+                <span class="s">&quot;The underlying function returned an adjoint source with </span><span class="si">%i</span><span class="s"> &quot;</span>
+                <span class="s">&quot;samples. It must return a function with </span><span class="si">%i</span><span class="s"> samples which is &quot;</span>
+                <span class="s">&quot;the sample count of the input data.&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">adjoint_source</span><span class="p">),</span> <span class="n">npts</span><span class="p">))</span>
+        <span class="c"># Make sure the data returned has no infs or NaNs.</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">adjoint_source</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
+                <span class="s">&quot;The underlying function returned an adjoint source with &quot;</span>
+                <span class="s">&quot;either NaNs or Inf values. This must not be.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">adjoint_source</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">return</span> <span class="n">AdjointSource</span><span class="p">(</span><span class="n">adj_src_type</span><span class="p">,</span> <span class="n">misfit</span><span class="o">=</span><span class="n">misfit</span><span class="p">,</span>
                          <span class="n">adjoint_source</span><span class="o">=</span><span class="n">adjoint_source</span><span class="p">,</span>
