@@ -42,7 +42,7 @@ Additional parameters in addition to the default ones in the central
     Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
     ``0.5`` (50%)). Defauls to ``0.15``.
 
-**taper_type** (:class:`float`)
+**taper_type** (:class:`str`)
     The taper type, supports anything :meth:`obspy.core.trace.Trace.taper`
     can use. Defaults to ``"hann"``.
 
