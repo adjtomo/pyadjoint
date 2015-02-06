@@ -141,7 +141,27 @@ associated adjoint sources:
     :maxdepth: 1
 
     {contents}
-""".strip()
+
+Comparative Plots of All Available Adjoint Sources
+--------------------------------------------------
+
+Pdif Phase on Vertical Component
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This example contains *Pdif* and some surface reflected diffracted phases
+recorded on the vertical component.
+
+.. plot:: plots/all_adjoint_sources_pdif.py
+
+Sdif Phase on Transverse Component
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This example contains *Sdif* and some surface reflected diffracted phases
+recorded on the transverse component.
+
+.. plot:: plots/all_adjoint_sources_sdif.py
+
+""".lstrip()
 
 index_filename = os.path.join(folder, "index.rst")
 with open(index_filename, "wt") as fh:
