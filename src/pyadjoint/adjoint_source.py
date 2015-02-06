@@ -185,6 +185,10 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
     """
     observed, synthetic = _sanity_checks(observed, synthetic)
 
+    # Get number of samples now as the adjoint source calculation function
+    # are allowed to mess with the trace objects.
+    npts = observed.stats.npts
+
     if adj_src_type not in AdjointSource._ad_srcs:
         raise PyadjointError(
             "Adjoint Source type '%s' is unknown. Available types: %s" % (
@@ -222,13 +226,45 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
         if plot is True:
             plt.close()
 
+    # Get misfit an warn for a negative one.
+    misfit = float(ret_val["misfit"])
+    if misfit < 0.0:
+        warnings.warn("The misfit value is negative. Be cautious!",
+                      PyadjointWarning)
+
     if adjoint_src and "adjoint_source" not in ret_val:
         raise PyadjointError("The actual adjoint source was not calculated "
                              "by the underlying function although it was "
                              "requested.")
 
-    misfit = ret_val["misfit"]
-    adjoint_source = ret_val["adjoint_source"] if adjoint_src else None
+    # Be very defensive. This assures future adjoint source types can be
+    # integrated smoothly.
+    if adjoint_src:
+        adjoint_source = ret_val["adjoint_source"]
+        # Raise if wrong type.
+        if not isinstance(adjoint_source, np.ndarray) or \
+                adjoint_source.dtype != np.float64:
+            raise PyadjointError("The adjoint source calculated by the "
+                                 "underlying function is no numpy array with "
+                                 "a `float64` dtype.")
+        if len(adjoint_source.shape) != 1:
+            raise PyadjointError(
+                "The underlying function returned at adjoint source with "
+                "shape %s. It must return a one-dimensional array." % str(
+                    adjoint_source.shape))
+        if len(adjoint_source) != npts:
+            raise PyadjointError(
+                "The underlying function returned an adjoint source with %i "
+                "samples. It must return a function with %i samples which is "
+                "the sample count of the input data." % (
+                    len(adjoint_source), npts))
+        # Make sure the data returned has no infs or NaNs.
+        if not np.isfinite(adjoint_source).all():
+            raise PyadjointError(
+                "The underlying function returned an adjoint source with "
+                "either NaNs or Inf values. This must not be.")
+    else:
+        adjoint_source = None
 
     return AdjointSource(adj_src_type, misfit=misfit,
                          adjoint_source=adjoint_source,
