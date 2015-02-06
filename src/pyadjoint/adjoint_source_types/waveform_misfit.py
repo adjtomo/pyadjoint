@@ -53,8 +53,7 @@ details, please see [Tromp2005]_ and [Bozdag2011]_.
 
 This particular implementation here uses
 `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
-to evaluate the
-definite integral.
+to evaluate the definite integral.
 """
 
 # Optional: document any additional parameters this particular adjoint sources
