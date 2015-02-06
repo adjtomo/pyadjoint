@@ -2,8 +2,10 @@
 Pyadjoint
 =========
 
-``Pyadjoint`` is a Python package to measure misfit and calculate
-adjoint sources.
+``Pyadjoint`` is a Python package to measure misfits and calculate
+adjoint sources. It aims to provide a comprehensive package and
+incorporate various types of measurements and associated adjoint
+sources.
 
 Installation
 ------------
@@ -45,27 +47,134 @@ run the tests with
 Usage
 -----
 
-The first step is to import ObsPy and Pyadjoint.
+Basic Usage
+~~~~~~~~~~~
+
+The first step is to import ObsPy and ``Pyadjoint``.
 
 .. code:: python
 
     import obspy
     import pyadjoint
-Logging
--------
-
-By default, ``Pyadjoint`` is fairly quiet and will only raise exceptions
-and warnings in case they occur. ``Pyadjoint`` utilizes Python's
-`logging facilities <https://docs.python.org/2/library/logging.html>`_
-so if you want more information you can hook into them. This approach is
-very flexible as it allows you to install custom logging handlers and
-channels.
+``Pyadjoint`` expects the data to be fully preprocessed thus both
+observed and synthetic data are expected to have exactly the same
+length, sampling rate, and spectral content. ``Pyadjoint`` furthermore
+does not care about the actual components in question; it will use two
+traces and calculate misfit values and adjoint sources for them. To
+provide a familiar nomenclature we will always talk about observed and
+synthetic data ``Pyadjoint`` is independent of what the data actually
+represents.
 
 .. code:: python
 
-    import logging
-    logger = logging.getLogger("pyadjoint")
-    logger.setLevel(logging.DEBUG)
+    # Helper function to get some example data used for
+    # illustrative purposes.
+    obs, syn = pyadjoint.utils.get_example_data()
+    # Select the vertical components of both.
+    obs = obs.select(component="Z")[0]
+    syn = syn.select(component="Z")[0]
+                
+Essentially all of ``Pyadjoint``'s functionality is accessed through its central :func:`~pyadjoint.adjoint_source.calculate_adjoint_source` function. A list of available
+adjoint source types can be found in :doc:`adjoint_sources/index`.
+
+
+                
+.. code:: python
+
+    adj_src = pyadjoint.calculate_adjoint_source(
+        # The type of misfit measurement and adjoint source.
+        adj_src_type="waveform_misfit",
+        # Pass observed and synthetic data traces.
+        observed=obs, synthetic=syn,
+        # The spectral content of the data.
+        min_period=20.0, max_period=100.0,
+        # The window borders in seconds since the first sample.
+        left_window_border=800.0,
+        right_window_border=900.0)
+    print(adj_src)
+
+.. parsed-literal::
+
+    Waveform Misfit Adjoint Source for component Z at station SY.DBO
+        Misfit: 4.262e-11
+        Adjoint source available with 3600 samples
+
+
+                
+It returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object.
+
+
+                
+.. code:: python
+
+    # Access misfit and adjoint sources. The misfit is a floating point number.
+    print(adj_src.misfit)
+    # The adjoint source is a a numpy array.
+    print(adj_src.adjoint_source)
+
+.. parsed-literal::
+
+    4.26213672617e-11
+    [-0. -0. -0. ..., -0. -0. -0.]
+
+
+Usage Options
+~~~~~~~~~~~~~
+
+In case one just wants to calculate the misfit value, pass
+``adjoint_src=False`` in which case the adjoint source will not be
+calculated. This sometimes is much faster and useful for line searches
+or similar endeavors.
+
+.. code:: python
+
+    print(pyadjoint.calculate_adjoint_source(
+        adj_src_type="waveform_misfit", observed=obs, synthetic=syn,
+        min_period=20.0, max_period=100.0,
+        left_window_border=800.0, right_window_border=900.0, adjoint_src=False))
+
+.. parsed-literal::
+
+    Waveform Misfit Adjoint Source for component Z at station SY.DBO
+        Misfit: 4.262e-11
+        Adjoint source has not been calculated
+
+
+All adjoint source types can also be plotted during the calculation. The
+type of plot produced depends on the type of misfit measurement and
+adjoint source.
+
+.. code:: python
+
+    pyadjoint.calculate_adjoint_source(
+        adj_src_type="waveform_misfit", observed=obs, synthetic=syn,
+        min_period=20.0, max_period=100.0,
+        left_window_border=800.0, right_window_border=900.0, plot=True);
+
+
+.. image:: index_files/index_11_0.png
+
+
+                
+Many types of adjoint sources have additional arguments that can be passed to it. The waveform misfit adjoint source for example allows to specifiy the width and type of the taper applied to the data. Please see the documentation of the different :doc:`adjoint_sources/index` for details.
+
+
+                
+.. code:: python
+
+    print(pyadjoint.calculate_adjoint_source(
+        adj_src_type="waveform_misfit", observed=obs, synthetic=syn,
+        min_period=20.0, max_period=100.0,
+        left_window_border=800.0, right_window_border=900.0,
+        taper_percentage=0.3, taper_type="cosine"))
+
+.. parsed-literal::
+
+    Waveform Misfit Adjoint Source for component Z at station SY.DBO
+        Misfit: 4.247e-11
+        Adjoint source available with 3600 samples
+
+
                 
 Detailed Documentation
 ----------------------

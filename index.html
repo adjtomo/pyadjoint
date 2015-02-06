@@ -56,8 +56,10 @@
             
   <div class="section" id="pyadjoint">
 <h1>Pyadjoint<a class="headerlink" href="#pyadjoint" title="Permalink to this headline">¶</a></h1>
-<p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> is a Python package to measure misfit and calculate
-adjoint sources.</p>
+<p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> is a Python package to measure misfits and calculate
+adjoint sources. It aims to provide a comprehensive package and
+incorporate various types of measurements and associated adjoint
+sources.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
 <p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> utilizes <a class="reference external" href="http://obspy.org">ObsPy</a> (and some of its
@@ -91,24 +93,101 @@ run the tests with</p>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
-<p>The first step is to import ObsPy and Pyadjoint.</p>
+<div class="section" id="basic-usage">
+<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h3>
+<p>The first step is to import ObsPy and <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt>.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">obspy</span>
 <span class="kn">import</span> <span class="nn">pyadjoint</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="logging">
-<h2>Logging<a class="headerlink" href="#logging" title="Permalink to this headline">¶</a></h2>
-<p>By default, <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> is fairly quiet and will only raise exceptions
-and warnings in case they occur. <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> utilizes Python&#8217;s
-<a class="reference external" href="https://docs.python.org/2/library/logging.html">logging facilities</a>
-so if you want more information you can hook into them. This approach is
-very flexible as it allows you to install custom logging handlers and
-channels.</p>
-<div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">logging</span>
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s">&quot;pyadjoint&quot;</span><span class="p">)</span>
-<span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span><span class="p">)</span>
+<p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> expects the data to be fully preprocessed thus both
+observed and synthetic data are expected to have exactly the same
+length, sampling rate, and spectral content. <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> furthermore
+does not care about the actual components in question; it will use two
+traces and calculate misfit values and adjoint sources for them. To
+provide a familiar nomenclature we will always talk about observed and
+synthetic data <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> is independent of what the data actually
+represents.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Helper function to get some example data used for</span>
+<span class="c"># illustrative purposes.</span>
+<span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
+<span class="c"># Select the vertical components of both.</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
+</div>
+<p>Essentially all of <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt>&#8216;s functionality is accessed through its central <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source" title="pyadjoint.adjoint_source.calculate_adjoint_source"><tt class="xref py py-func docutils literal"><span class="pre">calculate_adjoint_source()</span></tt></a> function. A list of available
+adjoint source types can be found in <a class="reference internal" href="adjoint_sources/index.html"><em>Adjoint Sources</em></a>.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">adj_src</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
+    <span class="c"># The type of misfit measurement and adjoint source.</span>
+    <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;waveform_misfit&quot;</span><span class="p">,</span>
+    <span class="c"># Pass observed and synthetic data traces.</span>
+    <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
+    <span class="c"># The spectral content of the data.</span>
+    <span class="n">min_period</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="c"># The window borders in seconds since the first sample.</span>
+    <span class="n">left_window_border</span><span class="o">=</span><span class="mf">800.0</span><span class="p">,</span>
+    <span class="n">right_window_border</span><span class="o">=</span><span class="mf">900.0</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">adj_src</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Waveform Misfit Adjoint Source for component Z at station SY.DBO
+    Misfit: 4.262e-11
+    Adjoint source available with 3600 samples
+</pre></div>
+</div>
+<p>It returns an <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><tt class="xref py py-class docutils literal"><span class="pre">AdjointSource</span></tt></a> object.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Access misfit and adjoint sources. The misfit is a floating point number.</span>
+<span class="k">print</span><span class="p">(</span><span class="n">adj_src</span><span class="o">.</span><span class="n">misfit</span><span class="p">)</span>
+<span class="c"># The adjoint source is a a numpy array.</span>
+<span class="k">print</span><span class="p">(</span><span class="n">adj_src</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>4.26213672617e-11
+[-0. -0. -0. ..., -0. -0. -0.]
+</pre></div>
+</div>
+</div>
+<div class="section" id="usage-options">
+<h3>Usage Options<a class="headerlink" href="#usage-options" title="Permalink to this headline">¶</a></h3>
+<p>In case one just wants to calculate the misfit value, pass
+<tt class="docutils literal"><span class="pre">adjoint_src=False</span></tt> in which case the adjoint source will not be
+calculated. This sometimes is much faster and useful for line searches
+or similar endeavors.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
+    <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
+    <span class="n">min_period</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">left_window_border</span><span class="o">=</span><span class="mf">800.0</span><span class="p">,</span> <span class="n">right_window_border</span><span class="o">=</span><span class="mf">900.0</span><span class="p">,</span> <span class="n">adjoint_src</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Waveform Misfit Adjoint Source for component Z at station SY.DBO
+    Misfit: 4.262e-11
+    Adjoint source has not been calculated
+</pre></div>
+</div>
+<p>All adjoint source types can also be plotted during the calculation. The
+type of plot produced depends on the type of misfit measurement and
+adjoint source.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
+    <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
+    <span class="n">min_period</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">left_window_border</span><span class="o">=</span><span class="mf">800.0</span><span class="p">,</span> <span class="n">right_window_border</span><span class="o">=</span><span class="mf">900.0</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="bp">True</span><span class="p">);</span>
+</pre></div>
+</div>
+<img alt="_images/index_11_0.png" src="_images/index_11_0.png" />
+<p>Many types of adjoint sources have additional arguments that can be passed to it. The waveform misfit adjoint source for example allows to specifiy the width and type of the taper applied to the data. Please see the documentation of the different <a class="reference internal" href="adjoint_sources/index.html"><em>Adjoint Sources</em></a> for details.</p>
+<div class="code python highlight-python"><div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
+    <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
+    <span class="n">min_period</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="n">left_window_border</span><span class="o">=</span><span class="mf">800.0</span><span class="p">,</span> <span class="n">right_window_border</span><span class="o">=</span><span class="mf">900.0</span><span class="p">,</span>
+    <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">taper_type</span><span class="o">=</span><span class="s">&quot;cosine&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>Waveform Misfit Adjoint Source for component Z at station SY.DBO
+    Misfit: 4.247e-11
+    Adjoint source available with 3600 samples
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="detailed-documentation">
@@ -146,8 +225,11 @@ channels.</p>
 <li><a class="reference internal" href="#">Pyadjoint</a><ul>
 <li><a class="reference internal" href="#installation">Installation</a></li>
 <li><a class="reference internal" href="#tests">Tests</a></li>
-<li><a class="reference internal" href="#usage">Usage</a></li>
-<li><a class="reference internal" href="#logging">Logging</a></li>
+<li><a class="reference internal" href="#usage">Usage</a><ul>
+<li><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li><a class="reference internal" href="#usage-options">Usage Options</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#detailed-documentation">Detailed Documentation</a></li>
 </ul>
 </li>

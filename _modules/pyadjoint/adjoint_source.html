@@ -54,7 +54,7 @@
 <span class="c">#!/usr/bin/env python</span>
 <span class="c"># -*- encoding: utf8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Adjoint source class definition.</span>
+<span class="sd">Central interfaces for ``Pyadjoint``.</span>
 
 <span class="sd">:copyright:</span>
 <span class="sd">    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015</span>
@@ -75,13 +75,32 @@
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">PyadjointError</span><span class="p">,</span> <span class="n">PyadjointWarning</span>
 
 
-<span class="k">class</span> <span class="nc">AdjointSource</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="AdjointSource"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.AdjointSource">[docs]</a><span class="k">class</span> <span class="nc">AdjointSource</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="c"># Dictionary of available adjoint source. The key is the name, the value</span>
     <span class="c"># a tuple of function, verbose name, and description.</span>
     <span class="n">_ad_srcs</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj_src_type</span><span class="p">,</span> <span class="n">misfit</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span>
                  <span class="n">adjoint_source</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Class representing an already calculated adjoint source.</span>
+
+<span class="sd">        :param adj_src_type: The type of adjoint source.</span>
+<span class="sd">        :type adj_src_type:  str</span>
+<span class="sd">        :param misfit: The misfit value.</span>
+<span class="sd">        :type misfit: float</span>
+<span class="sd">        :param dt: The sampling rate of the adjoint source.</span>
+<span class="sd">        :type dt: float</span>
+<span class="sd">        :param component: The adjoint source component, usually ``&quot;Z&quot;``,</span>
+<span class="sd">            ``&quot;N&quot;``, ``&quot;E&quot;``, ``&quot;R&quot;``, or ``&quot;T&quot;``.</span>
+<span class="sd">        :type component: str</span>
+<span class="sd">        :param adjoint_source: The actual adjoint source.</span>
+<span class="sd">        :type adjoint_source: :class:`numpy.ndarray`</span>
+<span class="sd">        :param network: The network code of the station.</span>
+<span class="sd">        :type network: str</span>
+<span class="sd">        :param station: The station code of the station.</span>
+<span class="sd">        :type station: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">adj_src_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unknown adjoint source type &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span>
                              <span class="n">adj_src_type</span><span class="p">)</span>
@@ -108,7 +127,7 @@
 
         <span class="k">return</span> <span class="p">(</span>
             <span class="s">&quot;{name} Adjoint Source for component {component}{station}</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;    Misfit: {misfit}</span><span class="se">\n</span><span class="s">&quot;</span>
+            <span class="s">&quot;    Misfit: {misfit:.4g}</span><span class="se">\n</span><span class="s">&quot;</span>
             <span class="s">&quot;    Adjoint source {adj_src_status}&quot;</span>
         <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj_src_name</span><span class="p">,</span>
@@ -118,7 +137,7 @@
             <span class="n">adj_src_status</span><span class="o">=</span><span class="n">adj_src_status</span>
         <span class="p">)</span>
 
-
+</div>
 <div class="viewcode-block" id="calculate_adjoint_source"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">adj_src_type</span><span class="p">,</span> <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span>
                              <span class="n">max_period</span><span class="p">,</span> <span class="n">left_window_border</span><span class="p">,</span>
                              <span class="n">right_window_border</span><span class="p">,</span> <span class="n">adjoint_src</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
@@ -135,7 +154,7 @@
 <span class="sd">    data arrays.</span>
 
 <span class="sd">    :param adj_src_type: The type of adjoint source to calculate.</span>
-<span class="sd">    :str adj_src_type: str</span>
+<span class="sd">    :type adj_src_type: str</span>
 <span class="sd">    :param observed: The observed data.</span>
 <span class="sd">    :type observed: :class:`obspy.core.trace.Trace`</span>
 <span class="sd">    :param synthetic: The synthetic data.</span>
