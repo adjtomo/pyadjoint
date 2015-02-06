@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf8 -*-
 """
-Adjoint source class definition.
+Central interfaces for ``Pyadjoint``.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
@@ -29,6 +29,25 @@ class AdjointSource(object):
 
     def __init__(self, adj_src_type, misfit, dt, component,
                  adjoint_source=None, network=None, station=None):
+        """
+        Class representing an already calculated adjoint source.
+
+        :param adj_src_type: The type of adjoint source.
+        :type adj_src_type:  str
+        :param misfit: The misfit value.
+        :type misfit: float
+        :param dt: The sampling rate of the adjoint source.
+        :type dt: float
+        :param component: The adjoint source component, usually ``"Z"``,
+            ``"N"``, ``"E"``, ``"R"``, or ``"T"``.
+        :type component: str
+        :param adjoint_source: The actual adjoint source.
+        :type adjoint_source: :class:`numpy.ndarray`
+        :param network: The network code of the station.
+        :type network: str
+        :param station: The station code of the station.
+        :type station: str
+        """
         if adj_src_type not in self._ad_srcs:
             raise ValueError("Unknown adjoint source type '%s'." %
                              adj_src_type)
@@ -55,7 +74,7 @@ class AdjointSource(object):
 
         return (
             "{name} Adjoint Source for component {component}{station}\n"
-            "    Misfit: {misfit}\n"
+            "    Misfit: {misfit:.4g}\n"
             "    Adjoint source {adj_src_status}"
         ).format(
             name=self.adj_src_name,
@@ -82,7 +101,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
     data arrays.
 
     :param adj_src_type: The type of adjoint source to calculate.
-    :str adj_src_type: str
+    :type adj_src_type: str
     :param observed: The observed data.
     :type observed: :class:`obspy.core.trace.Trace`
     :param synthetic: The synthetic data.
