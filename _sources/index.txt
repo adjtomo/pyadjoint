@@ -67,8 +67,17 @@ channels.
     logger = logging.getLogger("pyadjoint")
     logger.setLevel(logging.DEBUG)
                 
-:doc:`example_dataset`
-:doc:`utils`
-:doc:`adjoint_sources/index`
-:doc:`citations`
+Detailed Documentation
+----------------------
+
+.. toctree::
+    :maxdepth: 2
+    
+    adjoint_source
+    adjoint_sources/index
+    example_dataset
+    utils
+    citations
+
+
                 

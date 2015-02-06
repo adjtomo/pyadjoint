@@ -1,0 +1,151 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pyadjoint.adjoint_source &mdash; Pyadjoint 0.0.1a documentation</title>
+    
+    <link rel="stylesheet" href="_static/readable.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0.1a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="Pyadjoint 0.0.1a documentation" href="index.html" />
+    <link rel="next" title="Adjoint Sources" href="adjoint_sources/index.html" />
+    <link rel="prev" title="Pyadjoint" href="index.html" />
+   
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+  
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a></li>
+        <li class="right" >
+          <a href="adjoint_sources/index.html" title="Adjoint Sources"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Pyadjoint"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-pyadjoint.adjoint_source">
+<span id="pyadjoint-adjoint-source"></span><h1>pyadjoint.adjoint_source<a class="headerlink" href="#module-pyadjoint.adjoint_source" title="Permalink to this headline">¶</a></h1>
+<p>Adjoint source class definition.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48;geophysik&#46;uni-muenchen&#46;de">krischer<span>&#64;</span>geophysik<span>&#46;</span>uni-muenchen<span>&#46;</span>de</a>), 2015</td>
+</tr>
+<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">BSD 3-Clause (&#8220;BSD New&#8221; or &#8220;BSD Simplified&#8221;)</td>
+</tr>
+</tbody>
+</table>
+<dl class="function">
+<dt id="pyadjoint.adjoint_source.calculate_adjoint_source">
+<tt class="descclassname">pyadjoint.adjoint_source.</tt><tt class="descname">calculate_adjoint_source</tt><big>(</big><em>adj_src_type</em>, <em>observed</em>, <em>synthetic</em>, <em>min_period</em>, <em>max_period</em>, <em>left_window_border</em>, <em>right_window_border</em>, <em>adjoint_src=True</em>, <em>plot=False</em>, <em>plot_filename=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pyadjoint/adjoint_source.html#calculate_adjoint_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyadjoint.adjoint_source.calculate_adjoint_source" title="Permalink to this definition">¶</a></dt>
+<dd><p>Central function of Pyadjoint used to calculate adjoint sources and misfit.</p>
+<p>This function uses the notion of observed and synthetic data to offer a
+nomenclature most users are familiar with. Please note that it is
+nonetheless independent of what the two data arrays actually represent.</p>
+<p>The function tapers the data from <tt class="docutils literal"><span class="pre">left_window_border</span></tt> to
+<tt class="docutils literal"><span class="pre">right_window_border</span></tt>, both in seconds since the first sample in the
+data arrays.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>adj_src_type</strong> &#8211; The type of adjoint source to calculate.</li>
+<li><strong>observed</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></tt></a>) &#8211; The observed data.</li>
+<li><strong>synthetic</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></tt></a>) &#8211; The synthetic data.</li>
+<li><strong>min_period</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The minimum period of the spectral content of the data.</li>
+<li><strong>max_period</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The maximum period of the spectral content of the data.</li>
+<li><strong>left_window_border</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Left border of the window to be tapered in
+seconds since the first sample in the data arrays.</li>
+<li><strong>right_window_border</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Right border of the window to be tapered in
+seconds since the first sample in the data arrays.</li>
+<li><strong>adjoint_src</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Only calculate the misfit or also derive
+the adjoint source.</li>
+<li><strong>plot</strong> (bool or empty <a class="reference external" href="http://matplotlib.sourceforge.net/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v1.4.2)"><tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></a> instance) &#8211; Also produce a plot of the adjoint source. This will force
+the adjoint source to be calculated regardless of the value of
+<tt class="docutils literal"><span class="pre">adjoint_src</span></tt>.</li>
+<li><strong>plot_filename</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If given, the plot of the adjoint source will be
+saved there. Only used if <tt class="docutils literal"><span class="pre">plot</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Str adj_src_type:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body"><p class="first last">str</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation index</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Pyadjoint</a></li>
+      <li>Next: <a href="adjoint_sources/index.html" title="next chapter">Adjoint Sources</a></li>
+  </ul></li>
+</ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2015, Lion Krischer.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+  </div>
+  
+  </body>
+</html>

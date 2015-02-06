@@ -2,7 +2,11 @@
 Adjoint Sources
 ===============
 
-``Pyadjoint`` currently contains the following adjoint sources:
+``Pyadjoint`` can currently calculate the following misfits measurements and
+associated adjoint sources:
 
+.. toctree::
+    :maxdepth: 1
 
-:doc:`waveform_misfit`
+    cc_traveltime_misfit
+    waveform_misfit
