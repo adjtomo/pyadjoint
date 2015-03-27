@@ -78,6 +78,7 @@ ADDITIONAL_PARAMETERS = r"""
     can use. Defaults to ``"hann"``.
 """
 
+## gloable variables (put them in parameter file in the future)
 LNPT = 15
 nlen_F = 2**LNPT
 # half of frequencies
@@ -88,7 +89,6 @@ WTR = 0.02
 PHASE_STEP = 1.5
 # for frequency taper
 ipwr_w = 10
-display = False
 
 def _xcorr_shift(d, s):
     cc = np.correlate(d, s, mode="full")
@@ -332,10 +332,6 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     nlen_data = len(observed.data)
     fp = np.zeros(nlen_data)
     fq = np.zeros(nlen_data)
-
-   # 
-    left_window_border = 800 
-    right_window_border = 900
 
 # pre-processing of the observed and sythetic to get windowed obs and syn
     left_sample = int(left_window_border / observed.stats.delta)
