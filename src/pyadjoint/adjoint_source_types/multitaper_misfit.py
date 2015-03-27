@@ -152,28 +152,6 @@ def mt_measure(d1, d2, tapers, wvec, df, nfreq_max,cc_tshift,cc_dlnA):
     dtau_w[1:nfreq_max] = - 1.0 / wvec[1:nfreq_max] * phi_w[1:nfreq_max] + cc_tshift 
     dlnA_w[0:nfreq_max] = np.log(abs_w[0:nfreq_max]) + cc_dlnA 
 
-    if(display == True) :
-            freq = np.arange(0, nlen_F, 1) * df 
-            d1_w = np.fft.fft(d1,nlen_F)
-	    d2_w = np.fft.fft(d2,nlen_F)
-	    plt.plot(freq, abs(d1_w))
-	    plt.hold(True)
-	    plt.plot(freq,abs(d2_w))
-	    plt.plot(freq, abs(trans_func * d2_w ))
-	    plt.xlim(0, (nfreq_max-1)*df)
-	    plt.legend(['d(w)','s(w)','T(w)*s(w)'])
-	    plt.title('spectral amplitude')
-	    plt.xlabel('frequency (Hz)')
-	    plt.show()
-
-	    plt.plot(freq, dtau_w)
-	    plt.hold(True)
-	    plt.plot(freq, dlnA_w)
-	    plt.xlim(0, (nfreq_max-1)*df)
-	    plt.legend(['dtau','dlnA'])
-	    plt.title('MT measurement')
-	    plt.xlabel('frequency (Hz)')
-	    plt.show()
 
     # multitaper error estimation (future implementation) 
 
@@ -235,23 +213,7 @@ def mt_error(d1, d2, tapers, wvec,df, nfreq_max, cc_tshift, cc_dlnA, phi_mtm, ab
     err_dtau[0:nfreq_max] = np.sqrt(err_dtau[0:nfreq_max]/(ntaper*(ntaper-1)))
    # err_dtau[0] = LARGE_VAL
     err_dlnA[0:nfreq_max] = np.sqrt(err_dlnA[0:nfreq_max]/(ntaper*(ntaper-1)))
-
-    if(display == True) :
-            freq = np.arange(0, nlen_F, 1) * df
-            plt.subplot(2,1,1)
-            plt.plot(freq,err_dtau)
-            plt.hold(True)
-            plt.xlim(0, (nfreq_max-1)*df)            
-            plt.title('MT error estimation : err_dtau')
-            plt.xlabel('frequency (Hz)')
-            plt.subplot(2,1,2)
-            plt.plot(freq,err_dlnA)
-            plt.hold(True)
-            plt.xlim(0, (nfreq_max-1)*df)
-            plt.title('MT error estimation : err_dlnA')
-            plt.xlabel('frequency (Hz)') 
-            plt.show() 
-
+    
     return err_phi, err_abs, err_dtau, err_dlnA 
 
 def mt_adj(d1, d2, tapers, dtau_mtm, dlnA_mtm, df, nfreq_max,err_dtau,err_dlnA):
@@ -284,27 +246,6 @@ def mt_adj(d1, d2, tapers, dtau_mtm, dlnA_mtm, df, nfreq_max,err_dtau,err_dlnA):
     Wq_w[nfreq_min: nfreq_max] = W_taper[nfreq_min: nfreq_max] / ((err_dlnA[nfreq_min: nfreq_max])**2)
     Wp_w = Wp_w / ffac
     Wq_w = Wq_w / ffac
-    if(display == True) :
-            freq = np.arange(0, nlen_F, 1) * df
-            plt.subplot(3,1,1)
-            plt.plot(freq,W_taper)
-            plt.hold(True)
-            plt.xlim(0, (nfreq_max-1)*df)
-            plt.title('frequency filter')
-            plt.xlabel('frequency (Hz)')
-            plt.subplot(3,1,2)
-            plt.plot(freq,Wp_w)
-            plt.hold(True)
-            plt.xlim(0, (nfreq_max-1)*df)
-            plt.title('frequency filter with err_dtau')
-            plt.xlabel('frequency (Hz)')
-            plt.subplot(3,1,3)
-            plt.plot(freq,Wq_w)
-            plt.hold(True)
-            plt.xlim(0, (nfreq_max-1)*df)
-            plt.title('frequency filter with err_dlnA')
-            plt.xlabel('frequency (Hz)')
-            plt.show()
 
 
     # initialization
@@ -360,39 +301,6 @@ def mt_adj(d1, d2, tapers, dtau_mtm, dlnA_mtm, df, nfreq_max,err_dtau,err_dlnA):
         fp_t = fp_t + P_wt * taper
         fq_t = fq_t + Q_wt * taper
 
-        if(display == False) :
-	        plt.subplot(4,2,1)
-	        plt.plot(P_wt)
-	        plt.hold(True)
-	        plt.xlim(0,nlen_T)
-	        plt.title('Pj(t)')
-                plt.subplot(4,2,2)
-                plt.plot(Q_wt)
-                plt.hold(True)
-                plt.xlim(0,nlen_T)
-                plt.title('Qj(t)')
-	        plt.subplot(4,2,3)
-	        plt.plot(P_wt*taper)
-	        plt.hold(True)
-	        plt.xlim(0,nlen_T)
-	        plt.title('Pj(t)*hj(t)')
-	        plt.subplot(4,2,4)
-	        plt.plot(Q_wt*taper)
-	        plt.hold(True)
-	        plt.xlim(0,nlen_T)
-	        plt.title('Qj(t)*hj(t)')
-	        plt.subplot(4,2,5)
-	        plt.plot(fp_t)
-	        plt.hold(False)
-	        plt.xlim(0,nlen_T)
-	        plt.title('fp_t(t)')
-                plt.subplot(4,2,6)
-                plt.plot(fq_t)
-                plt.hold(False)
-                plt.xlim(0,nlen_T)
-                plt.title('fq_t(t)')
-
-    #plt.show()
     return fp_t, fq_t
 
 
@@ -439,22 +347,6 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     d[0:nlen] = observed.data[left_sample: right_sample] * time_window[0:nlen]
     s[0:nlen] = synthetic.data[left_sample: right_sample] * time_window[0:nlen]
    
-    if(display == True) : 
-	    plt.subplot(2,1,1)
-	    plt.plot(observed.data)
-	    plt.hold(True)
-	    plt.plot(synthetic.data)
-	    plt.xlim(0, nlen_data)
-	    plt.legend(['input data','input syn'])
-	    plt.title('input data and synthetics')
- 
-	    plt.subplot(2,1,2)
-	    plt.plot(d)
-	    plt.hold(True)
-	    plt.plot(s)
-	    plt.xlim(0,nlen)
-	    plt.title('windowed data and synthetics between %d and %d '%(left_sample,right_sample))
- 
     # cross-correlation correction
     cc_shift=_xcorr_shift(d, s)
     cc_tshift = cc_shift * observed.stats.delta
@@ -470,11 +362,6 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     else :
        exit()
 
-    if(display == True) :
-        plt.subplot(2,1,2)
-        plt.plot(d)
-        plt.legend(['windowed data','windowed syn','cc corrected data'])
-        plt.show()
     
     # multi-taper
     is_mtm = True
@@ -486,13 +373,7 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
         ntaper = int(2 * NW)
         [tapers, eigens] = dpss(nlen, NW, ntaper)
         # normalized
-        tapers = tapers/ np.sqrt(nlen)
-        if(display == True) :
-	        plt.plot(tapers)
-	        plt.xlim(0, nlen)
-	        plt.legend(['1st','2nd','3rd','4th','5th'])
-	        plt.title('slepian sequences with LW=%1.1f'%NW)
-	        plt.show()
+        tapers = tapers*np.sqrt(nlen)
         
         # frequencies for FFT
         freq = np.fft.fftfreq(n = nlen_F, d = observed.stats.delta )
@@ -549,27 +430,6 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     fp = fp + fp_wind
     fq = fq + fq_wind
 
-    if(display == False) :
-                plt.subplot(4,2,7)
-                plt.plot(fp)
-                plt.hold(False)
-                plt.title('fp(t)')
-                plt.xlim(left_sample, right_sample)
-                plt.subplot(4,2,8)
-                plt.plot(fq)
-                plt.hold(False)
-                plt.title('fq(t)')
-                plt.xlim(left_sample, right_sample)
- 
-	#    plt.subplot(1,2,1)
-	#    plt.plot(fp)
-	#    plt.xlim(left_sample, right_sample)
-	#    plt.title('multitaper adjoint fp(t)')
-	#    plt.subplot(1,2,2)
-	#    plt.plot(fq)
-	#    plt.title('multitaper adjoint fq(t)')
- 	#    plt.xlim(left_sample, right_sample)
-	        plt.show()
 
     ### return misfit and adjoint source
     # Integrate with the composite Simpson's rule.
