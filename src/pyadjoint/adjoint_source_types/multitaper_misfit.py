@@ -35,33 +35,25 @@ VERBOSE_NAME = "Multitaper Misfit"
 # Otherwise most backslashes will have a special meaning which messes with the
 # TeX like formulas.
 DESCRIPTION = r"""
-This is the simplest of all misfits and is defined as the squared difference
-between observed and synthetic data. The misfit :math:`\chi(\mathbf{m})` for a
+The misfit :math:`\chi(\mathbf{m})` for a
 given Earth model :math:`\mathbf{m}` and a single receiver and component is
 given by
 
 .. math::
 
-    \chi (\mathbf{m}) = \frac{1}{2} \int_0^T \left| \mathbf{d}(t) -
-    \mathbf{s}(t, \mathbf{m}) \right| ^ 2 dt
+    \chi (\mathbf{m}) = \frac{1}{2} \int_0^W  Wp(w) \left| \Delta \tau_^{\mathbf{d}}(w) -
+    \Delta \tau_^{\mathbf{s}}(w, \mathbf{m}) \right| ^ 2 dw
 
-:math:`\mathbf{d}(t)` is the observed data and
-:math:`\mathbf{s}(t, \mathbf{m})` the synthetic data.
+:math:`\mathbf{d}(w)` is the frequency-dependent phase measurement of the observed data and
+:math:`\mathbf{s}(w, \mathbf{m})` the frequency-dependent phase measurement of the synthetic data.
 
 The adjoint source for the same receiver and component is given by
 
 .. math::
 
-    f^{\dagger}(t) = - \left[ \mathbf{d}(T - t) -
-    \mathbf{s}(T - t, \mathbf{m}) \right]
+    f_p^{\dagger}(t)  \\
+    f_q^{\dagger}(t)
 
-For the sake of simplicity we omit the spatial Kronecker delta and define
-the adjoint source as acting solely at the receiver's location. For more
-details, please see [Tromp2005]_ and [Bozdag2011]_.
-
-This particular implementation here uses
-`Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
-to evaluate the definite integral.
 """
 
 # Optional: document any additional parameters this particular adjoint sources
@@ -79,6 +71,7 @@ ADDITIONAL_PARAMETERS = r"""
     can use. Defaults to ``"hann"``.
 """
 
+## global parameters used (save in parameter file in the future)
 LNPT = 15
 nlen_F = 2**LNPT
 # half of frequencies
@@ -90,8 +83,8 @@ PHASE_STEP = 1.5
 # for frequency taper
 ipwr_w = 10
 # error estimation method
-error_CC = False
-error_MT = False
+USE_CC_ERROR = False
+USE_MT_ERROR = False
 
 
 def _xcorr_shift(d, s):
@@ -118,8 +111,8 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlnA):
     sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_T] * d2_cc_vel[1:nlen_T])
     sigma_dlnA_top = sigma_dt_top 
     sigma_dlnA_bot = np.sum(d2_cc[1:nlen_T] * d2_cc[1:nlen_T]) / (cc_dlnA * cc_dlnA) 
-    sigma_dt = sigma_dt_top / sigma_dt_bot
-    sigma_dlnA = sigma_dlnA_top / sigma_dlnA_bot   
+    sigma_dt = np.sqrt(sigma_dt_top / sigma_dt_bot)
+    sigma_dlnA = np.sqrt(sigma_dlnA_top / sigma_dlnA_bot)   
 
    
     return sigma_dt, sigma_dlnA 
@@ -143,8 +136,7 @@ def frequency_limit(s,nlen,deltat,df):
            if (iw > i_ampmax and abs(s_w[iw]) > 10*wtr_thrd and is_search == 0 ):
                is_search = 1
                nfreq_max = iw
-        # to include max freq
-        nfreq_max = min(nfreq_max,int(1.0/(2*deltat)/df)) +  1
+        nfreq_max = min(nfreq_max,int(1.0/(2*deltat)/df)-1)
 
         nfreq_min = 0
         is_search = 1
@@ -155,6 +147,7 @@ def frequency_limit(s,nlen,deltat,df):
            if (iw < i_ampmax and abs(s_w[iw]) > 10*wtr_thrd and is_search == 0 ):
                is_search = 1
                nfreq_min = iw
+        # assume there are at least three cycles within the window 
         nfreq_min = max(nfreq_min,int(3.0/(nlen*deltat)/df)-1)
 
         return nfreq_min, nfreq_max
@@ -195,7 +188,7 @@ def mt_measure(d1, d2, tapers, wvec, df,nfreq_min, nfreq_max,cc_tshift,cc_dlnA):
     # transfrer function
     trans_func = np.zeros(nlen_F,dtype=complex)
     trans_func[nfreq_min:nfreq_max] = top_tf[nfreq_min:nfreq_max] / (bottom_tf[nfreq_min:nfreq_max] \
-          + wtr_use * (abs(trans_func[nfreq_min:nfreq_max]) < wtr_use))
+          + wtr_use * (abs(bottom_tf[nfreq_min:nfreq_max]) < wtr_use))
 
     # Estimate phase and amplitude anomaly from transfer function
     phi_w = np.zeros(nlen_F)
@@ -308,11 +301,11 @@ def mt_adj(d1, d2,deltat,tapers, dtau_mtm, dlnA_mtm, df,nfreq_min, nfreq_max,err
     Wp_w = W_taper / ffac
     Wq_w = W_taper /ffac
     # add error estimate
-    if(error_CC == True) :
+    if(USE_CC_ERROR == True) :
     # cc error
         Wp_w = Wp_w / (err_dt_cc *err_dt_cc)
         Wq_w = Wq_w / (err_dlnA_cc *err_dlnA_cc)   
-    if(error_MT == True): 
+    if(USE_MT_ERROR == True): 
     # mt error
         dtau_wtr = WTR * np.sum(np.abs(dtau_mtm[nfreq_min: nfreq_max]))/(nfreq_max - nfreq_min)
         dlnA_wtr = WTR * np.sum(np.abs(dlnA_mtm[nfreq_min: nfreq_max]))/(nfreq_max - nfreq_min)
@@ -398,14 +391,14 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     # All adjoint sources will need some kind of taper. Thus pyadjoint has a
     # convenience function to assist with that. The next block tapers both
     # observed and synthetic data.
- #   taper_window(observed, left_window_border, right_window_border,
- #                taper_percentage=taper_percentage, taper_type=taper_type)
- #   taper_window(synthetic, left_window_border, right_window_border,
- #                taper_percentage=taper_percentage, taper_type=taper_type)
+    taper_window(observed, left_window_border, right_window_border,
+                 taper_percentage=taper_percentage, taper_type=taper_type)
+    taper_window(synthetic, left_window_border, right_window_border,
+                 taper_percentage=taper_percentage, taper_type=taper_type)
 
 
-    ret_val_phi = {}
-    ret_val_abs = {}
+    ret_val_p = {}
+    ret_val_q = {}
 
     # initialization
     nlen_data = len(observed.data)
@@ -417,11 +410,10 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     left_sample = int(left_window_border / deltat)
     right_sample = int(right_window_border / deltat)
     nlen = right_sample - left_sample 
-    time_window = np.hanning(nlen)
     d = np.zeros(nlen)
-    s = np.zeros(nlen)
-    d[0:nlen] = observed.data[left_sample: right_sample] #* time_window[0:nlen]
-    s[0:nlen] = synthetic.data[left_sample: right_sample] #* time_window[0:nlen]
+    s = np.zeros(nlen) 
+    d[0:nlen] = observed.data[left_sample: right_sample] 
+    s[0:nlen] = synthetic.data[left_sample: right_sample] 
 
  
     # cross-correlation
@@ -431,7 +423,7 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     # unvertainty estimate based on cross-correlations 
     sigma_dt_cc = 1 
     sigma_dlnA_cc = 1
-    if (error_CC == True):
+    if (USE_CC_ERROR == True):
         cc_dlnA = 0.5 * np.log( sum(d[0:nlen] * d[0:nlen]) / sum(s[0:nlen] * s[0:nlen] ) )
         sigma_dt_cc,sigma_dlnA_cc = cc_error(d, s, deltat,cc_shift, cc_dlnA) 
 
@@ -441,7 +433,7 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     nlen_d = right_sample_d - left_sample_d
     if( nlen_d == nlen) :
        cc_dlnA = 0 
-       d[0:nlen] = np.exp(-cc_dlnA) * observed.data[left_sample_d: right_sample_d] #* time_window[0:nlen]
+       d[0:nlen] = np.exp(-cc_dlnA) * observed.data[left_sample_d: right_sample_d] 
     else :
        exit()
 
@@ -482,7 +474,7 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     sigma_abs_mt = np.zeros(nlen_F)
     sigma_dtau_mt = np.zeros(nlen_F)
     sigma_dlnA_mt = np.zeros(nlen_F)
-    if(error_MT == True) :
+    if(USE_MT_ERROR == True) :
          sigma_phi_mt, sigma_abs_mt, sigma_dtau_mt, sigma_dlnA_mt \
           = mt_error(d, s, tapers, wvec, df,nfreq_min, nfreq_max, cc_tshift, cc_dlnA, phi_mtm, abs_mtm, dtau_mtm, dlnA_mtm)
 
@@ -492,13 +484,13 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
     fp_t, fq_t = \
     mt_adj(d, s,deltat,tapers, dtau_mtm, dlnA_mtm, df,nfreq_min, nfreq_max, sigma_dt_cc, sigma_dlnA_cc,sigma_dtau_mt, sigma_dlnA_mt)
 
-    # post-processing of adjoint source time-domain taper
+    # post-processing 
     # and return to original location before windowing
     # initialization
     fp_wind = np.zeros(len(synthetic.data))
     fq_wind = np.zeros(len(synthetic.data))
-    fp_wind[left_sample: right_sample] = fp_t[0:nlen] #* time_window[0:nlen]
-    fq_wind[left_sample: right_sample] = fq_t[0:nlen] #* time_window[0:nlen]
+    fp_wind[left_sample: right_sample] = fp_t[0:nlen] 
+    fq_wind[left_sample: right_sample] = fq_t[0:nlen] 
     fp = fp + fp_wind
     fq = fq + fq_wind
 
@@ -513,19 +505,12 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
         ret_val_p["adjoint_source"] = fp[::-1]
         ret_val_q["adjoint_source"] = fq[::-1]
 
+    ## outputs (amplitude misfit and adjoint is optional)
     if figure:
         generic_adjoint_source_plot(
             observed, synthetic, ret_val_p["adjoint_source"], ret_val_p["misfit"],
             left_window_border, right_window_border,
             VERBOSE_NAME)
-        plt.title('multitaper phase adjoint source')
-        plt.show()
  
-        generic_adjoint_source_plot(
-            observed, synthetic, ret_val_q["adjoint_source"], ret_val_q["misfit"],
-            left_window_border, right_window_border,
-            VERBOSE_NAME)
-        plt.title('multitaper amplitude adjoint source')
-        plt.show()
 
     return ret_val_p
