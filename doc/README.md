@@ -26,12 +26,12 @@ Install everything needed to build the documentation (in addition to pyadjoint)
 with
 
 ```bash
-$ conda install seaborn sphinx ipython
+$ conda install sphinx ipython
 $ pip install sphinx-readable-theme runipy
 ```
 
 or only using `pip`:
 
 ```bash
-$ pip install sphinx sphinx-readable-theme ipython runipy pandas seaborn
+$ pip install sphinx sphinx-readable-theme ipython runipy
 ```
