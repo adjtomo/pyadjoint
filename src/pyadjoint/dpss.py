@@ -266,5 +266,3 @@ def dpss_windows(N, half_nbw, Kmax, low_bias=True, interp_from=None,
         dpss, eigvals = dpss[idx], eigvals[idx]
     assert len(dpss) > 0  # should never happen
     return dpss, eigvals
-
-
