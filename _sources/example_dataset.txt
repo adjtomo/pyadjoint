@@ -65,13 +65,14 @@ Sets up some values we'll need throughout this document.
     # Desired properties after the data processing.
     sampling_rate = 1.0
     npts = 3600
+
 Map of Source and Receiver
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
     import matplotlib.pyplot as plt
-    import seaborn as sns
+    plt.style.use("ggplot")
     from mpl_toolkits.basemap import Basemap
     
     plt.figure(figsize=(12, 6))
@@ -90,6 +91,7 @@ Map of Source and Receiver
     plt.show()
 
 
+
 .. image:: example_dataset_files/example_dataset_4_0.png
 
 
@@ -105,6 +107,7 @@ Data
     
     print(shakemovie_data)
     print(instaseis_data)
+
 
 .. parsed-literal::
 
@@ -180,6 +183,7 @@ synthetics.
             st.rotate(method="NE->RT", back_azimuth=baz)
     
         return st
+
 .. code:: python
 
     # From now one we will refer to them as observed data and synthetics.
@@ -188,6 +192,7 @@ synthetics.
     
     print(observed)
     print(synthetic)
+
 
 .. parsed-literal::
 
@@ -250,7 +255,7 @@ We first define a function to plot both data sets.
         
         plt.plot(obs_z.times(), obs_z.data, color="black", label="observed")
         plt.plot(syn_z.times(), syn_z.data, color="red", label="synthetic")
-        plt.legend()
+        plt.legend(loc="lower left")
         if show_tts:
             plot_tts()
         plt.xlim(start, end)
@@ -262,7 +267,7 @@ We first define a function to plot both data sets.
         plt.subplot(312)
         plt.plot(obs_r.times(), obs_r.data, color="black", label="observed")
         plt.plot(syn_r.times(), syn_r.data, color="red", label="synthetic")
-        plt.legend()
+        plt.legend(loc="lower left")
         if show_tts:
             plot_tts()
         plt.xlim(start, end)
@@ -274,7 +279,7 @@ We first define a function to plot both data sets.
     
         plt.plot(obs_t.times(), obs_t.data, color="black", label="observed")
         plt.plot(syn_t.times(), syn_t.data, color="red", label="synthetic")
-        plt.legend()
+        plt.legend(loc="lower left")
         if show_tts:
             plot_tts()
         plt.ylabel("Displacement in m")
@@ -286,12 +291,14 @@ We first define a function to plot both data sets.
         plt.tight_layout()
     
         plt.show();
+
 Plot of All Data
 ~~~~~~~~~~~~~~~~
 
 .. code:: python
 
     plot_data()
+
 
 
 .. image:: example_dataset_files/example_dataset_13_0.png
@@ -305,6 +312,7 @@ Plot of First Arrivals
     plot_data(700, 1200, show_tts=True)
 
 
+
 .. image:: example_dataset_files/example_dataset_15_0.png
 
 
@@ -316,12 +324,14 @@ Plot of Some Later Arrivals
     plot_data(1400, 1900, show_tts=True)
 
 
+
 .. image:: example_dataset_files/example_dataset_17_0.png
 
 
 .. code:: python
 
     plot_data(2000, 3000, show_tts=True)
+
 
 
 .. image:: example_dataset_files/example_dataset_18_0.png

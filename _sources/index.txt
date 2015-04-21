@@ -56,6 +56,7 @@ The first step is to import ObsPy and ``Pyadjoint``.
 
     import obspy
     import pyadjoint
+
 ``Pyadjoint`` expects the data to be fully preprocessed thus both
 observed and synthetic data are expected to have exactly the same
 length, sampling rate, and spectral content. ``Pyadjoint`` furthermore
@@ -73,12 +74,13 @@ represents.
     # Select the vertical components of both.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
-                
+
+
 Essentially all of ``Pyadjoint``'s functionality is accessed through its central :func:`~pyadjoint.adjoint_source.calculate_adjoint_source` function. A list of available
 adjoint source types can be found in :doc:`adjoint_sources/index`.
 
 
-                
+
 .. code:: python
 
     adj_src = pyadjoint.calculate_adjoint_source(
@@ -93,6 +95,7 @@ adjoint source types can be found in :doc:`adjoint_sources/index`.
         right_window_border=900.0)
     print(adj_src)
 
+
 .. parsed-literal::
 
     Waveform Misfit Adjoint Source for component Z at station SY.DBO
@@ -100,17 +103,18 @@ adjoint source types can be found in :doc:`adjoint_sources/index`.
         Adjoint source available with 3600 samples
 
 
-                
+
 It returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object.
 
 
-                
+
 .. code:: python
 
     # Access misfit and adjoint sources. The misfit is a floating point number.
     print(adj_src.misfit)
     # The adjoint source is a a numpy array.
     print(adj_src.adjoint_source)
+
 
 .. parsed-literal::
 
@@ -133,6 +137,7 @@ or similar endeavors.
         min_period=20.0, max_period=100.0,
         left_window_border=800.0, right_window_border=900.0, adjoint_src=False))
 
+
 .. parsed-literal::
 
     Waveform Misfit Adjoint Source for component Z at station SY.DBO
@@ -152,14 +157,15 @@ adjoint source.
         left_window_border=800.0, right_window_border=900.0, plot=True);
 
 
+
 .. image:: index_files/index_11_0.png
 
 
-                
+
 Many types of adjoint sources have additional arguments that can be passed to it. The waveform misfit adjoint source for example allows to specifiy the width and type of the taper applied to the data. Please see the documentation of the different :doc:`adjoint_sources/index` for details.
 
 
-                
+
 .. code:: python
 
     print(pyadjoint.calculate_adjoint_source(
@@ -167,6 +173,7 @@ Many types of adjoint sources have additional arguments that can be passed to it
         min_period=20.0, max_period=100.0,
         left_window_border=800.0, right_window_border=900.0,
         taper_percentage=0.3, taper_type="cosine"))
+
 
 .. parsed-literal::
 
@@ -178,24 +185,26 @@ Many types of adjoint sources have additional arguments that can be passed to it
 Saving to Disc
 ~~~~~~~~~~~~~~
 
-                
+
 One of course wants to serialize the calculated adjoint sources to disc at one point in time. You need to pass the filename and the desired format as well as some format specific parameters to the :meth:`~pyadjoint.adjoint_source.AdjointSource.write` method of the :class:`~pyadjoint.adjoint_source.AdjointSource` object. Instead of a filename you can also pass an open file or a file-like object. Please refer to its documentation for more details.
 
 
-                
+
 .. code:: python
 
     adj_src.write(filename="NET.STA.CHA.adj_src",
                   format="SPECFEM", time_offset=-10)
+
 .. code:: python
 
     !head NET.STA.CHA.adj_src
     !rm NET.STA.CHA.adj_src
 
+
 .. parsed-literal::
 
-    -1.000000000000000000e+01 2.360314780515858217e-310
-    -9.000000000000000000e+00 1.974378019365489326e-316
+    -1.000000000000000000e+01 2.321627210615186711e-310
+    -9.000000000000000000e+00 2.968195413752840152e-316
     -8.000000000000000000e+00 0.000000000000000000e+00
     -7.000000000000000000e+00 0.000000000000000000e+00
     -6.000000000000000000e+00 0.000000000000000000e+00
@@ -206,7 +215,7 @@ One of course wants to serialize the calculated adjoint sources to disc at one p
     -1.000000000000000000e+00 0.000000000000000000e+00
 
 
-                
+
 Detailed Documentation
 ----------------------
 
@@ -234,4 +243,4 @@ API
     utils
 
 
-                
+

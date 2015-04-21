@@ -125,8 +125,8 @@ data arrays.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>adj_src_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The type of adjoint source to calculate.</li>
-<li><strong>observed</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></tt></a>) &#8211; The observed data.</li>
-<li><strong>synthetic</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.9.2) v0.9)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></tt></a>) &#8211; The synthetic data.</li>
+<li><strong>observed</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.10.1) v0.10)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></tt></a>) &#8211; The observed data.</li>
+<li><strong>synthetic</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.10.1) v0.10)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></tt></a>) &#8211; The synthetic data.</li>
 <li><strong>min_period</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The minimum period of the spectral content of the data.</li>
 <li><strong>max_period</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The maximum period of the spectral content of the data.</li>
 <li><strong>left_window_border</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Left border of the window to be tapered in
@@ -135,7 +135,7 @@ seconds since the first sample in the data arrays.</li>
 seconds since the first sample in the data arrays.</li>
 <li><strong>adjoint_src</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Only calculate the misfit or also derive
 the adjoint source.</li>
-<li><strong>plot</strong> (bool or empty <a class="reference external" href="http://matplotlib.sourceforge.net/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v1.4.2)"><tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></a> instance) &#8211; Also produce a plot of the adjoint source. This will force
+<li><strong>plot</strong> (bool or empty <a class="reference external" href="http://matplotlib.sourceforge.net/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v1.4.3)"><tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></a> instance) &#8211; Also produce a plot of the adjoint source. This will force
 the adjoint source to be calculated regardless of the value of
 <tt class="docutils literal"><span class="pre">adjoint_src</span></tt>.</li>
 <li><strong>plot_filename</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If given, the plot of the adjoint source will be

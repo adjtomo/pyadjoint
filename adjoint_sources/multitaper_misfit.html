@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Cross Correlation Traveltime Misfit &mdash; Pyadjoint 0.0.1a documentation</title>
+    <title>Multitaper Misfit &mdash; Pyadjoint 0.0.1a documentation</title>
     
     <link rel="stylesheet" href="../_static/readable.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -26,8 +26,8 @@
     <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Pyadjoint 0.0.1a documentation" href="../index.html" />
     <link rel="up" title="Adjoint Sources" href="index.html" />
-    <link rel="next" title="Multitaper Misfit" href="multitaper_misfit.html" />
-    <link rel="prev" title="Adjoint Sources" href="index.html" />
+    <link rel="next" title="Waveform Misfit" href="waveform_misfit.html" />
+    <link rel="prev" title="Cross Correlation Traveltime Misfit" href="cc_traveltime_misfit.html" />
    
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
@@ -43,10 +43,10 @@
           <a href="../py-modindex.html" title="Python Module Index"
              >modules</a></li>
         <li class="right" >
-          <a href="multitaper_misfit.html" title="Multitaper Misfit"
+          <a href="waveform_misfit.html" title="Waveform Misfit"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="index.html" title="Adjoint Sources"
+          <a href="cc_traveltime_misfit.html" title="Cross Correlation Traveltime Misfit"
              accesskey="P">previous</a> |</li>
         <li><a href="../index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li>
           <li><a href="index.html" accesskey="U">Adjoint Sources</a> &raquo;</li> 
@@ -58,36 +58,22 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="cross-correlation-traveltime-misfit">
-<h1>Cross Correlation Traveltime Misfit<a class="headerlink" href="#cross-correlation-traveltime-misfit" title="Permalink to this headline">¶</a></h1>
-<p>Traveltime misfits simply measure the squared traveltime difference. The
-misfit <span class="math">\(\chi(\mathbf{m})\)</span> for a given Earth model <span class="math">\(\mathbf{m}\)</span>
-and a single receiver and component is given by</p>
+  <div class="section" id="multitaper-misfit">
+<h1>Multitaper Misfit<a class="headerlink" href="#multitaper-misfit" title="Permalink to this headline">¶</a></h1>
+<p>The misfit <span class="math">\(\chi(\mathbf{m})\)</span> for a
+given Earth model <span class="math">\(\mathbf{m}\)</span> and a single receiver and component is
+given by</p>
 <div class="math">
-\[\chi (\mathbf{m}) = \frac{1}{2} \left[ T^{obs} - T(\mathbf{m}) \right] ^ 2\]</div>
-<p><span class="math">\(T^{obs}\)</span> is the observed traveltime, and <span class="math">\(T(\mathbf{m})\)</span> the
-predicted traveltime in Earth model <span class="math">\(\mathbf{m}\)</span>.</p>
-<p>In practice traveltime are measured by cross correlating observed and
-predicted waveforms. This particular implementation here measures cross
-correlation time shifts with subsample accuracy with a fitting procedure
-explained in <a class="reference internal" href="../citations.html#deichmann1992" id="id1">[Deichmann1992]</a>. For more details see the documentation of the
-<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.signal.cross_correlation.xcorrPickCorrection.html#obspy.signal.cross_correlation.xcorrPickCorrection" title="(in ObsPy Documentation (0.10.1) v0.10)"><tt class="xref py py-func docutils literal"><span class="pre">xcorrPickCorrection()</span></tt></a> function and the
-corresponding
-<a class="reference external" href="http://docs.obspy.org/tutorial/code_snippets/xcorr_pick_correction.html">Tutorial</a>.</p>
-<p>The adjoint source for the same receiver and component is then given by</p>
+\[\chi (\mathbf{m}) = \frac{1}{2} \int_0^W  Wp(w) \left| \Delta
+\tau  {\mathbf{d}}(w) - \Delta \tau  {\mathbf{s}}(w, \mathbf{m}) \right|
+^ 2 dw\]</div>
+<p><span class="math">\(\mathbf{d}(w)\)</span> is the frequency-dependent phase measurement of the
+observed data and <span class="math">\(\mathbf{s}(w, \mathbf{m})\)</span> the frequency-dependent
+phase measurement of the synthetic data.</p>
+<p>The adjoint source for the same receiver and component is given by</p>
 <div class="math">
-\[f^{\dagger}(t) = - \left[ T^{obs} - T(\mathbf{m}) \right] ~ \frac{1}{N} ~
-\partial_t \mathbf{s}(T - t, \mathbf{m})\]</div>
-<p>For the sake of simplicity we omit the spatial Kronecker delta and define
-the adjoint source as acting solely at the receiver&#8217;s location. For more
-details, please see <a class="reference internal" href="../citations.html#tromp2005" id="id2">[Tromp2005]</a> and <a class="reference internal" href="../citations.html#bozdag2011" id="id3">[Bozdag2011]</a>.</p>
-<p><span class="math">\(N\)</span> is a normalization factor given by</p>
-<div class="math">
-\[N = \int_0^T ~ \mathbf{s}(t, \mathbf{m}) ~
-\partial^2_t \mathbf{s}(t, \mathbf{m}) dt\]</div>
-<p>This particular implementation here uses
-<a class="reference external" href="http://en.wikipedia.org/wiki/Simpson's_rule">Simpson&#8217;s rule</a>
-to evaluate the definite integral.</p>
+\[\begin{split}f_p^{\dagger}(t)  \\
+f_q^{\dagger}(t)\end{split}\]</div>
 <div class="section" id="additional-parameters">
 <h2>Additional Parameters<a class="headerlink" href="#additional-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Additional parameters in addition to the default ones in the central
@@ -96,7 +82,7 @@ to evaluate the definite integral.</p>
 <dt><strong>taper_percentage</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">float</span></tt></a>)</dt>
 <dd>Decimal percentage of taper at one end (ranging from <tt class="docutils literal"><span class="pre">0.0</span></tt> (0%) to
 <tt class="docutils literal"><span class="pre">0.5</span></tt> (50%)). Defauls to <tt class="docutils literal"><span class="pre">0.15</span></tt>.</dd>
-<dt><strong>taper_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">float</span></tt></a>)</dt>
+<dt><strong>taper_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><tt class="xref py py-class docutils literal"><span class="pre">str</span></tt></a>)</dt>
 <dd>The taper type, supports anything <a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.taper.html#obspy.core.trace.Trace.taper" title="(in ObsPy Documentation (0.10.1) v0.10)"><tt class="xref py py-meth docutils literal"><span class="pre">obspy.core.trace.Trace.taper()</span></tt></a>
 can use. Defaults to <tt class="docutils literal"><span class="pre">&quot;hann&quot;</span></tt>.</dd>
 </dl>
@@ -109,11 +95,11 @@ can use. Defaults to <tt class="docutils literal"><span class="pre">&quot;hann&q
 <span class="gp">&gt;&gt;&gt; </span><span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">EXAMPLE_DATA_PDIFF</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">adj_src</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;cc_traveltime_misfit&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;multitaper_misfit&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">min_period</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">left_window_border</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
 <span class="gp">... </span>    <span class="n">right_window_border</span><span class="o">=</span><span class="n">end</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">print</span><span class="p">(</span><span class="n">adj_src</span><span class="p">)</span>
-<span class="go">Cross Correlation Traveltime Misfit Adjoint Source for component Z at station SY.DBO</span>
+<span class="go">Multitaper Misfit Adjoint Source for component Z at station SY.DBO</span>
 <span class="go">    Misfit: 4.26e-11</span>
 <span class="go">    Adjoint source available with 3600 samples</span>
 </pre></div>
@@ -127,7 +113,7 @@ can use. Defaults to <tt class="docutils literal"><span class="pre">&quot;hann&q
 <p>This example contains <em>Pdif</em> and some surface reflected diffracted phases
 recorded on the vertical component.</p>
 <div class="figure">
-<img alt="../_images/cc_traveltime_misfit-1.png" src="../_images/cc_traveltime_misfit-1.png" />
+<img alt="../_images/multitaper_misfit-1.png" src="../_images/multitaper_misfit-1.png" />
 </div>
 </div>
 <div class="section" id="sdif-phase-on-transverse-component">
@@ -135,7 +121,7 @@ recorded on the vertical component.</p>
 <p>This example contains <em>Sdif</em> and some surface reflected diffracted phases
 recorded on the transverse component.</p>
 <div class="figure">
-<img alt="../_images/cc_traveltime_misfit-2.png" src="../_images/cc_traveltime_misfit-2.png" />
+<img alt="../_images/multitaper_misfit-2.png" src="../_images/multitaper_misfit-2.png" />
 </div>
 </div>
 </div>
@@ -149,7 +135,7 @@ recorded on the transverse component.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="../index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Cross Correlation Traveltime Misfit</a><ul>
+<li><a class="reference internal" href="#">Multitaper Misfit</a><ul>
 <li><a class="reference internal" href="#additional-parameters">Additional Parameters</a></li>
 <li><a class="reference internal" href="#usage">Usage</a></li>
 <li><a class="reference internal" href="#example-plots">Example Plots</a><ul>
@@ -164,8 +150,8 @@ recorded on the transverse component.</p>
 <ul>
   <li><a href="../index.html">Documentation index</a><ul>
   <li><a href="index.html">Adjoint Sources</a><ul>
-      <li>Previous: <a href="index.html" title="previous chapter">Adjoint Sources</a></li>
-      <li>Next: <a href="multitaper_misfit.html" title="next chapter">Multitaper Misfit</a></li>
+      <li>Previous: <a href="cc_traveltime_misfit.html" title="previous chapter">Cross Correlation Traveltime Misfit</a></li>
+      <li>Next: <a href="waveform_misfit.html" title="next chapter">Waveform Misfit</a></li>
   </ul></li>
   </ul></li>
 </ul>

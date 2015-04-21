@@ -9,6 +9,7 @@ associated adjoint sources:
     :maxdepth: 1
 
     cc_traveltime_misfit
+    multitaper_misfit
     waveform_misfit
 
 Comparative Plots of All Available Adjoint Sources
