@@ -28,27 +28,40 @@ VERBOSE_NAME = "Multitaper Misfit"
 # Otherwise most backslashes will have a special meaning which messes with the
 # TeX like formulas.
 DESCRIPTION = r"""
-The misfit :math:`\chi(\mathbf{m})` for a
+The misfit :math:`\chi_P(\mathbf{m})` measures frequency-dependent phase differences
+estimated with multitaper approach. The misfit :math:`\chi_P(\mathbf{m})`  
 given Earth model :math:`\mathbf{m}` and a single receiver and component is
 given by
 
 
 .. math::
 
-    \chi (\mathbf{m}) = \frac{1}{2} \int_0^W  Wp(w) \left| \Delta
-    \tau  {\mathbf{d}}(w) - \Delta \tau  {\mathbf{s}}(w, \mathbf{m}) \right|
-    ^ 2 dw
+    \chi_P (\mathbf{m}) = \frac{1}{2} \int_0^W  W_P(w) \left| 
+    \frac{ \tau^{\mathbf{d}}(w) - \tau^{\mathbf{s}}(w, \mathbf{m})}{\sigma_P(w)} \right|
+    ^ 2 dw     
 
-:math:`\mathbf{d}(w)` is the frequency-dependent phase measurement of the
-observed data and :math:`\mathbf{s}(w, \mathbf{m})` the frequency-dependent
-phase measurement of the synthetic data.
+:math:`\tau^\mathbf{d}(w)` is the frequency-dependent phase measurement of the
+observed data and :math:`\tau^\mathbf{s}(w, \mathbf{m})` the frequency-dependent
+phase measurement of the synthetic data. The function :math:`W_P(w)` denotes frequency-domain
+taper corresponding to the frequency range over which the measurements are assumed reliable. 
+:math:`\sigma_P(w)` is associated with the traveltime uncertainty introduced in making measurements,
+which can be estimated with cross-correlation method, or Jackknife multitaper approach. 
 
 The adjoint source for the same receiver and component is given by
 
 .. math::
 
-    f_p^{\dagger}(t)  \\
-    f_q^{\dagger}(t)
+    f_P^{\dagger}(t) = \sum_k h_k(t)P_j(t)
+
+in which :math:`h_k(t)` is one of multitapers. 
+.. math::
+
+    P_j(t) = 2\pi W_p(t) * \Delta \tau(t) * p_j(t) \\
+    P_j(w) = 2\pi W_p(w) \Delta \tau(w) * p_j(w)   \\
+    p_j(w) = \frac{iw s_j}{\sum_k(iw s_k)(iw s_k)^*} \\
+    \Delta \tau(w) = \tau^{\mathbf{d}}(w) - \tau^{\mathbf{s}}(w, \mathbf{m})
+
+ 
 """
 # Optional: document any additional parameters this particular adjoint sources
 # receives in addition to the ones passed to the central adjoint source
