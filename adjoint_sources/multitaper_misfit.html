@@ -65,36 +65,32 @@ frequency-dependent phase differences
 estimated with multitaper approach.
 The misfit <span class="math">\(\chi_P(\mathbf{m})\)</span>
 given Earth model <span class="math">\(\mathbf{m}\)</span>
-and a single receiver and component is
+and a single receiver is
 given by</p>
 <div class="math">
 \[\chi_P (\mathbf{m}) = \frac{1}{2} \int_0^W  W_P(w) \left|
 \frac{ \tau^{\mathbf{d}}(w) - \tau^{\mathbf{s}}(w, \mathbf{m})}
 {\sigma_P(w)} \right|^ 2 dw\]</div>
-<dl class="docutils">
-<dt><span class="math">\(\tau^\mathbf{d}(w)\)</span> is the frequency-dependent</dt>
-<dd>phase measurement of the observed data and
-<span class="math">\(\tau^\mathbf{s}(w, \mathbf{m})\)</span> the frequency-dependent</dd>
-<dt>phase measurement of the synthetic data.</dt>
-<dd>The function <span class="math">\(W_P(w)\)</span> denotes frequency-domain</dd>
-</dl>
-<p>taper corresponding to the frequency range over which
+<p><span class="math">\(\tau^\mathbf{d}(w)\)</span> is the frequency-dependent
+phase measurement of the observed data;
+<span class="math">\(\tau^\mathbf{s}(w, \mathbf{m})\)</span> the frequency-dependent
+phase measurement of the synthetic data.
+The function <span class="math">\(W_P(w)\)</span> denotes frequency-domain
+taper corresponding to the frequency range over which
 the measurements are assumed reliable.
 <span class="math">\(\sigma_P(w)\)</span> is associated with the
 traveltime uncertainty introduced in making measurements,
 which can be estimated with cross-correlation method,
-or Jackknife multitaper approach.
-The adjoint source for the same receiver and component is given by</p>
+or Jackknife multitaper approach.</p>
+<p>The adjoint source for the same receiver is given by</p>
 <div class="math">
 \[f_P^{\dagger}(t) = \sum_k h_k(t)P_j(t)\]</div>
-<p>in which <span class="math">\(h_k(t)\)</span> is one of multitapers.
-.. math:</p>
-<div class="highlight-python"><div class="highlight"><pre>P_j(t) = 2\pi W_p(t) * \Delta \tau(t) * p_j(t) \\
+<p>in which <span class="math">\(h_k(t)\)</span> is one (the :math:<a href="#id1"><span class="problematic" id="id2">`</span></a>k`th) of multi-tapers.</p>
+<div class="math">
+\[\begin{split}P_j(t) = 2\pi W_p(t) * \Delta \tau(t) * p_j(t) \\
 P_j(w) = 2\pi W_p(w) \Delta \tau(w) * p_j(w)   \\
 p_j(w) = \frac{iw s_j}{\sum_k(iw s_k)(iw s_k)^*} \\
-\Delta \tau(w) = \tau^{\mathbf{d}}(w) - \tau^{\mathbf{s}}(w, \mathbf{m})
-</pre></div>
-</div>
+\Delta \tau(w) = \tau^{\mathbf{d}}(w) - \tau^{\mathbf{s}}(w, \mathbf{m})\end{split}\]</div>
 <div class="section" id="additional-parameters">
 <h2>Additional Parameters<a class="headerlink" href="#additional-parameters" title="Permalink to this headline">¶</a></h2>
 <p>Additional parameters in addition to the default ones in the central
