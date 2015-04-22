@@ -33,7 +33,7 @@ frequency-dependent phase differences
 estimated with multitaper approach.
 The misfit :math:`\chi_P(\mathbf{m})`
 given Earth model :math:`\mathbf{m}`
-and a single receiver and component is
+and a single receiver is
 given by
 
 .. math::
@@ -43,23 +43,25 @@ given by
     {\sigma_P(w)} \right|^ 2 dw
 
 :math:`\tau^\mathbf{d}(w)` is the frequency-dependent
- phase measurement of the observed data and
- :math:`\tau^\mathbf{s}(w, \mathbf{m})` the frequency-dependent
+phase measurement of the observed data;
+:math:`\tau^\mathbf{s}(w, \mathbf{m})` the frequency-dependent
 phase measurement of the synthetic data.
- The function :math:`W_P(w)` denotes frequency-domain
+The function :math:`W_P(w)` denotes frequency-domain
 taper corresponding to the frequency range over which
 the measurements are assumed reliable.
 :math:`\sigma_P(w)` is associated with the
 traveltime uncertainty introduced in making measurements,
 which can be estimated with cross-correlation method,
 or Jackknife multitaper approach.
-The adjoint source for the same receiver and component is given by
+
+The adjoint source for the same receiver is given by
 
 .. math::
 
     f_P^{\dagger}(t) = \sum_k h_k(t)P_j(t)
 
-in which :math:`h_k(t)` is one of multitapers.
+in which :math:`h_k(t)` is one (the :math:`k`th) of multi-tapers.
+
 .. math::
 
     P_j(t) = 2\pi W_p(t) * \Delta \tau(t) * p_j(t) \\
