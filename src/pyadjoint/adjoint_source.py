@@ -140,6 +140,21 @@ class AdjointSource(object):
 
         np.savetxt(buf, to_write)
 
+    def write_to_asdf(self, ds):
+          """
+          Write the adjoint source to an ASDF file.
+          """
+          tag = "%s_%s_%s" % (self.network, self.station, self.component)
+          latitude = ds.waveforms.self.network_self.station.coordinates['latitude']
+          longitude = ds.waveforms.self.network_self.station.coordinates['longitude']
+          elevation_in_m = ds.waveforms.self.network_self.station.coordinates['elevation_in_m']
+          parameters = {"dt": self.dt, "misfit_value": self.misfit,
+                      "adjoint_source_type": self.adj_src_type,
+                      "latitude": latitude, "longitude", longitude,
+                      "elevation_in_m", elevation_in_m,
+          ds.add_auxiliary_data(data=self.adjoint_source,
+                              data_type="AdjointSource",path=tag,
+                              parameters=parameters)
 
 def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
                              max_period, left_window_border,
