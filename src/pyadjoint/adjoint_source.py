@@ -27,8 +27,8 @@ class AdjointSource(object):
     # a tuple of function, verbose name, and description.
     _ad_srcs = {}
 
-    def __init__(self, adj_src_type, misfit, dt, component,
-                 adjoint_source=None, network=None, station=None):
+    def __init__(self, adj_src_type, misfit, dt, min_period, max_period,
+                 component, adjoint_source=None, network=None, station=None):
         """
         Class representing an already calculated adjoint source.
 
@@ -38,6 +38,10 @@ class AdjointSource(object):
         :type misfit: float
         :param dt: The sampling rate of the adjoint source.
         :type dt: float
+        :param min_period: The minimum period of the spectral content of the data.
+        :type min_period: float
+        :param max_period: The maximum period of the spectral content of the data.
+        :type max_period: float
         :param component: The adjoint source component, usually ``"Z"``,
             ``"N"``, ``"E"``, ``"R"``, or ``"T"``.
         :type component: str
@@ -55,6 +59,8 @@ class AdjointSource(object):
         self.adj_src_name = self._ad_srcs[adj_src_type][1]
         self.misfit = misfit
         self.dt = dt
+        self.min_period = min_period
+        self.max_period = max_period
         self.component = component
         self.network = network
         self.station = station
@@ -145,16 +151,19 @@ class AdjointSource(object):
           Write the adjoint source to an ASDF file.
           """
           tag = "%s_%s_%s" % (self.network, self.station, self.component)
+          min_period = adj_src.min_period
+          max_period = adj_src.max_period
+          component = adj_src.component
           station_id = "%s.%s..%s" % (self.network, self.station, self.component)
           latitude = ds.waveforms.self.network_self.station.coordinates['latitude']
           longitude = ds.waveforms.self.network_self.station.coordinates['longitude']
           elevation_in_m = ds.waveforms.self.network_self.station.coordinates['elevation_in_m']
-          local_depth_in_m = ds.waveforms.self.network_self.station.
           parameters = {"dt": self.dt, "misfit_value": self.misfit,
                       "adjoint_source_type": self.adj_src_type,
+                      "min_period": min_period, "max_period": max_period,
                       "latitude": latitude, "longitude": longitude,
                       "elevation_in_m": elevation_in_m,
-                      "station_id": station_id, "units": "m"}
+                      "station_id": station_id, "component": component, "units": "m"}
           ds.add_auxiliary_data(data=self.adjoint_source,
                               data_type="AdjointSource",path=tag,
                               parameters=parameters)
@@ -287,6 +296,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
     return AdjointSource(adj_src_type, misfit=misfit,
                          adjoint_source=adjoint_source,
                          dt=observed.stats.delta,
+                         min_period=min_period, max_period=max_period,
                          network=observed.stats.network,
                          station=observed.stats.station,
                          component=observed.stats.channel[-1])
