@@ -145,13 +145,16 @@ class AdjointSource(object):
           Write the adjoint source to an ASDF file.
           """
           tag = "%s_%s_%s" % (self.network, self.station, self.component)
+          station_id = "%s.%s..%s" % (self.network, self.station, self.component)
           latitude = ds.waveforms.self.network_self.station.coordinates['latitude']
           longitude = ds.waveforms.self.network_self.station.coordinates['longitude']
           elevation_in_m = ds.waveforms.self.network_self.station.coordinates['elevation_in_m']
+          local_depth_in_m = ds.waveforms.self.network_self.station.
           parameters = {"dt": self.dt, "misfit_value": self.misfit,
                       "adjoint_source_type": self.adj_src_type,
-                      "latitude": latitude, "longitude", longitude,
-                      "elevation_in_m", elevation_in_m,
+                      "latitude": latitude, "longitude": longitude,
+                      "elevation_in_m": elevation_in_m,
+                      "station_id": station_id, "units": "m"}
           ds.add_auxiliary_data(data=self.adjoint_source,
                               data_type="AdjointSource",path=tag,
                               parameters=parameters)
