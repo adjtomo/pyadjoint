@@ -146,25 +146,39 @@ class AdjointSource(object):
 
         np.savetxt(buf, to_write)
 
-    def write_to_asdf(self, ds):
+    def write_to_asdf(self, ds, time_offset):
           """
-          Write the adjoint source to an ASDF file.
+          Writes the adjoint source to an ASDF file.
+          Note: For now it is assumed SPECFEM will be using the adjoint source
+
+          :param ds: The ASDF data structure read in using pyasdf
+          :type ds: str
           """
+          # Convert the adjoint source to SPECFEM format
+          l = len(self.adjoint_source)
+          specfem_adj_source = np.empty((l,2))
+          specfem_adj_source[:, 0] = np.linspace(0, (l - 1) * self.dt, l)
+          specfem_adj_source[:, 1] += time_offset
+          specfem_adj_source[:, 1] += self.adjoint_source[::-1]
+
           tag = "%s_%s_%s" % (self.network, self.station, self.component)
-          min_period = adj_src.min_period
-          max_period = adj_src.max_period
-          component = adj_src.component
+          min_period = self.min_period
+          max_period = self.max_period
+          component = self.component
           station_id = "%s.%s..%s" % (self.network, self.station, self.component)
           latitude = ds.waveforms.self.network_self.station.coordinates['latitude']
           longitude = ds.waveforms.self.network_self.station.coordinates['longitude']
           elevation_in_m = ds.waveforms.self.network_self.station.coordinates['elevation_in_m']
+
           parameters = {"dt": self.dt, "misfit_value": self.misfit,
                       "adjoint_source_type": self.adj_src_type,
                       "min_period": min_period, "max_period": max_period,
                       "latitude": latitude, "longitude": longitude,
                       "elevation_in_m": elevation_in_m,
                       "station_id": station_id, "component": component, "units": "m"}
-          ds.add_auxiliary_data(data=self.adjoint_source,
+
+          # Use pyasdf to add auxiliary data to the ASDF file
+          ds.add_auxiliary_data(data=specfem_adj_source,
                               data_type="AdjointSource",path=tag,
                               parameters=parameters)
 
