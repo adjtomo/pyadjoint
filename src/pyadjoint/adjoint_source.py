@@ -157,12 +157,22 @@ class AdjointSource(object):
         :type ds: str
         :param time_offset: The temporal offset of the first sample in seconds.
         :type time_offset: float
-        :param latitude: If given, the latitude of the adjoint source
+        :param latitude: If given, the latitude of the adjoint source.
         :type latitude: float
-        :param longitude: If given, the longitude of the adjoint source
+        :param longitude: If given, the longitude of the adjoint source.
         :type longitude: float
         :param elevation: If given, the elevation of the adjoint source
+            in meters.
         :type elevation: float
+
+        .. rubric:: SPECFEM
+
+        SPECFEM requires one additional parameter: the temporal offset of the
+        first sample in seconds. The following example sets the time of the
+        first sample in the adjoint source to ``-10``.
+
+        >>> adj_src.write_to_asdf(ds, time_offset=-10,
+        ...               latitude=-17.2, longitude=20.5, elevation=2.0)
         """
         # Convert the adjoint source to SPECFEM format
         l = len(self.adjoint_source)
