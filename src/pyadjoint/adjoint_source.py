@@ -148,7 +148,7 @@ class AdjointSource(object):
 
         np.savetxt(buf, to_write)
 
-    def write_to_asdf(self, ds, time_offset, **coordinates):
+    def write_to_asdf(self, ds, time_offset, coordinates=None, **kwargs):
         """
         Writes the adjoint source to an ASDF file.
         Note: For now it is assumed SPECFEM will be using the adjoint source
@@ -156,14 +156,12 @@ class AdjointSource(object):
         :param ds: The ASDF data structure read in using pyasdf.
         :type ds: str
         :param time_offset: The temporal offset of the first sample in seconds.
+            This is required if using the adjoint source as input to SPECFEM.
         :type time_offset: float
-        :param latitude: If given, the latitude of the adjoint source.
-        :type latitude: float
-        :param longitude: If given, the longitude of the adjoint source.
-        :type longitude: float
-        :param elevation: If given, the elevation of the adjoint source
-            in meters.
-        :type elevation: float
+        :param coordinates: If given, the coordinates of the adjoint source.
+            The 'latitude', 'longitude', and 'elevation_in_m' of the adjoint
+            source must be defined.
+        :type coordinates: list
 
         .. rubric:: SPECFEM
 
@@ -172,8 +170,13 @@ class AdjointSource(object):
         first sample in the adjoint source to ``-10``.
 
         >>> adj_src.write_to_asdf(ds, time_offset=-10,
-        ...               latitude=-17.2, longitude=20.5, elevation=2.0)
+        ...               coordinates={'latitude':19.2,
+        ...                            'longitude':13.4,
+        ...                            'elevation_in_m':2.0})
         """
+        # Import here to not have a global dependency on pyasdf
+        from pyasdf.exceptions import NoStationXMLForStation
+
         # Convert the adjoint source to SPECFEM format
         l = len(self.adjoint_source)
         specfem_adj_source = np.empty((l, 2))
@@ -187,17 +190,26 @@ class AdjointSource(object):
         component = self.component
         station_id = "%s.%s" % (self.network, self.station)
 
-        try:
-            latitude = coordinates['latitude']
-            longitude = coordinates['longitude']
-            elevation_in_m = coordinates['elevation']
-        except:
-            latitude = \
-                ds.waveforms.self.network_self.station.coordinates['latitude']
-            longitude = \
-                ds.waveforms.self.network_self.station.coordinates['longitude']
-            elevation_in_m = ds.waveforms.\
-                self.network_self.station.coordinates['elevation_in_m']
+        if coordinates:
+            # If given, all three coordinates must be present
+            if {"latitude", "longitude", "elevation_in_m"}.difference(
+                    set(coordinates.keys())):
+                raise ValueError(
+                    "'latitude', 'longitude', and 'elevation_in_m'"
+                    " must be given")
+        else:
+            try:
+                coordinates = ds.waveforms[
+                    "%s.%s" % (self.network, self.station)].coordinates
+            except NoStationXMLForStation:
+                raise ValueError("Coordinates must either be given "
+                                 "directly or already be part of the "
+                                 "ASDF file")
+
+        # Safeguard against funny types in the coordinates dictionary
+        latitude = float(coordinates["latitude"])
+        longitude = float(coordinates["longitude"])
+        elevation_in_m = float(coordinates["elevation_in_m"])
 
         parameters = {"dt": self.dt, "misfit_value": self.misfit,
                       "adjoint_source_type": self.adj_src_type,
