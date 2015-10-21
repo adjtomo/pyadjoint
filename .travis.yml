@@ -1,7 +1,6 @@
 language: python
 
 python:
-  - "2.6"
   - "2.7"
   - "3.3"
   - "3.4"
@@ -11,7 +10,7 @@ env:
     secure: "lA8kB2x48k7Y4fkdIX5ecOtD/DJgJWCTI6rSkSjshNYwaTTBN6rK4qeRGWZXueYW/P28oJ3A5wdb+JsK2OMlLM0iTnwoX3SwCuD7SI0QpzWn6xcX1+vQgOTMq3fsI7jIbVjjLXxi2vx7oTtXlH6icAr1rqB5lW45AYjTdORkXws="
 
 before_install:
-  - sudo apt-get install -qq gfortran pandoc
+  - sudo apt-get install -qq pandoc
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
   - ./miniconda.sh -b
