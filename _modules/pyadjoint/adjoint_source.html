@@ -23,32 +23,32 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Pyadjoint 0.0.1a documentation" href="../../index.html" />
     <link rel="up" title="Module code" href="../index.html" />
    
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
+  <body role="document">
   
   
 
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a></li>
-        <li><a href="../../index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li>
-          <li><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="../../index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" accesskey="U">Module code</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <h1>Source code for pyadjoint.adjoint_source</h1><div class="highlight"><pre>
 <span class="c">#!/usr/bin/env python</span>
@@ -80,8 +80,8 @@
     <span class="c"># a tuple of function, verbose name, and description.</span>
     <span class="n">_ad_srcs</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj_src_type</span><span class="p">,</span> <span class="n">misfit</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">component</span><span class="p">,</span>
-                 <span class="n">adjoint_source</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj_src_type</span><span class="p">,</span> <span class="n">misfit</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span>
+                 <span class="n">component</span><span class="p">,</span> <span class="n">adjoint_source</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class representing an already calculated adjoint source.</span>
 
@@ -91,6 +91,12 @@
 <span class="sd">        :type misfit: float</span>
 <span class="sd">        :param dt: The sampling rate of the adjoint source.</span>
 <span class="sd">        :type dt: float</span>
+<span class="sd">        :param min_period: The minimum period of the spectral content</span>
+<span class="sd">            of the data.</span>
+<span class="sd">        :type min_period: float</span>
+<span class="sd">        :param max_period: The maximum period of the spectral content</span>
+<span class="sd">            of the data.</span>
+<span class="sd">        :type max_period: float</span>
 <span class="sd">        :param component: The adjoint source component, usually ``&quot;Z&quot;``,</span>
 <span class="sd">            ``&quot;N&quot;``, ``&quot;E&quot;``, ``&quot;R&quot;``, or ``&quot;T&quot;``.</span>
 <span class="sd">        :type component: str</span>
@@ -108,6 +114,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">adj_src_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="p">[</span><span class="n">adj_src_type</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">misfit</span> <span class="o">=</span> <span class="n">misfit</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt</span> <span class="o">=</span> <span class="n">dt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_period</span> <span class="o">=</span> <span class="n">min_period</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_period</span> <span class="o">=</span> <span class="n">max_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">network</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">station</span> <span class="o">=</span> <span class="n">station</span>
@@ -193,7 +201,83 @@
 
         <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">to_write</span><span class="p">)</span>
 
-</div>
+<div class="viewcode-block" id="AdjointSource.write_to_asdf"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.AdjointSource.write_to_asdf">[docs]</a>    <span class="k">def</span> <span class="nf">write_to_asdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">,</span> <span class="n">time_offset</span><span class="p">,</span> <span class="n">coordinates</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes the adjoint source to an ASDF file.</span>
+<span class="sd">        Note: For now it is assumed SPECFEM will be using the adjoint source</span>
+
+<span class="sd">        :param ds: The ASDF data structure read in using pyasdf.</span>
+<span class="sd">        :type ds: str</span>
+<span class="sd">        :param time_offset: The temporal offset of the first sample in seconds.</span>
+<span class="sd">            This is required if using the adjoint source as input to SPECFEM.</span>
+<span class="sd">        :type time_offset: float</span>
+<span class="sd">        :param coordinates: If given, the coordinates of the adjoint source.</span>
+<span class="sd">            The &#39;latitude&#39;, &#39;longitude&#39;, and &#39;elevation_in_m&#39; of the adjoint</span>
+<span class="sd">            source must be defined.</span>
+<span class="sd">        :type coordinates: list</span>
+
+<span class="sd">        .. rubric:: SPECFEM</span>
+
+<span class="sd">        SPECFEM requires one additional parameter: the temporal offset of the</span>
+<span class="sd">        first sample in seconds. The following example sets the time of the</span>
+<span class="sd">        first sample in the adjoint source to ``-10``.</span>
+
+<span class="sd">        &gt;&gt;&gt; adj_src.write_to_asdf(ds, time_offset=-10,</span>
+<span class="sd">        ...               coordinates={&#39;latitude&#39;:19.2,</span>
+<span class="sd">        ...                            &#39;longitude&#39;:13.4,</span>
+<span class="sd">        ...                            &#39;elevation_in_m&#39;:2.0})</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c"># Import here to not have a global dependency on pyasdf</span>
+        <span class="kn">from</span> <span class="nn">pyasdf.exceptions</span> <span class="kn">import</span> <span class="n">NoStationXMLForStation</span>
+
+        <span class="c"># Convert the adjoint source to SPECFEM format</span>
+        <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">)</span>
+        <span class="n">specfem_adj_source</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="n">specfem_adj_source</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
+        <span class="n">specfem_adj_source</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_offset</span>
+        <span class="n">specfem_adj_source</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">tag</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
+        <span class="n">min_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_period</span>
+        <span class="n">max_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_period</span>
+        <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span>
+        <span class="n">station_id</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">coordinates</span><span class="p">:</span>
+            <span class="c"># If given, all three coordinates must be present</span>
+            <span class="k">if</span> <span class="p">{</span><span class="s">&quot;latitude&quot;</span><span class="p">,</span> <span class="s">&quot;longitude&quot;</span><span class="p">,</span> <span class="s">&quot;elevation_in_m&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
+                    <span class="nb">set</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s">&quot;&#39;latitude&#39;, &#39;longitude&#39;, and &#39;elevation_in_m&#39;&quot;</span>
+                    <span class="s">&quot; must be given&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">coordinates</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span>
+                    <span class="s">&quot;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">)]</span><span class="o">.</span><span class="n">coordinates</span>
+            <span class="k">except</span> <span class="n">NoStationXMLForStation</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Coordinates must either be given &quot;</span>
+                                 <span class="s">&quot;directly or already be part of the &quot;</span>
+                                 <span class="s">&quot;ASDF file&quot;</span><span class="p">)</span>
+
+        <span class="c"># Safeguard against funny types in the coordinates dictionary</span>
+        <span class="n">latitude</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">])</span>
+        <span class="n">longitude</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;longitude&quot;</span><span class="p">])</span>
+        <span class="n">elevation_in_m</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;elevation_in_m&quot;</span><span class="p">])</span>
+
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;dt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="s">&quot;misfit_value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">misfit</span><span class="p">,</span>
+                      <span class="s">&quot;adjoint_source_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj_src_type</span><span class="p">,</span>
+                      <span class="s">&quot;min_period&quot;</span><span class="p">:</span> <span class="n">min_period</span><span class="p">,</span> <span class="s">&quot;max_period&quot;</span><span class="p">:</span> <span class="n">max_period</span><span class="p">,</span>
+                      <span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">latitude</span><span class="p">,</span> <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">longitude</span><span class="p">,</span>
+                      <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">elevation_in_m</span><span class="p">,</span>
+                      <span class="s">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">station_id</span><span class="p">,</span> <span class="s">&quot;component&quot;</span><span class="p">:</span> <span class="n">component</span><span class="p">,</span>
+                      <span class="s">&quot;units&quot;</span><span class="p">:</span> <span class="s">&quot;m&quot;</span><span class="p">}</span>
+
+        <span class="c"># Use pyasdf to add auxiliary data to the ASDF file</span>
+        <span class="n">ds</span><span class="o">.</span><span class="n">add_auxiliary_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">specfem_adj_source</span><span class="p">,</span>
+                              <span class="n">data_type</span><span class="o">=</span><span class="s">&quot;AdjointSource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span>
+                              <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
+
+</div></div>
 <div class="viewcode-block" id="calculate_adjoint_source"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">adj_src_type</span><span class="p">,</span> <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span>
                              <span class="n">max_period</span><span class="p">,</span> <span class="n">left_window_border</span><span class="p">,</span>
                              <span class="n">right_window_border</span><span class="p">,</span> <span class="n">adjoint_src</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
@@ -322,6 +406,7 @@
     <span class="k">return</span> <span class="n">AdjointSource</span><span class="p">(</span><span class="n">adj_src_type</span><span class="p">,</span> <span class="n">misfit</span><span class="o">=</span><span class="n">misfit</span><span class="p">,</span>
                          <span class="n">adjoint_source</span><span class="o">=</span><span class="n">adjoint_source</span><span class="p">,</span>
                          <span class="n">dt</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span>
+                         <span class="n">min_period</span><span class="o">=</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="n">max_period</span><span class="p">,</span>
                          <span class="n">network</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">network</span><span class="p">,</span>
                          <span class="n">station</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">station</span><span class="p">,</span>
                          <span class="n">component</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
@@ -450,7 +535,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
 <ul>
   <li><a href="../../index.html">Documentation index</a><ul>
@@ -458,7 +543,7 @@
   </ul></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
@@ -477,7 +562,7 @@
     </div>
   <div class="footer">
     &copy; Copyright 2015, Lion Krischer.
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
   </div>
   
   </body>

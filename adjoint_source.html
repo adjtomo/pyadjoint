@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Pyadjoint 0.0.1a documentation" href="index.html" />
     <link rel="next" title="pyadjoint.utils" href="utils.html" />
     <link rel="prev" title="How to Add a New Adjoint Source Type" href="how_to_add_a_new_adjoint_source.html" />
@@ -31,11 +31,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
+  <body role="document">
   
   
 
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -47,20 +47,20 @@
         <li class="right" >
           <a href="how_to_add_a_new_adjoint_source.html" title="How to Add a New Adjoint Source Type"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="pyadjoint-adjoint-source">
 <h1>pyadjoint.adjoint_source<a class="headerlink" href="#pyadjoint-adjoint-source" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="pyadjoint.adjoint_source.AdjointSource">
-<em class="property">class </em><tt class="descclassname">pyadjoint.adjoint_source.</tt><tt class="descname">AdjointSource</tt><big>(</big><em>adj_src_type</em>, <em>misfit</em>, <em>dt</em>, <em>component</em>, <em>adjoint_source=None</em>, <em>network=None</em>, <em>station=None</em><big>)</big><a class="reference internal" href="_modules/pyadjoint/adjoint_source.html#AdjointSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyadjoint.adjoint_source.AdjointSource" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pyadjoint.adjoint_source.</code><code class="descname">AdjointSource</code><span class="sig-paren">(</span><em>adj_src_type</em>, <em>misfit</em>, <em>dt</em>, <em>min_period</em>, <em>max_period</em>, <em>component</em>, <em>adjoint_source=None</em>, <em>network=None</em>, <em>station=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyadjoint/adjoint_source.html#AdjointSource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyadjoint.adjoint_source.AdjointSource" title="Permalink to this definition">¶</a></dt>
 <dd><p>Class representing an already calculated adjoint source.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -70,9 +70,13 @@
 <li><strong>adj_src_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The type of adjoint source.</li>
 <li><strong>misfit</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The misfit value.</li>
 <li><strong>dt</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The sampling rate of the adjoint source.</li>
-<li><strong>component</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The adjoint source component, usually <tt class="docutils literal"><span class="pre">&quot;Z&quot;</span></tt>,
-<tt class="docutils literal"><span class="pre">&quot;N&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;E&quot;</span></tt>, <tt class="docutils literal"><span class="pre">&quot;R&quot;</span></tt>, or <tt class="docutils literal"><span class="pre">&quot;T&quot;</span></tt>.</li>
-<li><strong>adjoint_source</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.9)"><tt class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></tt></a>) &#8211; The actual adjoint source.</li>
+<li><strong>min_period</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The minimum period of the spectral content
+of the data.</li>
+<li><strong>max_period</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The maximum period of the spectral content
+of the data.</li>
+<li><strong>component</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The adjoint source component, usually <code class="docutils literal"><span class="pre">&quot;Z&quot;</span></code>,
+<code class="docutils literal"><span class="pre">&quot;N&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;E&quot;</span></code>, <code class="docutils literal"><span class="pre">&quot;R&quot;</span></code>, or <code class="docutils literal"><span class="pre">&quot;T&quot;</span></code>.</li>
+<li><strong>adjoint_source</strong> (<a class="reference external" href="http://docs.scipy.org/doc/numpy/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.9)"><code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></a>) &#8211; The actual adjoint source.</li>
 <li><strong>network</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The network code of the station.</li>
 <li><strong>station</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The station code of the station.</li>
 </ul>
@@ -82,7 +86,7 @@
 </table>
 <dl class="method">
 <dt id="pyadjoint.adjoint_source.AdjointSource.write">
-<tt class="descname">write</tt><big>(</big><em>filename</em>, <em>format</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pyadjoint/adjoint_source.html#AdjointSource.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyadjoint.adjoint_source.AdjointSource.write" title="Permalink to this definition">¶</a></dt>
+<code class="descname">write</code><span class="sig-paren">(</span><em>filename</em>, <em>format</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyadjoint/adjoint_source.html#AdjointSource.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyadjoint.adjoint_source.AdjointSource.write" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the adjoint source to a file.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -91,7 +95,7 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>filename</strong> (<em>str, open file, or file-like object</em>) &#8211; Determines where the adjoint source is saved.</li>
 <li><strong>format</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The format of the adjoint source. Currently available
-are: <tt class="docutils literal"><span class="pre">&quot;SPECFEM&quot;</span></tt></li>
+are: <code class="docutils literal"><span class="pre">&quot;SPECFEM&quot;</span></code></li>
 </ul>
 </td>
 </tr>
@@ -100,9 +104,42 @@ are: <tt class="docutils literal"><span class="pre">&quot;SPECFEM&quot;</span></
 <p class="rubric">SPECFEM</p>
 <p>SPECFEM requires one additional parameter: the temporal offset of the
 first sample in seconds. The following example sets the time of the
-first sample in the adjoint source to <tt class="docutils literal"><span class="pre">-10</span></tt>.</p>
+first sample in the adjoint source to <code class="docutils literal"><span class="pre">-10</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">adj_src</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s">&quot;NET.STA.CHAN.adj&quot;</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="s">&quot;SPECFEM&quot;</span><span class="p">,</span>
 <span class="gp">... </span>              <span class="n">time_offset</span><span class="o">=-</span><span class="mi">10</span><span class="p">)</span>  
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="pyadjoint.adjoint_source.AdjointSource.write_to_asdf">
+<code class="descname">write_to_asdf</code><span class="sig-paren">(</span><em>ds</em>, <em>time_offset</em>, <em>coordinates=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyadjoint/adjoint_source.html#AdjointSource.write_to_asdf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyadjoint.adjoint_source.AdjointSource.write_to_asdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes the adjoint source to an ASDF file.
+Note: For now it is assumed SPECFEM will be using the adjoint source</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>ds</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The ASDF data structure read in using pyasdf.</li>
+<li><strong>time_offset</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The temporal offset of the first sample in seconds.
+This is required if using the adjoint source as input to SPECFEM.</li>
+<li><strong>coordinates</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#list" title="(in Python v2.7)"><em>list</em></a>) &#8211; If given, the coordinates of the adjoint source.
+The &#8216;latitude&#8217;, &#8216;longitude&#8217;, and &#8216;elevation_in_m&#8217; of the adjoint
+source must be defined.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">SPECFEM</p>
+<p>SPECFEM requires one additional parameter: the temporal offset of the
+first sample in seconds. The following example sets the time of the
+first sample in the adjoint source to <code class="docutils literal"><span class="pre">-10</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">adj_src</span><span class="o">.</span><span class="n">write_to_asdf</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">time_offset</span><span class="o">=-</span><span class="mi">10</span><span class="p">,</span>
+<span class="gp">... </span>              <span class="n">coordinates</span><span class="o">=</span><span class="p">{</span><span class="s">&#39;latitude&#39;</span><span class="p">:</span><span class="mf">19.2</span><span class="p">,</span>
+<span class="gp">... </span>                           <span class="s">&#39;longitude&#39;</span><span class="p">:</span><span class="mf">13.4</span><span class="p">,</span>
+<span class="gp">... </span>                           <span class="s">&#39;elevation_in_m&#39;</span><span class="p">:</span><span class="mf">2.0</span><span class="p">})</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -111,13 +148,13 @@ first sample in the adjoint source to <tt class="docutils literal"><span class="
 
 <dl class="function">
 <dt id="pyadjoint.adjoint_source.calculate_adjoint_source">
-<tt class="descclassname">pyadjoint.adjoint_source.</tt><tt class="descname">calculate_adjoint_source</tt><big>(</big><em>adj_src_type</em>, <em>observed</em>, <em>synthetic</em>, <em>min_period</em>, <em>max_period</em>, <em>left_window_border</em>, <em>right_window_border</em>, <em>adjoint_src=True</em>, <em>plot=False</em>, <em>plot_filename=None</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="_modules/pyadjoint/adjoint_source.html#calculate_adjoint_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyadjoint.adjoint_source.calculate_adjoint_source" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">pyadjoint.adjoint_source.</code><code class="descname">calculate_adjoint_source</code><span class="sig-paren">(</span><em>adj_src_type</em>, <em>observed</em>, <em>synthetic</em>, <em>min_period</em>, <em>max_period</em>, <em>left_window_border</em>, <em>right_window_border</em>, <em>adjoint_src=True</em>, <em>plot=False</em>, <em>plot_filename=None</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pyadjoint/adjoint_source.html#calculate_adjoint_source"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pyadjoint.adjoint_source.calculate_adjoint_source" title="Permalink to this definition">¶</a></dt>
 <dd><p>Central function of Pyadjoint used to calculate adjoint sources and misfit.</p>
 <p>This function uses the notion of observed and synthetic data to offer a
 nomenclature most users are familiar with. Please note that it is
 nonetheless independent of what the two data arrays actually represent.</p>
-<p>The function tapers the data from <tt class="docutils literal"><span class="pre">left_window_border</span></tt> to
-<tt class="docutils literal"><span class="pre">right_window_border</span></tt>, both in seconds since the first sample in the
+<p>The function tapers the data from <code class="docutils literal"><span class="pre">left_window_border</span></code> to
+<code class="docutils literal"><span class="pre">right_window_border</span></code>, both in seconds since the first sample in the
 data arrays.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -125,8 +162,8 @@ data arrays.</p>
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>adj_src_type</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; The type of adjoint source to calculate.</li>
-<li><strong>observed</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.10.1) v0.10)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></tt></a>) &#8211; The observed data.</li>
-<li><strong>synthetic</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.10.1) v0.10)"><tt class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></tt></a>) &#8211; The synthetic data.</li>
+<li><strong>observed</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></code></a>) &#8211; The observed data.</li>
+<li><strong>synthetic</strong> (<a class="reference external" href="http://docs.obspy.org/packages/autogen/obspy.core.trace.Trace.html#obspy.core.trace.Trace" title="(in ObsPy Documentation (0.10.2) v0.10)"><code class="xref py py-class docutils literal"><span class="pre">obspy.core.trace.Trace</span></code></a>) &#8211; The synthetic data.</li>
 <li><strong>min_period</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The minimum period of the spectral content of the data.</li>
 <li><strong>max_period</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; The maximum period of the spectral content of the data.</li>
 <li><strong>left_window_border</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#float" title="(in Python v2.7)"><em>float</em></a>) &#8211; Left border of the window to be tapered in
@@ -135,11 +172,11 @@ seconds since the first sample in the data arrays.</li>
 seconds since the first sample in the data arrays.</li>
 <li><strong>adjoint_src</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#bool" title="(in Python v2.7)"><em>bool</em></a>) &#8211; Only calculate the misfit or also derive
 the adjoint source.</li>
-<li><strong>plot</strong> (bool or empty <a class="reference external" href="http://matplotlib.sourceforge.net/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v1.4.3)"><tt class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></tt></a> instance) &#8211; Also produce a plot of the adjoint source. This will force
+<li><strong>plot</strong> (bool or empty <a class="reference external" href="http://matplotlib.sourceforge.net/api/figure_api.html#matplotlib.figure.Figure" title="(in Matplotlib v1.4.3)"><code class="xref py py-class docutils literal"><span class="pre">matplotlib.figure.Figure</span></code></a> instance) &#8211; Also produce a plot of the adjoint source. This will force
 the adjoint source to be calculated regardless of the value of
-<tt class="docutils literal"><span class="pre">adjoint_src</span></tt>.</li>
+<code class="docutils literal"><span class="pre">adjoint_src</span></code>.</li>
 <li><strong>plot_filename</strong> (<a class="reference external" href="http://docs.python.org/library/functions.html#str" title="(in Python v2.7)"><em>str</em></a>) &#8211; If given, the plot of the adjoint source will be
-saved there. Only used if <tt class="docutils literal"><span class="pre">plot</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt>.</li>
+saved there. Only used if <code class="docutils literal"><span class="pre">plot</span></code> is <code class="docutils literal"><span class="pre">True</span></code>.</li>
 </ul>
 </td>
 </tr>
@@ -153,7 +190,7 @@ saved there. Only used if <tt class="docutils literal"><span class="pre">plot</s
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation index</a><ul>
@@ -161,7 +198,7 @@ saved there. Only used if <tt class="docutils literal"><span class="pre">plot</s
       <li>Next: <a href="utils.html" title="next chapter">pyadjoint.utils</a></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -180,7 +217,7 @@ saved there. Only used if <tt class="docutils literal"><span class="pre">plot</s
     </div>
   <div class="footer">
     &copy; Copyright 2015, Lion Krischer.
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
   </div>
   
   </body>

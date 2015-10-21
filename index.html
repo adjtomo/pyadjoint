@@ -23,20 +23,20 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Pyadjoint 0.0.1a documentation" href="#" />
     <link rel="next" title="Adjoint Sources" href="adjoint_sources/index.html" />
    
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
+  <body role="document">
   
   
   <div class="indexwrapper">
   
 
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -45,38 +45,38 @@
         <li class="right" >
           <a href="adjoint_sources/index.html" title="Adjoint Sources"
              accesskey="N">next</a> |</li>
-        <li><a href="#">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="pyadjoint">
 <h1>Pyadjoint<a class="headerlink" href="#pyadjoint" title="Permalink to this headline">¶</a></h1>
-<p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> is a Python package to measure misfits and calculate
+<p><code class="docutils literal"><span class="pre">Pyadjoint</span></code> is a Python package to measure misfits and calculate
 adjoint sources. It aims to provide a comprehensive package and
 incorporate various types of measurements and associated adjoint
 sources.</p>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> utilizes <a class="reference external" href="http://obspy.org">ObsPy</a> (and some of its
+<p><code class="docutils literal"><span class="pre">Pyadjoint</span></code> utilizes <a class="reference external" href="http://obspy.org">ObsPy</a> (and some of its
 dependencies) for the processing and data handling. As a first step,
 please follow the <a class="reference external" href="https://github.com/obspy/obspy/wiki#installation">installation instructions of
 ObsPy</a> for your
 given platform (we recommend the installation with
 <a class="reference external" href="https://github.com/obspy/obspy/wiki/Installation-via-Anaconda">Anaconda</a>
 as it will most likely result in the least amount of problems).
-<tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> should work with Python versions 2.6, 2.7, 3.3, and 3.4
-(mainly depends on the used ObsPy version). To install it, best use
-<tt class="docutils literal"><span class="pre">pip</span></tt> (not working yet!):</p>
+<code class="docutils literal"><span class="pre">Pyadjoint</span></code> should work with Python versions 2.7, 3.3, and 3.4 (mainly
+depends on the used ObsPy version). To install it, best use <code class="docutils literal"><span class="pre">pip</span></code> (not
+working yet!):</p>
 <div class="highlight-python"><div class="highlight"><pre>$ pip install pyadjoint
 </pre></div>
 </div>
 <p>If you want the latest development version, or want to work on the code,
-you will have to install with the help of <tt class="docutils literal"><span class="pre">git</span></tt>.</p>
+you will have to install with the help of <code class="docutils literal"><span class="pre">git</span></code>.</p>
 <div class="highlight-python"><div class="highlight"><pre>$ git clone https://github.com/krischer/pyadjoint.git
 $ cd pyadjoint
 $ pip install -v -e .
@@ -95,18 +95,91 @@ run the tests with</p>
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
 <div class="section" id="basic-usage">
 <h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h3>
-<p>The first step is to import ObsPy and <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt>.</p>
+<p>The first step is to import ObsPy and <code class="docutils literal"><span class="pre">Pyadjoint</span></code>.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">obspy</span>
 <span class="kn">import</span> <span class="nn">pyadjoint</span>
 </pre></div>
 </div>
-<p><tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> expects the data to be fully preprocessed thus both
+<div class="highlight-python"><div class="highlight"><pre>---------------------------------------------------------------------------
+
+RuntimeError                              Traceback (most recent call last)
+
+RuntimeError: module compiled against API version a but this version of numpy is 9
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>---------------------------------------------------------------------------
+
+ImportError                               Traceback (most recent call last)
+
+&lt;ipython-input-1-09b481244fd7&gt; in &lt;module&gt;()
+      1 import obspy
+----&gt; 2 import pyadjoint
+
+
+/home/travis/build/krischer/pyadjoint/src/pyadjoint/__init__.py in &lt;module&gt;()
+     32
+     33 # Main objects and functions available at the top level.
+---&gt; 34 from .adjoint_source import AdjointSource, calculate_adjoint_source  # NOQA
+
+
+/home/travis/build/krischer/pyadjoint/src/pyadjoint/adjoint_source.py in &lt;module&gt;()
+     13
+     14 import inspect
+---&gt; 15 import matplotlib.pylab as plt
+     16 import numpy as np
+     17 import obspy
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/pylab.py in &lt;module&gt;()
+    229 # make mpl.finance module available for backwards compatability, in case folks
+    230 # using pylab interface depended on not having to import it
+--&gt; 231 import matplotlib.finance
+    232
+    233 from matplotlib.dates import date2num, num2date,\
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/finance.py in &lt;module&gt;()
+     34
+     35 from matplotlib import verbose, get_cachedir
+---&gt; 36 from matplotlib.dates import date2num
+     37 from matplotlib.cbook import iterable, mkdirs
+     38 from matplotlib.collections import LineCollection, PolyCollection
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/dates.py in &lt;module&gt;()
+    135 import matplotlib.units as units
+    136 import matplotlib.cbook as cbook
+--&gt; 137 import matplotlib.ticker as ticker
+    138
+    139
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/ticker.py in &lt;module&gt;()
+    156 from matplotlib import rcParams
+    157 from matplotlib import cbook
+--&gt; 158 from matplotlib import transforms as mtransforms
+    159
+    160
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/transforms.py in &lt;module&gt;()
+     37 import numpy as np
+     38 from numpy import ma
+---&gt; 39 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
+     40     update_path_extents)
+     41 from numpy.linalg import inv
+
+
+ImportError: numpy.core.multiarray failed to import
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">Pyadjoint</span></code> expects the data to be fully preprocessed thus both
 observed and synthetic data are expected to have exactly the same
-length, sampling rate, and spectral content. <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> furthermore
+length, sampling rate, and spectral content. <code class="docutils literal"><span class="pre">Pyadjoint</span></code> furthermore
 does not care about the actual components in question; it will use two
 traces and calculate misfit values and adjoint sources for them. To
 provide a familiar nomenclature we will always talk about observed and
-synthetic data <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> is independent of what the data actually
+synthetic data <code class="docutils literal"><span class="pre">Pyadjoint</span></code> is independent of what the data actually
 represents.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Helper function to get some example data used for</span>
 <span class="c"># illustrative purposes.</span>
@@ -116,7 +189,7 @@ represents.</p>
 <span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
-<p>Essentially all of <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt>&#8216;s functionality is accessed through its central <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source" title="pyadjoint.adjoint_source.calculate_adjoint_source"><tt class="xref py py-func docutils literal"><span class="pre">calculate_adjoint_source()</span></tt></a> function. A list of available
+<p>Essentially all of <code class="docutils literal"><span class="pre">Pyadjoint</span></code>&#8216;s functionality is accessed through its central <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source" title="pyadjoint.adjoint_source.calculate_adjoint_source"><code class="xref py py-func docutils literal"><span class="pre">calculate_adjoint_source()</span></code></a> function. A list of available
 adjoint source types can be found in <a class="reference internal" href="adjoint_sources/index.html"><em>Adjoint Sources</em></a>.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">adj_src</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
     <span class="c"># The type of misfit measurement and adjoint source.</span>
@@ -131,38 +204,24 @@ adjoint source types can be found in <a class="reference internal" href="adjoint
 <span class="k">print</span><span class="p">(</span><span class="n">adj_src</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>Waveform Misfit Adjoint Source for component Z at station SY.DBO
-    Misfit: 4.262e-11
-    Adjoint source available with 3600 samples
-</pre></div>
-</div>
-<p>It returns an <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><tt class="xref py py-class docutils literal"><span class="pre">AdjointSource</span></tt></a> object.</p>
+<p>It returns an <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><code class="xref py py-class docutils literal"><span class="pre">AdjointSource</span></code></a> object.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="c"># Access misfit and adjoint sources. The misfit is a floating point number.</span>
 <span class="k">print</span><span class="p">(</span><span class="n">adj_src</span><span class="o">.</span><span class="n">misfit</span><span class="p">)</span>
 <span class="c"># The adjoint source is a a numpy array.</span>
 <span class="k">print</span><span class="p">(</span><span class="n">adj_src</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>4.262136726169763e-11
-[-0. -0. -0. ..., -0. -0. -0.]
-</pre></div>
-</div>
 </div>
 <div class="section" id="usage-options">
 <h3>Usage Options<a class="headerlink" href="#usage-options" title="Permalink to this headline">¶</a></h3>
 <p>In case one just wants to calculate the misfit value, pass
-<tt class="docutils literal"><span class="pre">adjoint_src=False</span></tt> in which case the adjoint source will not be
+<code class="docutils literal"><span class="pre">adjoint_src=False</span></code> in which case the adjoint source will not be
 calculated. This sometimes is much faster and useful for line searches
 or similar endeavors.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
     <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
     <span class="n">min_period</span><span class="o">=</span><span class="mf">20.0</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
     <span class="n">left_window_border</span><span class="o">=</span><span class="mf">800.0</span><span class="p">,</span> <span class="n">right_window_border</span><span class="o">=</span><span class="mf">900.0</span><span class="p">,</span> <span class="n">adjoint_src</span><span class="o">=</span><span class="bp">False</span><span class="p">))</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre>Waveform Misfit Adjoint Source for component Z at station SY.DBO
-    Misfit: 4.262e-11
-    Adjoint source has not been calculated
 </pre></div>
 </div>
 <p>All adjoint source types can also be plotted during the calculation. The
@@ -174,7 +233,6 @@ adjoint source.</p>
     <span class="n">left_window_border</span><span class="o">=</span><span class="mf">800.0</span><span class="p">,</span> <span class="n">right_window_border</span><span class="o">=</span><span class="mf">900.0</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="bp">True</span><span class="p">);</span>
 </pre></div>
 </div>
-<img alt="_images/index_11_0.png" src="_images/index_11_0.png" />
 <p>Many types of adjoint sources have additional arguments that can be passed to it. The waveform misfit adjoint source for example allows to specifiy the width and type of the taper applied to the data. Please see the documentation of the different <a class="reference internal" href="adjoint_sources/index.html"><em>Adjoint Sources</em></a> for details.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="k">print</span><span class="p">(</span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
     <span class="n">adj_src_type</span><span class="o">=</span><span class="s">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
@@ -183,33 +241,16 @@ adjoint source.</p>
     <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">taper_type</span><span class="o">=</span><span class="s">&quot;cosine&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre>Waveform Misfit Adjoint Source for component Z at station SY.DBO
-    Misfit: 4.247e-11
-    Adjoint source available with 3600 samples
-</pre></div>
-</div>
 </div>
 <div class="section" id="saving-to-disc">
 <h3>Saving to Disc<a class="headerlink" href="#saving-to-disc" title="Permalink to this headline">¶</a></h3>
-<p>One of course wants to serialize the calculated adjoint sources to disc at one point in time. You need to pass the filename and the desired format as well as some format specific parameters to the <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.AdjointSource.write" title="pyadjoint.adjoint_source.AdjointSource.write"><tt class="xref py py-meth docutils literal"><span class="pre">write()</span></tt></a> method of the <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><tt class="xref py py-class docutils literal"><span class="pre">AdjointSource</span></tt></a> object. Instead of a filename you can also pass an open file or a file-like object. Please refer to its documentation for more details.</p>
+<p>One of course wants to serialize the calculated adjoint sources to disc at one point in time. You need to pass the filename and the desired format as well as some format specific parameters to the <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.AdjointSource.write" title="pyadjoint.adjoint_source.AdjointSource.write"><code class="xref py py-meth docutils literal"><span class="pre">write()</span></code></a> method of the <a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><code class="xref py py-class docutils literal"><span class="pre">AdjointSource</span></code></a> object. Instead of a filename you can also pass an open file or a file-like object. Please refer to its documentation for more details.</p>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">adj_src</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s">&quot;NET.STA.CHA.adj_src&quot;</span><span class="p">,</span>
               <span class="n">format</span><span class="o">=</span><span class="s">&quot;SPECFEM&quot;</span><span class="p">,</span> <span class="n">time_offset</span><span class="o">=-</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="code python highlight-python"><div class="highlight"><pre>!head NET.STA.CHA.adj_src
 !rm NET.STA.CHA.adj_src
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre>-1.000000000000000000e+01 2.350803197301036050e-310
--9.000000000000000000e+00 3.043421453736111678e-316
--8.000000000000000000e+00 0.000000000000000000e+00
--7.000000000000000000e+00 0.000000000000000000e+00
--6.000000000000000000e+00 0.000000000000000000e+00
--5.000000000000000000e+00 0.000000000000000000e+00
--4.000000000000000000e+00 0.000000000000000000e+00
--3.000000000000000000e+00 0.000000000000000000e+00
--2.000000000000000000e+00 0.000000000000000000e+00
--1.000000000000000000e+00 0.000000000000000000e+00
 </pre></div>
 </div>
 </div>
@@ -255,7 +296,7 @@ adjoint source.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
@@ -282,7 +323,7 @@ adjoint source.</p>
       <li>Next: <a href="adjoint_sources/index.html" title="next chapter">Adjoint Sources</a></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -301,7 +342,7 @@ adjoint source.</p>
     </div>
   <div class="footer">
     &copy; Copyright 2015, Lion Krischer.
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
   </div>
   
   </div>

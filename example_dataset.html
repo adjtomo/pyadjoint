@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Pyadjoint 0.0.1a documentation" href="index.html" />
     <link rel="next" title="Citations" href="citations.html" />
     <link rel="prev" title="Waveform Misfit" href="adjoint_sources/waveform_misfit.html" />
@@ -31,11 +31,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
+  <body role="document">
   
   
 
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -47,14 +47,14 @@
         <li class="right" >
           <a href="adjoint_sources/waveform_misfit.html" title="Waveform Misfit"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="example-data-set-used-in-pyadjoint">
 <h1>Example Data Set used in Pyadjoint<a class="headerlink" href="#example-data-set-used-in-pyadjoint" title="Permalink to this headline">¶</a></h1>
@@ -84,7 +84,7 @@ Exponent for moment tensor:  19    units: N-m
 CMT     3.970  -0.760  -3.210   0.173  -2.220  -1.970
 </pre></div>
 </div>
-<p>recorded at station <tt class="docutils literal"><span class="pre">SY.DBO</span></tt> (<tt class="docutils literal"><span class="pre">SY</span></tt> denotes the synthetic data
+<p>recorded at station <code class="docutils literal"><span class="pre">SY.DBO</span></code> (<code class="docutils literal"><span class="pre">SY</span></code> denotes the synthetic data
 network from the Shakemovie project):</p>
 <div class="highlight-python"><div class="highlight"><pre>Latitude: 43.12, Longitude: -123.24, Elevation: 984.0 m
 </pre></div>
@@ -135,7 +135,60 @@ network from the Shakemovie project):</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/example_dataset_4_0.png" src="_images/example_dataset_4_0.png" />
+<div class="highlight-python"><div class="highlight"><pre>---------------------------------------------------------------------------
+
+RuntimeError                              Traceback (most recent call last)
+
+RuntimeError: module compiled against API version a but this version of numpy is 9
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>---------------------------------------------------------------------------
+
+ImportError                               Traceback (most recent call last)
+
+&lt;ipython-input-2-7c66885aa102&gt; in &lt;module&gt;()
+----&gt; 1 import matplotlib.pyplot as plt
+      2 plt.style.use(&quot;ggplot&quot;)
+      3 from mpl_toolkits.basemap import Basemap
+      4
+      5 plt.figure(figsize=(12, 6))
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/pyplot.py in &lt;module&gt;()
+     25
+     26 import matplotlib
+---&gt; 27 import matplotlib.colorbar
+     28 from matplotlib import style
+     29 from matplotlib import _pylab_helpers, interactive
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/colorbar.py in &lt;module&gt;()
+     30
+     31 import matplotlib as mpl
+---&gt; 32 import matplotlib.artist as martist
+     33 import matplotlib.cbook as cbook
+     34 import matplotlib.collections as collections
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/artist.py in &lt;module&gt;()
+     10 import matplotlib.cbook as cbook
+     11 from matplotlib import docstring, rcParams
+---&gt; 12 from .transforms import Bbox, IdentityTransform, TransformedBbox, \
+     13                        TransformedPath, Transform
+     14 from .path import Path
+
+
+/home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/transforms.py in &lt;module&gt;()
+     37 import numpy as np
+     38 from numpy import ma
+---&gt; 39 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
+     40     update_path_extents)
+     41 from numpy.linalg import inv
+
+
+ImportError: numpy.core.multiarray failed to import
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="data">
@@ -146,16 +199,6 @@ network from the Shakemovie project):</p>
 
 <span class="k">print</span><span class="p">(</span><span class="n">shakemovie_data</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">instaseis_data</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre>3 Trace(s) in Stream:
-SY.DBO.S3.MXE | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
-SY.DBO.S3.MXN | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
-SY.DBO.S3.MXZ | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
-3 Trace(s) in Stream:
-SY.DBO..LXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
-SY.DBO..LXN | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
-SY.DBO..LXE | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
 </pre></div>
 </div>
 </div>
@@ -225,16 +268,6 @@ synthetics.</p>
 
 <span class="k">print</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
 <span class="k">print</span><span class="p">(</span><span class="n">synthetic</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre>3 Trace(s) in Stream:
-SY.DBO.S3.MXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
-SY.DBO.S3.MXR | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
-SY.DBO.S3.MXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
-3 Trace(s) in Stream:
-SY.DBO..LXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
-SY.DBO..LXR | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
-SY.DBO..LXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz, 3600 samples
 </pre></div>
 </div>
 </div>
@@ -326,25 +359,21 @@ SY.DBO..LXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/example_dataset_13_0.png" src="_images/example_dataset_13_0.png" />
 </div>
 <div class="section" id="plot-of-first-arrivals">
 <h3>Plot of First Arrivals<a class="headerlink" href="#plot-of-first-arrivals" title="Permalink to this headline">¶</a></h3>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/example_dataset_15_0.png" src="_images/example_dataset_15_0.png" />
 </div>
 <div class="section" id="plot-of-some-later-arrivals">
 <h3>Plot of Some Later Arrivals<a class="headerlink" href="#plot-of-some-later-arrivals" title="Permalink to this headline">¶</a></h3>
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">(</span><span class="mi">1400</span><span class="p">,</span> <span class="mi">1900</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/example_dataset_17_0.png" src="_images/example_dataset_17_0.png" />
 <div class="code python highlight-python"><div class="highlight"><pre><span class="n">plot_data</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/example_dataset_18_0.png" src="_images/example_dataset_18_0.png" />
 </div>
 </div>
 </div>
@@ -353,7 +382,7 @@ SY.DBO..LXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
@@ -381,7 +410,7 @@ SY.DBO..LXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz
       <li>Next: <a href="citations.html" title="next chapter">Citations</a></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -400,7 +429,7 @@ SY.DBO..LXT | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:31:49.259999Z | 1.0 Hz
     </div>
   <div class="footer">
     &copy; Copyright 2015, Lion Krischer.
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
   </div>
   
   </body>

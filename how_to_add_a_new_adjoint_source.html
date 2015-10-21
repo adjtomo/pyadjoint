@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <link rel="top" title="Pyadjoint 0.0.1a documentation" href="index.html" />
     <link rel="next" title="pyadjoint.adjoint_source" href="adjoint_source.html" />
     <link rel="prev" title="Citations" href="citations.html" />
@@ -31,11 +31,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
 
   </head>
-  <body>
+  <body role="document">
   
   
 
-    <div class="related">
+    <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
@@ -47,22 +47,22 @@
         <li class="right" >
           <a href="citations.html" title="Citations"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
     <div class="document">
       <div class="documentwrapper">
         <div class="bodywrapper">
-          <div class="body">
+          <div class="body" role="main">
             
   <div class="section" id="how-to-add-a-new-adjoint-source-type">
 <h1>How to Add a New Adjoint Source Type<a class="headerlink" href="#how-to-add-a-new-adjoint-source-type" title="Permalink to this headline">¶</a></h1>
-<p>A large part of <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt>&#8216;s architecture is due to the desire to make it
+<p>A large part of <code class="docutils literal"><span class="pre">Pyadjoint</span></code>&#8216;s architecture is due to the desire to make it
 as easy as possible to add new types of measurements and adjoint sources in
 a stable and clean fashion.</p>
 <p>To add a new type of adjoint source just copy the
-<tt class="docutils literal"><span class="pre">src/pyadjoint/adjoint_source_types/waveform_misfit.py</span></tt> file to a new
+<code class="docutils literal"><span class="pre">src/pyadjoint/adjoint_source_types/waveform_misfit.py</span></code> file to a new
 file in the same folder. View the most recent version of the file
 <a class="reference external" href="https://github.com/krischer/pyadjoint/blob/master/src/pyadjoint/adjoint_source_types/waveform_misfit.py">here</a>.</p>
 <p>This particular file has been written in a very verbose way to double as a
@@ -70,23 +70,23 @@ template and tutorial for new adjoint source types. The new adjoint source
 is defined by 5 things:</p>
 <dl class="docutils">
 <dt><strong>filename</strong></dt>
-<dd>The filename with the <tt class="docutils literal"><span class="pre">.py</span></tt> stripped will be the name of the adjoint
+<dd>The filename with the <code class="docutils literal"><span class="pre">.py</span></code> stripped will be the name of the adjoint
 source used in the
-<a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source" title="pyadjoint.adjoint_source.calculate_adjoint_source"><tt class="xref py py-func docutils literal"><span class="pre">calculate_adjoint_source()</span></tt></a> function.
+<a class="reference internal" href="adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source" title="pyadjoint.adjoint_source.calculate_adjoint_source"><code class="xref py py-func docutils literal"><span class="pre">calculate_adjoint_source()</span></code></a> function.
 Keep it lowercase and use underscores to delimit multiple words.</dd>
-<dt><tt class="docutils literal"><span class="pre">VERBOSE_NAME</span></tt> variable in the file</dt>
+<dt><code class="docutils literal"><span class="pre">VERBOSE_NAME</span></code> variable in the file</dt>
 <dd>This determines the verbose and pretty name of the adjoint source and
 misfit. This is used for plots and string representations.</dd>
-<dt><tt class="docutils literal"><span class="pre">DESCRIPTION</span></tt> variable in the file</dt>
+<dt><code class="docutils literal"><span class="pre">DESCRIPTION</span></code> variable in the file</dt>
 <dd>Long and detailed description of the misfit and adjoint source including
 formulas, citations, use cases, ... This will be used in the
 auto-generated documentation of the adjoint source and should be as
 detailed as necessary.</dd>
-<dt><tt class="docutils literal"><span class="pre">ADDITIONAL_PARAMETERS</span></tt> variable in the file, optional</dt>
+<dt><code class="docutils literal"><span class="pre">ADDITIONAL_PARAMETERS</span></code> variable in the file, optional</dt>
 <dd>If the particular adjoint requires additional parameters in addition to
 the default ones, please document them here.</dd>
 </dl>
-<p><tt class="docutils literal"><span class="pre">calculate_adjoint_source()</span></tt> function in the file</p>
+<p><code class="docutils literal"><span class="pre">calculate_adjoint_source()</span></code> function in the file</p>
 <blockquote>
 <div><p>Function that will be called when actually calculation the misfit and
 adjoint source. It must a function with the following signature:</p>
@@ -99,11 +99,11 @@ adjoint source. It must a function with the following signature:</p>
 </div>
 <p>A couple of things to keep in mind:</p>
 <ol class="arabic">
-<li><p class="first">Calculate the adjoint source if and only if <tt class="docutils literal"><span class="pre">adjoint_src</span></tt> is <tt class="docutils literal"><span class="pre">True</span></tt>.</p>
+<li><p class="first">Calculate the adjoint source if and only if <code class="docutils literal"><span class="pre">adjoint_src</span></code> is <code class="docutils literal"><span class="pre">True</span></code>.</p>
 </li>
-<li><p class="first">Create a plot if and only if <tt class="docutils literal"><span class="pre">figure</span></tt> is not <tt class="docutils literal"><span class="pre">None</span></tt>.</p>
+<li><p class="first">Create a plot if and only if <code class="docutils literal"><span class="pre">figure</span></code> is not <code class="docutils literal"><span class="pre">None</span></code>.</p>
 </li>
-<li><p class="first">Don&#8217;t <tt class="docutils literal"><span class="pre">plt.show()</span></tt> the plot. This is handled by a higher-level
+<li><p class="first">Don&#8217;t <code class="docutils literal"><span class="pre">plt.show()</span></code> the plot. This is handled by a higher-level
 function.</p>
 </li>
 <li><p class="first">Always calculate the misfit value.</p>
@@ -124,14 +124,14 @@ sampling rate as the input data.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<p>The <tt class="docutils literal"><span class="pre">&quot;adjoint_source&quot;</span></tt> key-value pair is optional and depends on
-the aforementioned <tt class="docutils literal"><span class="pre">adjoint_src</span></tt> parameter. Make sure it returns a
-<tt class="docutils literal"><span class="pre">float64</span></tt> numpy array.</p>
+<p>The <code class="docutils literal"><span class="pre">&quot;adjoint_source&quot;</span></code> key-value pair is optional and depends on
+the aforementioned <code class="docutils literal"><span class="pre">adjoint_src</span></code> parameter. Make sure it returns a
+<code class="docutils literal"><span class="pre">float64</span></code> numpy array.</p>
 </div></blockquote>
 </li>
 </ol>
 </div></blockquote>
-<p>This is all you need to do. <tt class="docutils literal"><span class="pre">Pyadjoint</span></tt> will discover it and connect with
+<p>This is all you need to do. <code class="docutils literal"><span class="pre">Pyadjoint</span></code> will discover it and connect with
 the rest of its architecture. It will generate documentation and perform a
 few basic tests fully automatically. At one point you might want to add
 additional test to the new adjoint source.</p>
@@ -141,7 +141,7 @@ additional test to the new adjoint source.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar">
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation index</a><ul>
@@ -149,7 +149,7 @@ additional test to the new adjoint source.</p>
       <li>Next: <a href="adjoint_source.html" title="next chapter">pyadjoint.adjoint_source</a></li>
   </ul></li>
 </ul>
-<div id="searchbox" style="display: none">
+<div id="searchbox" style="display: none" role="search">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
@@ -168,7 +168,7 @@ additional test to the new adjoint source.</p>
     </div>
   <div class="footer">
     &copy; Copyright 2015, Lion Krischer.
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
   </div>
   
   </body>
