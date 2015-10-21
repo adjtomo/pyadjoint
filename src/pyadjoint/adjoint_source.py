@@ -148,12 +148,12 @@ class AdjointSource(object):
 
         np.savetxt(buf, to_write)
 
-    def write_to_asdf(self, ds, time_offset):
+    def write_to_asdf(self, ds, time_offset, **coordinates):
         """
         Writes the adjoint source to an ASDF file.
         Note: For now it is assumed SPECFEM will be using the adjoint source
 
-        :param ds: The ASDF data structure read in using pyasdf
+        :param ds: The ASDF data structure read in using pyasdf.
         :type ds: str
         :param time_offset: The temporal offset of the first sample in seconds.
         :type time_offset: float
@@ -162,20 +162,26 @@ class AdjointSource(object):
         l = len(self.adjoint_source)
         specfem_adj_source = np.empty((l, 2))
         specfem_adj_source[:, 0] = np.linspace(0, (l - 1) * self.dt, l)
-        specfem_adj_source[:, 1] += time_offset
-        specfem_adj_source[:, 1] += self.adjoint_source[::-1]
+        specfem_adj_source[:, 1] = time_offset
+        specfem_adj_source[:, 1] = self.adjoint_source[::-1]
 
         tag = "%s_%s_%s" % (self.network, self.station, self.component)
         min_period = self.min_period
         max_period = self.max_period
         component = self.component
         station_id = "%s.%s" % (self.network, self.station)
-        latitude = \
-            ds.waveforms.self.network_self.station.coordinates['latitude']
-        longitude = \
-            ds.waveforms.self.network_self.station.coordinates['longitude']
-        elevation_in_m = ds.waveforms.\
-            self.network_self.station.coordinates['elevation_in_m']
+
+        try:
+            latitude = coordinates.latitude
+            longitude = coordinates.longitude
+            elevation_in_m = coordinates.elevation
+        except:
+            latitude = \
+                ds.waveforms.self.network_self.station.coordinates['latitude']
+            longitude = \
+                ds.waveforms.self.network_self.station.coordinates['longitude']
+            elevation_in_m = ds.waveforms.\
+                self.network_self.station.coordinates['elevation_in_m']
 
         parameters = {"dt": self.dt, "misfit_value": self.misfit,
                       "adjoint_source_type": self.adj_src_type,
