@@ -157,6 +157,12 @@ class AdjointSource(object):
         :type ds: str
         :param time_offset: The temporal offset of the first sample in seconds.
         :type time_offset: float
+        :param latitude: If given, the latitude of the adjoint source
+        :type latitude: float
+        :param longitude: If given, the longitude of the adjoint source
+        :type longitude: float
+        :param elevation: If given, the elevation of the adjoint source
+        :type elevation: float
         """
         # Convert the adjoint source to SPECFEM format
         l = len(self.adjoint_source)
@@ -172,9 +178,9 @@ class AdjointSource(object):
         station_id = "%s.%s" % (self.network, self.station)
 
         try:
-            latitude = coordinates.latitude
-            longitude = coordinates.longitude
-            elevation_in_m = coordinates.elevation
+            latitude = coordinates['latitude']
+            longitude = coordinates['longitude']
+            elevation_in_m = coordinates['elevation']
         except:
             latitude = \
                 ds.waveforms.self.network_self.station.coordinates['latitude']
