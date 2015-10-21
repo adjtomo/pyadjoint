@@ -38,9 +38,11 @@ class AdjointSource(object):
         :type misfit: float
         :param dt: The sampling rate of the adjoint source.
         :type dt: float
-        :param min_period: The minimum period of the spectral content of the data.
+        :param min_period: The minimum period of the spectral content
+            of the data.
         :type min_period: float
-        :param max_period: The maximum period of the spectral content of the data.
+        :param max_period: The maximum period of the spectral content
+            of the data.
         :type max_period: float
         :param component: The adjoint source component, usually ``"Z"``,
             ``"N"``, ``"E"``, ``"R"``, or ``"T"``.
@@ -147,40 +149,47 @@ class AdjointSource(object):
         np.savetxt(buf, to_write)
 
     def write_to_asdf(self, ds, time_offset):
-          """
-          Writes the adjoint source to an ASDF file.
-          Note: For now it is assumed SPECFEM will be using the adjoint source
+        """
+        Writes the adjoint source to an ASDF file.
+        Note: For now it is assumed SPECFEM will be using the adjoint source
 
-          :param ds: The ASDF data structure read in using pyasdf
-          :type ds: str
-          """
-          # Convert the adjoint source to SPECFEM format
-          l = len(self.adjoint_source)
-          specfem_adj_source = np.empty((l,2))
-          specfem_adj_source[:, 0] = np.linspace(0, (l - 1) * self.dt, l)
-          specfem_adj_source[:, 1] += time_offset
-          specfem_adj_source[:, 1] += self.adjoint_source[::-1]
+        :param ds: The ASDF data structure read in using pyasdf
+        :type ds: str
+        :param time_offset: The temporal offset of the first sample in seconds.
+        :type time_offset: float
+        """
+        # Convert the adjoint source to SPECFEM format
+        l = len(self.adjoint_source)
+        specfem_adj_source = np.empty((l, 2))
+        specfem_adj_source[:, 0] = np.linspace(0, (l - 1) * self.dt, l)
+        specfem_adj_source[:, 1] += time_offset
+        specfem_adj_source[:, 1] += self.adjoint_source[::-1]
 
-          tag = "%s_%s_%s" % (self.network, self.station, self.component)
-          min_period = self.min_period
-          max_period = self.max_period
-          component = self.component
-          station_id = "%s.%s..%s" % (self.network, self.station, self.component)
-          latitude = ds.waveforms.self.network_self.station.coordinates['latitude']
-          longitude = ds.waveforms.self.network_self.station.coordinates['longitude']
-          elevation_in_m = ds.waveforms.self.network_self.station.coordinates['elevation_in_m']
+        tag = "%s_%s_%s" % (self.network, self.station, self.component)
+        min_period = self.min_period
+        max_period = self.max_period
+        component = self.component
+        station_id = "%s.%s" % (self.network, self.station)
+        latitude = \
+            ds.waveforms.self.network_self.station.coordinates['latitude']
+        longitude = \
+            ds.waveforms.self.network_self.station.coordinates['longitude']
+        elevation_in_m = ds.waveforms.\
+            self.network_self.station.coordinates['elevation_in_m']
 
-          parameters = {"dt": self.dt, "misfit_value": self.misfit,
+        parameters = {"dt": self.dt, "misfit_value": self.misfit,
                       "adjoint_source_type": self.adj_src_type,
                       "min_period": min_period, "max_period": max_period,
                       "latitude": latitude, "longitude": longitude,
                       "elevation_in_m": elevation_in_m,
-                      "station_id": station_id, "component": component, "units": "m"}
+                      "station_id": station_id, "component": component,
+                      "units": "m"}
 
-          # Use pyasdf to add auxiliary data to the ASDF file
-          ds.add_auxiliary_data(data=specfem_adj_source,
-                              data_type="AdjointSource",path=tag,
+        # Use pyasdf to add auxiliary data to the ASDF file
+        ds.add_auxiliary_data(data=specfem_adj_source,
+                              data_type="AdjointSource", path=tag,
                               parameters=parameters)
+
 
 def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
                              max_period, left_window_border,
