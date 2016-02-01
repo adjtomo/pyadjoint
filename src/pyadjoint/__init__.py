@@ -32,3 +32,4 @@ __version__ = "0.0.1a"
 
 # Main objects and functions available at the top level.
 from .adjoint_source import AdjointSource, calculate_adjoint_source  # NOQA
+from .config import Config # NOQA

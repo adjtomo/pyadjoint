@@ -225,9 +225,8 @@ class AdjointSource(object):
                               parameters=parameters)
 
 
-def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
-                             max_period, left_window_border,
-                             right_window_border, adjoint_src=True,
+def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
+                             window, adjoint_src=True,
                              plot=False, plot_filename=None, **kwargs):
     """
     Central function of Pyadjoint used to calculate adjoint sources and misfit.
@@ -293,9 +292,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
         figure = None
     try:
         ret_val = fct(observed=observed, synthetic=synthetic,
-                      min_period=min_period, max_period=max_period,
-                      left_window_border=left_window_border,
-                      right_window_border=right_window_border,
+                      config=config, window=window,
                       adjoint_src=adjoint_src, figure=figure, **kwargs)
 
         if plot and plot_filename:
@@ -353,7 +350,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, min_period,
     return AdjointSource(adj_src_type, misfit=misfit,
                          adjoint_source=adjoint_source,
                          dt=observed.stats.delta,
-                         min_period=min_period, max_period=max_period,
+                         min_period=config.min_period, max_period=config.max_period,
                          network=observed.stats.network,
                          station=observed.stats.station,
                          component=observed.stats.channel[-1])
