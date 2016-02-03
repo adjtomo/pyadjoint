@@ -179,7 +179,7 @@ def frequency_limit(s, nlen, nlen_F, deltat, df, WTR, NCYCLE_IN_WINDOW,
     ifreq_max = int(1.0 / (min_period * df))   
  
     #=== Youyi Ruan test 11/05/2015
-    print('i_ampmax, freq_ampmax, T_ampmax:',i_ampmax,i_ampmax*df,1.0/(i_ampmax*df))
+    #print('i_ampmax, freq_ampmax, T_ampmax:',i_ampmax,i_ampmax*df,1.0/(i_ampmax*df))
     #=== 
 
     # initialization
@@ -220,7 +220,7 @@ def frequency_limit(s, nlen, nlen_F, deltat, df, WTR, NCYCLE_IN_WINDOW,
 
 
     #=== Youyi Ruan test 11/05/2015
-    print('nfreq_min nfreq_max: %9.4f %9.4f' % (1.0/(nfreq_min*df), 1.0/(nfreq_max*df)))
+    #print('nfreq_min nfreq_max: %9.4f %9.4f' % (1.0/(nfreq_min*df), 1.0/(nfreq_max*df)))
 
     return nfreq_min, nfreq_max
 
@@ -301,41 +301,41 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_F, wtr_mtm, PHASE_STEP,
         #print('transf nlen_freq:',nlen_freq)
         freq = np.fft.fftfreq(n=nlen_F, d=dt)
 
-        f8 = open('bottf.abs.py.transf','w')
-        nlen_half = int(len(bot_tf) / 2)
-        for idx, ele in enumerate(bot_tf[0:nlen_half]):
-            f8.write("%f %e\n" %(freq[idx], np.abs(ele)))
-        f8.close()
+        #f8 = open('bottf.abs.py.transf','w')
+        #nlen_half = int(len(bot_tf) / 2)
+        #for idx, ele in enumerate(bot_tf[0:nlen_half]):
+        #    f8.write("%f %e\n" %(freq[idx], np.abs(ele)))
+        #f8.close()
    
-        f11 = open('toptf.abs.py.transf','w')
-        nlen_half = int(len(top_tf) / 2)
-        for idx, ele in enumerate(top_tf[0:nlen_half]):
-            f11.write("%f %e\n" %(freq[idx], np.abs(ele)))
-        f11.close()
+        #f11 = open('toptf.abs.py.transf','w')
+        #nlen_half = int(len(top_tf) / 2)
+        #for idx, ele in enumerate(top_tf[0:nlen_half]):
+        #    f11.write("%f %e\n" %(freq[idx], np.abs(ele)))
+        #f11.close()
 
-        nlen_half = int((len(d2_tw) / 2)) 
-        f9 = open('syn.py.am','w')
-        for idx, ele in enumerate(d2_tw[0:nlen_half]):
-            f9.write("%f %e\n" %(freq[idx], np.abs(ele)))
-        f9.close()
+        #nlen_half = int((len(d2_tw) / 2)) 
+        #f9 = open('syn.py.am','w')
+        #for idx, ele in enumerate(d2_tw[0:nlen_half]):
+        #    f9.write("%f %e\n" %(freq[idx], np.abs(ele)))
+        #f9.close()
          
-        nlen_freq = len(d2)
-        f10 = open('py.syn','w')
-        for idx, ele in enumerate(d2_t[0:nlen_freq]):
-	    f10.write("%f %f\n" %(idx, ele.real))
-        f10.close()
+        #nlen_freq = len(d2)
+        #f10 = open('py.syn','w')
+        #for idx, ele in enumerate(d2_t[0:nlen_freq]):
+	#    f10.write("%f %f\n" %(idx, ele.real))
+        #f10.close()
 
-        nlen_half = int((len(d1_tw) / 2))
-        f12 = open('dat.py.am','w')
-        for idx, ele in enumerate(d1_tw[0:nlen_half]):
-            f12.write("%f %e\n" %(freq[idx], np.abs(ele)))
-        f12.close()
+        #nlen_half = int((len(d1_tw) / 2))
+        #f12 = open('dat.py.am','w')
+        #for idx, ele in enumerate(d1_tw[0:nlen_half]):
+        #    f12.write("%f %e\n" %(freq[idx], np.abs(ele)))
+        #f12.close()
          
-        nlen_freq = len(d1)
-        f13 = open('py.dat','w')
-        for idx, ele in enumerate(d1_t[0:nlen_freq]):
-	    f13.write("%f %f\n" %(idx, ele.real))
-        f13.close()
+        #nlen_freq = len(d1)
+        #f13 = open('py.dat','w')
+        #for idx, ele in enumerate(d1_t[0:nlen_freq]):
+	#    f13.write("%f %f\n" %(idx, ele.real))
+        #f13.close()
 
         
     #===
@@ -485,7 +485,7 @@ def cc_adj(synt, cc_shift, deltat, err_dt_cc, err_dlnA_cc):
 
     dsdt   = np.gradient(synt) / deltat
 
-    Nnorm = simps(y=s_dt*s_dt, dx=deltat)
+    Nnorm = simps(y=dsdt*dsdt, dx=deltat)
     dt_adj = cc_shift / err_dt_cc**2 / Nnorm * dsdt
 
     Nnorm = simps(y=synt*synt, dx=deltat)
@@ -501,33 +501,29 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlnA_mtm, df, nlen_F,
     nlen_T = len(d1)
     ntaper = len(tapers[0])
 
-    #=== YY Ruan for test
-    #print(len(d1),len(tapers[:,0]))
-    #print('df =',df)
-    #===
-    # prepare frequency-domain taper based on reliable frequency band and
-    # error estimation (future development)
+    # YY Ruan, 11/05/2015
+    # frequency-domain taper based on adjust frequency band and
+    # error estimation. It's not one of the tapering processes but
+    # an frequency domain weighting function for adjoint source and 
+    # misfit function.
+
     W_taper = np.zeros(nlen_F)
-    # Wp_w = np.zeros(nlen_F)
-    # Wq_w = np.zeros(nlen_F)
+    Wp_w = np.zeros(nlen_F)
+    Wq_w = np.zeros(nlen_F)
+
     iw = np.arange(nfreq_min, nfreq_max, 1)
-    # YY Ruan 11/05/2015
-    # adding a taper to the signal is not necessary to the multi-taper adj sources
-    # but needed in waveform / cc adjoint sources
     W_taper[nfreq_min: nfreq_max] = 1.0
+
+    # Original higher order cosine taper 
     #ipwr_w = 10
-    #W_taper[nfreq_min: nfreq_max] = 1.0 - np.cos(
-    #    np.pi * (iw[0:len(iw)] - nfreq_min) / (
-    #        nfreq_max - nfreq_min)) ** ipwr_w
+    #W_taper[nfreq_min: nfreq_max] = 1.0 - np.cos(np.pi * (iw[0:len(iw)] 
+    #                  - nfreq_min) / (nfreq_max - nfreq_min)) ** ipwr_w
+
     # normalized factor
     ffac = 2.0 * df * np.sum(W_taper[nfreq_min: nfreq_max])
     Wp_w = W_taper / ffac
     Wq_w = W_taper / ffac
 
-    #=== YY Ruan for test
-    #print('nfreq_min, nfreq_max',nfreq_min, nfreq_max)
-    #print('df =',df,'ffac=',ffac,)
-    #====
     # add error estimate
     # cc error
     if USE_CC_ERROR:
@@ -642,7 +638,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
     # constant for transfer function 
     wtr_mtm = config.transfunc_waterlevel
-    WTR = config.water_threshold
+    WTR     = config.water_threshold
 
     # constant for cycle skip correction
     PHASE_STEP = config.phase_step
@@ -667,8 +663,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     ret_val_p = {}
     ret_val_q = {}
 
-    nlen_data = len(observed.data)
-    deltat = observed.stats.delta
+    nlen_data = len(synthetic.data)
+    deltat = synthetic.stats.delta
 
     fp = np.zeros(nlen_data)
     fq = np.zeros(nlen_data)
@@ -685,7 +681,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
       	right_window_border = wins[1]
 
         # Youyi Ruan: for Test
-	print("window: %f %f" % (left_window_border,right_window_border))
+	#print("window: %f %f" % (left_window_border,right_window_border))
 
       	#taper_window(observed, left_window_border, right_window_border,
         #         taper_percentage=config.taper_percentage, taper_type=config.taper_type)
@@ -698,7 +694,6 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     	left_sample  = int(np.floor( left_window_border / deltat)) + 1
     	nlen         = int(np.floor((right_window_border - left_window_border) / deltat)) + 1
     	right_sample = left_sample + nlen
-
 
     	d = np.zeros(nlen)
     	s = np.zeros(nlen)
@@ -827,8 +822,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         misfit_sum_q += 0.5 * simps(y=dlnA_mtm ** 2, dx=dw)
 
         #=== Youyi Ruan test ===
-        print(len(fp_wind),len(fp),nlen_data)
-        print(left_sample,right_sample)
+        #print(len(fp_wind),len(fp),nlen_data)
+        #print(left_sample,right_sample)
 
 
     if adjoint_src is True:
@@ -866,37 +861,37 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         #f3.close()
         #f4.close()
 
-        f5 = open('fp.py.adj','w')
-        for idx, ele in enumerate(fp[left_sample:right_sample]):
+        #f5 = open('fp.py.adj','w')
+        #for idx, ele in enumerate(fp[left_sample:right_sample]):
           #f5.write("%f %f\n" %(idx*deltat, ele))
-          f5.write("%f %f\n" %(idx, ele))
-        f5.close()
-        f15 = open('fq.py.adj','w')
-        for idx, ele in enumerate(fq[0:nlen_data]):
-          f15.write("%f %f\n" %(idx*deltat, ele))
-        f15.close()
+        #  f5.write("%f %f\n" %(idx, ele))
+        #f5.close()
+        #f15 = open('fq.py.adj','w')
+        #for idx, ele in enumerate(fq[0:nlen_data]):
+        #  f15.write("%f %f\n" %(idx*deltat, ele))
+        #f15.close()
 
-        nlen_freq = len(dtau_mtm)
+        #nlen_freq = len(dtau_mtm)
 
-        f6 = open('mtm.py.dtau','w')
-        f7 = open('mtm.py.dlnA','w')
-        for idx, ele in enumerate(dtau_mtm[nfreq_min:nfreq_max+1]):
-          f6.write("%f %f\n" %(idx*df, ele))
-        for idx, ele in enumerate(dlnA_mtm[nfreq_min:nfreq_max+1]):
-          f7.write("%f %f\n" %(idx*df, ele))
-        f6.close()
-        f7.close()
+        #f6 = open('mtm.py.dtau','w')
+        #f7 = open('mtm.py.dlnA','w')
+        #for idx, ele in enumerate(dtau_mtm[nfreq_min:nfreq_max+1]):
+        #  f6.write("%f %f\n" %(idx*df, ele))
+        #for idx, ele in enumerate(dlnA_mtm[nfreq_min:nfreq_max+1]):
+        #  f7.write("%f %f\n" %(idx*df, ele))
+        #f6.close()
+        #f7.close()
 
-        f6 = open('mtm.py.abs','w')
-        f7 = open('mtm.py.phi','w')
-        for idx, ele in enumerate(abs_mtm[0:nfreq_max]):
-          f6.write("%f %f\n" %(idx*df, ele))
-        for idx, ele in enumerate(phi_mtm[0:nfreq_max]):
-          f7.write("%f %f\n" %(idx*df, ele))
-        f6.close()
-        f7.close()
+        #f6 = open('mtm.py.abs','w')
+        #f7 = open('mtm.py.phi','w')
+        #for idx, ele in enumerate(abs_mtm[0:nfreq_max]):
+        #  f6.write("%f %f\n" %(idx*df, ele))
+        #for idx, ele in enumerate(phi_mtm[0:nfreq_max]):
+        #  f7.write("%f %f\n" %(idx*df, ele))
+        #f6.close()
+        #f7.close()
 
-        print("nfreq_min=",nfreq_min*df,"nfreq_max=",nfreq_max*df)
+        #print("nfreq_min=",nfreq_min*df,"nfreq_max=",nfreq_max*df)
 
         #===
 
