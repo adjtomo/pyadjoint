@@ -723,8 +723,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             cc_dlnA = 0.5 * np.log(sum(d[0:nlen]*d[0:nlen]) / sum(s[0:nlen]*s[0:nlen]))
             sigma_dt_cc, sigma_dlnA_cc = cc_error(d, s, deltat, cc_shift, cc_dlnA)
 
-	print("cc_dt  : %f +/- %f" % (cc_tshift,sigma_dt_cc))
-	print("cc_dlnA: %f +/- %f" %(cc_dlnA,sigma_dlnA_cc))
+	    print("cc_dt  : %f +/- %f" % (cc_tshift,sigma_dt_cc))
+	    print("cc_dlnA: %f +/- %f" % (cc_dlnA,sigma_dlnA_cc))
     	# re-window for obsd
     	left_sample_d  = max(left_sample  + cc_shift, 0)
     	right_sample_d = min(right_sample + cc_shift, nlen_data)
