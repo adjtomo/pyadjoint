@@ -77,6 +77,35 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
     # Enable method chaining.
     return trace
 
+def sac_hann_taper(signal,taper_percentage):
+    """
+    SAC taper function. 
+
+    :param signal: time series
+    :type signal: array(float)
+
+    :param taper_percentage: total percentage of taper in decimal   
+    :type taper_percentage: float
+
+    """
+    if taper_percentage < 0 or taper_percentage > 1:
+        raise ValueError("Wrong taper percentage")
+
+    npts = len(signal)
+
+    if taper_percentage == 0.0 or taper_percentage == 1.0:
+        frac = int(npts*taper_percentage / 2.0) 
+    else: 
+        frac = int(npts*taper_percentage / 2.0 + 0.5)
+
+    idx1 = frac 
+    idx2 = npts - frac 
+
+    signal[:idx1] *= (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(0,frac) / (2*frac-1)))
+    signal[idx2:] *= (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(frac,2*frac) / (2*frac-1)))
+
+    return signal
+
 
 def get_example_data():
     """

@@ -24,18 +24,18 @@ class Config(object):
     def __init__(self, min_period, max_period,
                  lnpt=15,
                  transfunc_waterlevel=1.0E-10,
- 		 water_threshold=0.02,
+                 water_threshold=0.02,
                  ipower_costaper=10,
                  min_cycle_in_window=3,
                  taper_type='hann',
                  taper_percentage=0.3,
                  mt_nw=4.0,
-  	 	 num_taper=5,
- 	         phase_step=1.5,
-	         dt_fac=2.0,
-		 err_fac=2.5,
-		 dt_max_scale=3.5,
-	         measure_type='dt',
+                 num_taper=5,
+                 phase_step=1.5,
+                 dt_fac=2.0,
+                 err_fac=2.5,
+                 dt_max_scale=3.5,
+                 measure_type='dt',
                  use_cc_error=True,
                  use_mt_error=False):
         """
@@ -46,18 +46,18 @@ class Config(object):
                  min_period, max_period,
                  lnpt = 15,
                  transfunc_waterlevel=1.0E-10,
- 		 water_threshold=0.02,
+                 water_threshold=0.02,
                  ipower_costaper=10,
                  min_cycle_in_window=3,
                  taper_type='hann',
                  taper_percentage=0.15,
                  mt_nw=4.0,
-  	 	 num_taper=5,
- 	         phase_step=1.5,
-	         dt_fac=2.0,
-		 err_fac=2.5,
-		 dt_max_scale=3.5,
-	         measure_type='dt',
+                 num_taper=5,
+                 phase_step=1.5,
+                 dt_fac=2.0,
+                 err_fac=2.5,
+                 dt_max_scale=3.5,
+                 measure_type='dt',
                  use_cc_error=False,
                  use_mt_error=False)
 
@@ -101,19 +101,19 @@ class Config(object):
             larger than 0.96)
         :type num_taper: int
 
-	:param dt_fac
-	:type dt_fac: float
+        :param dt_fac
+        :type dt_fac: float
 
-	:param err_fac 
-	:type err_fac: float 
+        :param err_fac 
+        :type err_fac: float 
 
-	:param dt_max_scale
-	:type dt_max_scale: float
+        :param dt_max_scale
+        :type dt_max_scale: float
 
-	:param phase_step: maximum step for cycle skip correction (?)
-	:type phase_step: float
+        :param phase_step: maximum step for cycle skip correction (?)
+        :type phase_step: float
 
-	:param measure_type: type of measurements-- dt(dt), am(dlnA), wf(waveform) 
+        :param measure_type: type of measurements-- dt(dt), am(dlnA), wf(waveform) 
         :param use_cc_error: use cross correlation errors for 
         :type use_cc_error: logic
 
@@ -138,11 +138,11 @@ class Config(object):
 
         self.mt_nw = mt_nw
         self.num_taper = num_taper
- 	self.phase_step = phase_step
+        self.phase_step = phase_step
 
-	self.dt_fac = dt_fac
-	self.err_fac = err_fac
-	self.dt_max_scale = dt_max_scale
+        self.dt_fac = dt_fac
+        self.err_fac = err_fac
+        self.dt_max_scale = dt_max_scale
 
         self.measure_type = measure_type
         self.use_cc_error = use_cc_error

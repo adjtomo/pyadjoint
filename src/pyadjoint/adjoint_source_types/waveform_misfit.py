@@ -16,7 +16,8 @@ from __future__ import (absolute_import, division, print_function,
 
 from scipy.integrate import simps
 
-from ..utils import generic_adjoint_source_plot, taper_window
+from ..utils import generic_adjoint_source_plot
+from ..utils import sac_hann_taper
 
 
 # This is the verbose and pretty name of the adjoint source defined in this
@@ -78,36 +79,55 @@ ADDITIONAL_PARAMETERS = r"""
 # function. It must take observed, synthetic, min_period, max_period,
 # left_window_border, right_window_border, adjoint_src, and figure as
 # parameters. Other optional keywork arguments are possible.
-def calculate_adjoint_source(observed, synthetic, min_period, max_period,
-                             left_window_border, right_window_border,
-                             adjoint_src, figure, taper_percentage=0.15,
-                             taper_type="hann"):  # NOQA
-    # There is no need to perform any sanity checks on the passed trace
-    # object. At this point they will be guaranteed to have the same
-    # sampling rate, be sampled at the same points in time and a couple
-    # other things.
+def calculate_adjoint_source(observed, synthetic, config, window,
+                             adjoint_src, figure):  # NOQA
 
-    # All adjoint sources will need some kind of taper. Thus pyadjoint has a
-    # convenience function to assist with that. The next block tapers both
-    # observed and synthetic data.
-    taper_window(observed, left_window_border, right_window_border,
-                 taper_percentage=taper_percentage, taper_type=taper_type)
-    taper_window(synthetic, left_window_border, right_window_border,
-                 taper_percentage=taper_percentage, taper_type=taper_type)
 
     ret_val = {}
 
-    d = observed.data
-    s = synthetic.data
+    nlen_data = len(synthetic.data)
+    deltat = synthetic.stats.delta
 
-    diff = d - s
+    adj = np.zeros(nlen_data)
 
-    # Integrate with the composite Simpson's rule.
-    ret_val["misfit"] = 0.5 * simps(y=diff ** 2, dx=observed.stats.delta)
+    misfit_sum = 0.0
+
+    #===
+    # loop over time windows
+    #===
+    for wins in window:
+
+        left_window_border  = wins[0]
+        right_window_border = wins[1]
+
+        left_sample  = int(np.floor( left_window_border / deltat)) + 1
+        nlen         = int(np.floor((right_window_border - left_window_border) / deltat)) + 1
+        right_sample = left_sample + nlen
+
+        d = np.zeros(nlen)
+        s = np.zeros(nlen)
+
+        d[0: nlen] =  observed.data[left_sample: right_sample]
+        s[0: nlen] = synthetic.data[left_sample: right_sample]
+
+        # All adjoint sources will need some kind of windowing taper
+        # to get rid of kinks at two ends
+        sac_hann_taper(d, taper_percentage=config.taper_percentage)
+        sac_hann_taper(s, taper_percentage=config.taper_percentage)
+
+        diff = d - s
+
+        # Integrate with the composite Simpson's rule.
+        misfit_sum += 0.5 * simps(y=diff ** 2, dx=deltat)
+
+        # a conjugate taper apply to adjoint source
+        sac_hann_taper(diff, taper_percentage=config.taper_percentage)
+        adj[left_sample: right_sample] = diff[0:nlen]
 
     if adjoint_src is True:
         # Reverse in time and reverse the actual values.
         ret_val["adjoint_source"] = (-1.0 * diff)[::-1]
+        ret_val["misfit"] = misfit_sum
 
     if figure:
         generic_adjoint_source_plot(
