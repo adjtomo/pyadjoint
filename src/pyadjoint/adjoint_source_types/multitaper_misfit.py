@@ -110,7 +110,7 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
 
     # the estimated error for dt and dlna with uncorrelation assumption
     sigma_dt_top = np.sum((d1[1:nlen_T] - d2_cc[1:nlen_T]) * 
-                          (d1[1:nlen_T] - d2_cc[1:nlen_T]) )
+                          (d1[1:nlen_T] - d2_cc[1:nlen_T]))
     sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_T] * d2_cc_vel[1:nlen_T])
 
     sigma_dlna_top = sigma_dt_top
@@ -450,7 +450,7 @@ def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
     return err_phi, err_abs, err_dtau, err_dlna
 
 
-def cc_adj(synt, cc_shift, deltat, err_dt_cc, err_dlna_cc):
+def cc_adj(synt, cc_shift, cc_dlna, deltat, err_dt_cc, err_dlna_cc):
 
     #ret_val_p["misfit"] = 0.5 * time_shift ** 2
 
@@ -467,7 +467,7 @@ def cc_adj(synt, cc_shift, deltat, err_dt_cc, err_dlna_cc):
 
 def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_F, 
            use_cc_error, use_mt_error, nfreq_min, nfreq_max, err_dt_cc, 
-           err_dlna_cc, err_dtau_mt, err_dlna_mt):
+           err_dlna_cc, err_dtau_mt, err_dlna_mt, wtr):
 
     nlen_T = len(d1)
     ntaper = len(tapers[0])
@@ -764,11 +764,11 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             # calculate multi-taper adjoint source
             fp_t, fq_t = mt_adj(d, s, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_F,
                         use_cc_error, use_mt_error, nfreq_min, nfreq_max, 
-                        sigma_dt_cc, sigma_dlna_cc, sigma_dtau_mt, sigma_dlna_mt)
+                        sigma_dt_cc, sigma_dlna_cc, sigma_dtau_mt, sigma_dlna_mt, wtr)
 
         else:
             # calculate c.c. adjoint source
-            fp_t, fq_t = cc_adj(synt, cc_shift, deltat, sigma_dt_cc, sigma_dlna_cc)
+            fp_t, fq_t = cc_adj(synt, cc_shift, cc_dlna, deltat, sigma_dt_cc, sigma_dlna_cc)
 
         #===
         # post-processing
