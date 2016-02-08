@@ -101,7 +101,7 @@ def sac_hann_taper(signal,taper_percentage):
     idx1 = frac 
     idx2 = npts - frac 
 
-    signal[:idx1] *= (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(0,frac) / (2*frac-1)))
+    signal[:idx1] *= (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(0, frac) / (2*frac-1)))
     signal[idx2:] *= (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(frac,2*frac) / (2*frac-1)))
 
     return signal

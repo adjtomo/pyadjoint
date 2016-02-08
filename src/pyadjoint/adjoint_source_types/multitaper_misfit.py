@@ -17,7 +17,7 @@ from scipy.integrate import simps
 
 from ..utils import generic_adjoint_source_plot
 from ..utils import taper_window, sac_hann_taper
-from ..dpss  import dpss_windows
+from ..dpss import dpss_windows
 
 
 # This is the verbose and pretty name of the adjoint source defined in this
@@ -77,15 +77,16 @@ in which :math:`h_k(t)` is one (the :math:`k`th) of multi-tapers.
 # calculation function. Make sure to indicate the default values. This is a
 # bit redundant but the only way I could figure out to make it work with the
 # rest of the architecture of pyadjoint.
-#ADDITIONAL_PARAMETERS = r"""
-#**taper_percentage** (:class:`float`)
+# ADDITIONAL_PARAMETERS = r"""
+# **taper_percentage** (:class:`float`)
 #    Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
 #    ``0.5`` (50%)). Defauls to ``0.15``.
 #
-#**taper_type** (:class:`str`)
+# **taper_type** (:class:`str`)
 #    The taper type, supports anything :meth:`obspy.core.trace.Trace.taper`
 #    can use. Defaults to ``"hann"``.
-#"""
+#
+# """
 
 
 def _xcorr_shift(d, s):
@@ -110,7 +111,7 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
 
     # the estimated error for dt and dlna with uncorrelation assumption
     sigma_dt_top = np.sum((d1[1:nlen_T] - d2_cc[1:nlen_T]) * 
-                          (d1[1:nlen_T] - d2_cc[1:nlen_T]) )
+                          (d1[1:nlen_T] - d2_cc[1:nlen_T]))
     sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_T] * d2_cc_vel[1:nlen_T])
 
     sigma_dlna_top = sigma_dt_top
@@ -123,12 +124,17 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
 
 
 
-def frequency_limit(s, nlen, nlen_F, deltat, df, wtr, ncycle_in_window, 
+def frequency_limit(s, nlen, nlen_F, deltat, df, wtr, ncycle_in_window,
                     min_period, max_period, nw, is_mtm):
     """
     First check if the window is suitable for mtm measurements, then
     find the maximum frequency point for measurement using the spectrum of 
     tapered synthetics.
+
+    :param s: synthetics
+    :type s: float ndarray
+
+
     """
 
     # reject mtm if wave of min_period experience cycles less than ncycle_in_window
@@ -143,19 +149,19 @@ def frequency_limit(s, nlen, nlen_F, deltat, df, wtr, ncycle_in_window,
 
     # s_w = np.zeros(nlen_F,dtype=complex)
     fnum = int(nlen_F/2 + 1)
-    s_w  = np.fft.fft(s, nlen_F) * deltat 
+    s_w = np.fft.fft(s, nlen_F) * deltat
     ampmax = max(abs(s_w[0: fnum]))
     i_ampmax = np.argmax(abs(s_w[0: fnum]))
     wtr_thrd = ampmax * wtr
 
-    #=== Youyi Ruan, 11/05/2015. Add for the lower limit of spectra
-    #winlen = delta * len(s)
+    # === Youyi Ruan, 11/05/2015. Add for the lower limit of spectra
+    # winlen = delta * len(s)
     ifreq_min = int(1.0 / (max_period * df)) 
     ifreq_max = int(1.0 / (min_period * df))   
  
-    #=== Youyi Ruan test 11/05/2015
-    #print('i_ampmax, freq_ampmax, T_ampmax:',i_ampmax,i_ampmax*df,1.0/(i_ampmax*df))
-    #=== 
+    # === Youyi Ruan test 11/05/2015
+    # print('i_ampmax, freq_ampmax, T_ampmax:',i_ampmax,i_ampmax*df,1.0/(i_ampmax*df))
+    # ===
 
     # initialization
     nfreq_max = fnum - 1
@@ -193,15 +199,14 @@ def frequency_limit(s, nlen, nlen_F, deltat, df, wtr, ncycle_in_window,
         print ("%s" % "MTM: rejecting for frequency range narrower than taper bandwith:")        
         return int(1.0 / (max_period * df)), int(1.0 / (min_period * df))
 
-
-    #=== Youyi Ruan test 11/05/2015
-    #print('nfreq_min nfreq_max: %9.4f %9.4f' % (1.0/(nfreq_min*df), 1.0/(nfreq_max*df)))
+    # === Youyi Ruan test 11/05/2015
+    # print('nfreq_min nfreq_max: %9.4f %9.4f' % (1.0/(nfreq_min*df), 1.0/(nfreq_max*df)))
 
     return nfreq_min, nfreq_max
 
 
 
-def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac, err_dt, 
+def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac, err_dt,
         err_fac, cc_tshift,  dt_max_scale, is_mtm):
     """
     check mtm measurement see if the measurements are good to keep
@@ -228,7 +233,7 @@ def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac, er
       
 
 
-def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_F, wtr_mtm, phase_step, 
+def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
                nfreq_min, nfreq_max, cc_tshift, cc_dlna):
 
     nlen_T = len(d1)
@@ -246,8 +251,8 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
         taper[0:nlen_T] = tapers[0:nlen_T, itaper]
         # apply time-domain multi-tapered measurements 
         # Youyi Ruan 10/29/2015 (no cc shift) change to complex
-        d1_t = np.zeros(nlen_T,dtype=complex)
-        d2_t = np.zeros(nlen_T,dtype=complex)
+        d1_t = np.zeros(nlen_T, dtype=complex)
+        d2_t = np.zeros(nlen_T, dtype=complex)
 
         d1_t[0:nlen_T] = d1[0:nlen_T] * taper[0:nlen_T]
         d2_t[0:nlen_T] = d2[0:nlen_T] * taper[0:nlen_T]
@@ -317,12 +322,12 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
     # transfrer function
     trans_func = np.zeros(nlen_F, dtype=complex)
     trans_func[nfreq_min:nfreq_max] = top_tf[nfreq_min:nfreq_max] / \
-                                      ( bot_tf[nfreq_min:nfreq_max] + wtr_use * \
-                                      (abs(bot_tf[nfreq_min:nfreq_max]) < wtr_use) )
+                                      (bot_tf[nfreq_min:nfreq_max] + wtr_use *
+                                      (abs(bot_tf[nfreq_min:nfreq_max]) < wtr_use))
 
     # Estimate phase and amplitude anomaly from transfer function
-    phi_w  = np.zeros(nlen_F)
-    abs_w  = np.zeros(nlen_F)
+    phi_w = np.zeros(nlen_F)
+    abs_w = np.zeros(nlen_F)
     dtau_w = np.zeros(nlen_F)
     dlna_w = np.zeros(nlen_F)
 
@@ -335,7 +340,7 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
     # cycle-skipping (check smoothness of phi, add cc measure, future
     # implementation)
     for iw in range(nfreq_min + 1, nfreq_max - 1):
-        smth  = abs(phi_w[iw + 1] + phi_w[iw - 1] - 2.0 * phi_w[iw])
+        smth = abs(phi_w[iw + 1] + phi_w[iw - 1] - 2.0 * phi_w[iw])
         smth1 = abs((phi_w[iw + 1] + 2*np.pi) + phi_w[iw - 1] - 2.0*phi_w[iw])
         smth2 = abs((phi_w[iw + 1] - 2*np.pi) + phi_w[iw - 1] - 2.0*phi_w[iw])
 
@@ -371,18 +376,18 @@ def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
 
     # Jacknife MT estimates
     # initialization
-    phi_mul   = np.zeros((nlen_F, ntaper))
-    abs_mul   = np.zeros((nlen_F, ntaper))
-    dtau_mul  = np.zeros((nlen_F, ntaper))
-    dlna_mul  = np.zeros((nlen_F, ntaper))
-    ephi_ave  = np.zeros(nlen_F)
-    eabs_ave  = np.zeros(nlen_F)
+    phi_mul = np.zeros((nlen_F, ntaper))
+    abs_mul = np.zeros((nlen_F, ntaper))
+    dtau_mul = np.zeros((nlen_F, ntaper))
+    dlna_mul = np.zeros((nlen_F, ntaper))
+    ephi_ave = np.zeros(nlen_F)
+    eabs_ave = np.zeros(nlen_F)
     edtau_ave = np.zeros(nlen_F)
     edlna_ave = np.zeros(nlen_F)
-    err_phi   = np.zeros(nlen_F)
-    err_abs   = np.zeros(nlen_F)
-    err_dtau  = np.zeros(nlen_F)
-    err_dlna  = np.zeros(nlen_F)
+    err_phi = np.zeros(nlen_F)
+    err_abs = np.zeros(nlen_F)
+    err_dtau = np.zeros(nlen_F)
+    err_dlna = np.zeros(nlen_F)
 
     for itaper in range(0, ntaper):
         # delete one taper
@@ -395,10 +400,10 @@ def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
         # dlna_om = np.zeros(nlen_F)
         phi_om, abs_om, dtau_om, dlna_om = mt_measure(d1, d2, deltat, tapers_om, 
                                            wvec, df, nlen_F, wtr_mtm, phase_step,
-                                           nfreq_min, nfreq_max,cc_tshift, cc_dlna)
+                                           nfreq_min, nfreq_max, cc_tshift, cc_dlna)
 
-        phi_mul[0:nlen_F, itaper]  =  phi_om[0:nlen_F]
-        abs_mul[0:nlen_F, itaper]  =  abs_om[0:nlen_F]
+        phi_mul[0:nlen_F, itaper] = phi_om[0:nlen_F]
+        abs_mul[0:nlen_F, itaper] = abs_om[0:nlen_F]
         dtau_mul[0:nlen_F, itaper] = dtau_om[0:nlen_F]
         dlna_mul[0:nlen_F, itaper] = dlna_om[0:nlen_F]
 
@@ -417,25 +422,17 @@ def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
             dlna_mul[nfreq_min: nfreq_max, itaper]
 
     # take average
-    ephi_ave  =  ephi_ave / ntaper
-    eabs_ave  =  eabs_ave / ntaper
-    edtau_ave = edtau_ave / ntaper
-    edlna_ave = edlna_ave / ntaper
+    ephi_ave /= ntaper
+    eabs_ave /= ntaper
+    edtau_ave /= ntaper
+    edlna_ave /= ntaper
 
     # deviation
     for itaper in range(0, ntaper):
-        err_phi[nfreq_min: nfreq_max] = err_phi[nfreq_min: nfreq_max] + \
-            (phi_mul[nfreq_min: nfreq_max, itaper] -
-            ephi_ave[nfreq_min: nfreq_max]) ** 2
-        err_abs[nfreq_min: nfreq_max] = err_abs[nfreq_min: nfreq_max] + \
-            (abs_mul[nfreq_min: nfreq_max, itaper] -
-            eabs_ave[nfreq_min: nfreq_max]) ** 2
-        err_dtau[nfreq_min: nfreq_max] = err_dtau[nfreq_min: nfreq_max] + \
-            (dtau_mul[nfreq_min: nfreq_max, itaper] -
-            edtau_ave[nfreq_min: nfreq_max]) ** 2
-        err_dlna[nfreq_min: nfreq_max] = err_dlna[nfreq_min: nfreq_max] + \
-            (dlna_mul[nfreq_min: nfreq_max, itaper] -
-            edlna_ave[nfreq_min: nfreq_max]) ** 2
+        err_phi[nfreq_min:nfreq_max] += (phi_mul[nfreq_min: nfreq_max, itaper] - ephi_ave[nfreq_min: nfreq_max])**2
+        err_abs[nfreq_min:nfreq_max] += (abs_mul[nfreq_min: nfreq_max, itaper] - eabs_ave[nfreq_min: nfreq_max])**2
+        err_dtau[nfreq_min:nfreq_max] += (dtau_mul[nfreq_min: nfreq_max, itaper] - edtau_ave[nfreq_min: nfreq_max])**2
+        err_dlna[nfreq_min:nfreq_max] += (dlna_mul[nfreq_min: nfreq_max, itaper] - edlna_ave[nfreq_min: nfreq_max])**2
 
     # standard deviation 
     err_phi[nfreq_min: nfreq_max] = np.sqrt(
@@ -450,11 +447,11 @@ def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
     return err_phi, err_abs, err_dtau, err_dlna
 
 
-def cc_adj(synt, cc_shift, deltat, err_dt_cc, err_dlna_cc):
+def cc_adj(synt, cc_shift, cc_dlna, deltat, err_dt_cc, err_dlna_cc):
 
     #ret_val_p["misfit"] = 0.5 * time_shift ** 2
 
-    dsdt   = np.gradient(synt) / deltat
+    dsdt = np.gradient(synt) / deltat
 
     nnorm = simps(y=dsdt*dsdt, dx=deltat)
     dt_adj = cc_shift / err_dt_cc**2 / nnorm * dsdt
@@ -467,13 +464,13 @@ def cc_adj(synt, cc_shift, deltat, err_dt_cc, err_dlna_cc):
 
 def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_F, 
            use_cc_error, use_mt_error, nfreq_min, nfreq_max, err_dt_cc, 
-           err_dlna_cc, err_dtau_mt, err_dlna_mt):
+           err_dlna_cc, err_dtau_mt, err_dlna_mt, wtr):
 
     nlen_T = len(d1)
     ntaper = len(tapers[0])
 
     # YY Ruan, 11/05/2015
-    # frequency-domain taper based on adjust frequency band and
+    # frequency-domain taper based on adjusted frequency band and
     # error estimation. It's not one of the tapering processes but
     # an frequency domain weighting function for adjoint source and 
     # misfit function.
@@ -689,10 +686,10 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             cc_dlna = 0.5 * np.log(sum(d[0:nlen]*d[0:nlen]) / sum(s[0:nlen]*s[0:nlen]))
             sigma_dt_cc, sigma_dlna_cc = cc_error(d, s, deltat, cc_shift, cc_dlna)
 
-            print("cc_dt  : %f +/- %f" % (cc_tshift,sigma_dt_cc))
-            print("cc_dlna: %f +/- %f" % (cc_dlna,sigma_dlna_cc))
+            print("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
+            print("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
         # re-window for obsd
-        left_sample_d  = max(left_sample  + cc_shift, 0)
+        left_sample_d = max(left_sample  + cc_shift, 0)
         right_sample_d = min(right_sample + cc_shift, nlen_data)
   
         nlen_d = right_sample_d - left_sample_d
@@ -705,9 +702,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         else:
             raise Exception
 
-        #===
+        # ===
         # Make decision wihich method to use: c.c. or multi-taper
-        #===
+        # ===
         is_mtm = True
 
         # frequencies for FFT
@@ -740,7 +737,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             # dlna_mtm = np.zeros(nlen_F)
             # YY Ruan, phi_mt --> phi_mtm ? 10/29/2015
             phi_mtm, abs_mtm, dtau_mtm, dlna_mtm = mt_measure(d, s, deltat, tapers, 
-                        wvec, df, nlen_F, wtr_mtm, phase_step,nfreq_min, 
+                        wvec, df, nlen_F, wtr_mtm, phase_step, nfreq_min,
                         nfreq_max, cc_tshift, cc_dlna)
 
             # multi-taper error estimation
@@ -764,15 +761,15 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             # calculate multi-taper adjoint source
             fp_t, fq_t = mt_adj(d, s, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_F,
                         use_cc_error, use_mt_error, nfreq_min, nfreq_max, 
-                        sigma_dt_cc, sigma_dlna_cc, sigma_dtau_mt, sigma_dlna_mt)
+                        sigma_dt_cc, sigma_dlna_cc, sigma_dtau_mt, sigma_dlna_mt, wtr)
 
         else:
             # calculate c.c. adjoint source
-            fp_t, fq_t = cc_adj(synt, cc_shift, deltat, sigma_dt_cc, sigma_dlna_cc)
+            fp_t, fq_t = cc_adj(s, cc_shift, cc_dlna, deltat, sigma_dt_cc, sigma_dlna_cc)
 
-        #===
+        # ===
         # post-processing
-        #===
+        # ===
 
         # return to original location before windowing
         # initialization
@@ -834,7 +831,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         #f5 = open('fp.py.adj','w')
         #for idx, ele in enumerate(fp[left_sample:right_sample]):
-          #f5.write("%f %f\n" %(idx*deltat, ele))
+        #f5.write("%f %f\n" %(idx*deltat, ele))
         #  f5.write("%f %f\n" %(idx, ele))
         #f5.close()
         #f15 = open('fq.py.adj','w')
@@ -874,7 +871,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             ret_val_p["misfit"], left_window_border, right_window_border,
             VERBOSE_NAME)
 
-    if(config.measure_type == "dt"):
+    if config.measure_type == "dt":
         return ret_val_p
-    if(config.measure_type == "am"):
+    if config.measure_type == "am":
         return ret_val_q
