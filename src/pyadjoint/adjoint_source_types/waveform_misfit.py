@@ -20,6 +20,7 @@ from ..utils import generic_adjoint_source_plot
 from ..utils import sac_hann_taper
 
 import numpy as np
+
 # This is the verbose and pretty name of the adjoint source defined in this
 # function.
 VERBOSE_NAME = "Waveform Misfit"
@@ -67,10 +68,10 @@ to evaluate the definite integral.
 ADDITIONAL_PARAMETERS = r"""
 **taper_percentage** (:class:`float`)
     Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
-    ``0.5`` (50%)). Defauls to ``0.15``.
+    ``0.5`` (50%)). Defaults to ``0.15``.
 
 **taper_type** (:class:`str`)
-    The taper type, supports anything :meth:`obspy.core.trace.Trace.taper`
+    The taper type, supports anything :method:`obspy.core.trace.Trace.taper`
     can use. Defaults to ``"hann"``.
 """
 
@@ -78,10 +79,9 @@ ADDITIONAL_PARAMETERS = r"""
 # Each adjoint source file must contain a calculate_adjoint_source()
 # function. It must take observed, synthetic, min_period, max_period,
 # left_window_border, right_window_border, adjoint_src, and figure as
-# parameters. Other optional keywork arguments are possible.
+# parameters. Other optional keyword arguments are possible.
 def calculate_adjoint_source(observed, synthetic, config, window,
                              adjoint_src, figure):  # NOQA
-
 
     ret_val = {}
 
@@ -92,22 +92,20 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
     misfit_sum = 0.0
 
-    #===
     # loop over time windows
-    #===
-    for wins in window:
 
-        left_window_border  = wins[0]
+    for wins in window:
+        left_window_border = wins[0]
         right_window_border = wins[1]
 
-        left_sample  = int(np.floor( left_window_border / deltat)) + 1
-        nlen         = int(np.floor((right_window_border - left_window_border) / deltat)) + 1
+        left_sample = int(np.floor(left_window_border / deltat)) + 1
+        nlen = int(np.floor((right_window_border - left_window_border) / deltat)) + 1
         right_sample = left_sample + nlen
 
         d = np.zeros(nlen)
         s = np.zeros(nlen)
 
-        d[0: nlen] =  observed.data[left_sample: right_sample]
+        d[0: nlen] = observed.data[left_sample: right_sample]
         s[0: nlen] = synthetic.data[left_sample: right_sample]
 
         # All adjoint sources will need some kind of windowing taper
