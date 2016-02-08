@@ -5,6 +5,7 @@ Cross correlation traveltime misfit.
 
 :copyright:
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
+    Youyi Ruan (youyir@princeton.edu) 2016
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
@@ -88,6 +89,32 @@ def _xcorr_shift(d, s):
     time_shift = cc.argmax() - len(d) + 1
     return time_shift
 
+def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
+    nlen_T = len(d1)
+
+    # make cc-based corrections to d2
+    d2_cc = np.zeros(nlen_T)
+    for index in range(0, nlen_T):
+        index_shift = index - cc_shift
+        if 0 <= index_shift < nlen_T:
+            d2_cc[index] = np.exp(cc_dlna) * d2[index_shift]
+
+    # velocity of d2_cc
+    # d2_cc_vel = np.zeros(nlen_T)
+    d2_cc_vel = np.gradient(d2_cc) / deltat
+
+    # the estimated error for dt and dlna with uncorrelation assumption
+    sigma_dt_top = np.sum((d1[1:nlen_T] - d2_cc[1:nlen_T]) * 
+                          (d1[1:nlen_T] - d2_cc[1:nlen_T]) )
+    sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_T] * d2_cc_vel[1:nlen_T])
+
+    sigma_dlna_top = sigma_dt_top
+    sigma_dlna_bot = np.sum(d2_cc[1:nlen_T] * d2_cc[1:nlen_T]) / (cc_dlna * cc_dlna)
+
+    sigma_dt = np.sqrt(sigma_dt_top / sigma_dt_bot)
+    sigma_dlna = np.sqrt(sigma_dlna_top / sigma_dlna_bot)
+
+    return sigma_dt, sigma_dlna
 
 def subsample_xcorr_shift(d, s):
     """
@@ -110,35 +137,86 @@ def subsample_xcorr_shift(d, s):
             20.0 * time_shift, 10.0 * time_shift)[0]
 
 
-def calculate_adjoint_source(observed, synthetic, min_period, max_period,
-                             left_window_border, right_window_border,
-                             adjoint_src, figure, taper_percentage=0.15,
-                             taper_type="hann"):  # NOQA
+#def calculate_adjoint_source(observed, synthetic, min_period, max_period,
+#                             left_window_border, right_window_border,
+#                             adjoint_src, figure, taper_percentage=0.15,
+#                             taper_type="hann"):  # NOQA
+def calculate_adjoint_source(observed, synthetic, config, window,
+                             adjoint_src, figure):  # NOQA
 
-    # All adjoint sources will need some kind of taper. Thus pyadjoint has a
+
+    # All adjoint sources will need some kind of windowing taper. Thus pyadjoint has a
     # convenience function to assist with that. The next block tapers both
     # observed and synthetic data.
-    taper_window(observed, left_window_border, right_window_border,
-                 taper_percentage=taper_percentage, taper_type=taper_type)
-    taper_window(synthetic, left_window_border, right_window_border,
-                 taper_percentage=taper_percentage, taper_type=taper_type)
 
-    ret_val = {}
+    #taper_window(observed, left_window_border, right_window_border,
+    #             taper_percentage=taper_percentage, taper_type=taper_type)
+    #taper_window(synthetic, left_window_border, right_window_border,
+    #             taper_percentage=taper_percentage, taper_type=taper_type)
 
-    # Subsample accuracy time shift
-    time_shift = subsample_xcorr_shift(observed, synthetic)
-    ret_val["misfit"] = 0.5 * time_shift ** 2
+    ret_val_p = {}
+    ret_val_q = {}
 
-    if adjoint_src is True:
+    nlen_data = len(synthetic.data)
+    deltat = synthetic.stats.delta
 
-        s_dt = synthetic.copy().differentiate()
-        s_dt_2 = s_dt.copy().differentiate()
+    fp = np.zeros(nlen_data)
+    fq = np.zeros(nlen_data)
 
-        N = simps(y=synthetic.data * s_dt_2.data, dx=synthetic.stats.delta)
+    misfit_sum_p = 0.0
+    misfit_sum_q = 0.0
+    
+    #===
+    # loop over time windows
+    #===
+    for wins in window:
+        
+        left_window_border  = wins[0]
+        right_window_border = wins[1]
+
+        left_sample  = int(np.floor( left_window_border / deltat)) + 1
+        nlen         = int(np.floor((right_window_border - left_window_border) / deltat)) + 1
+        right_sample = left_sample + nlen
+
+        d = np.zeros(nlen)
+        s = np.zeros(nlen)
+
+        d[0: nlen] =  observed.data[left_sample: right_sample]
+        s[0: nlen] = synthetic.data[left_sample: right_sample]
+
+        
+        # All adjoint sources will need some kind of windowing taper
+        # to get rid of kinks at two ends
+        sac_hann_taper(d, taper_percentage=config.taper_percentage)
+        sac_hann_taper(s, taper_percentage=config.taper_percentage)
+
+
+        # Subsample accuracy time shift
+        time_shift = subsample_xcorr_shift(observed, synthetic)
+        cc_dlnA = 0.5 * np.log(sum(d[0:nlen]*d[0:nlen]) / sum(s[0:nlen]*s[0:nlen]))
+
+        misfit_sum_p += 0.5 * time_shift ** 2
+        misfit_sum_q += 0.5 * cc_dlnA ** 2
+
+        # original code by Lion
+        #s_dt = synthetic.copy().differentiate()
+        #s_dt_2 = s_dt.copy().differentiate()
+        #N = simps(y=synthetic.data * s_dt_2.data, dx=synthetic.stats.delta)
+    
+        dsdt    = np.gradient(s) / deltat
 
         # Reverse in time and reverse the actual values.
-        ret_val["adjoint_source"] = \
-            -1.0 * (time_shift / N * s_dt.data)[::-1]
+        nnorm   = simps(y=dsdt*dsdt, dx=deltat)
+        fp = -1.0 * (time_shift / nnorm * s_dt.data)
+
+
+    if adjoint_src is True:
+        ret_val_p["misfit"] = misfit_sum_p
+        ret_val_q["misfit"] = misfit_sum_q
+
+        ret_val_p["adjoint_source"] = fp[::-1]
+        ret_val_q["adjoint_source"] = fq[::-1]
+
 
     if figure:
         generic_adjoint_source_plot(
@@ -146,4 +224,8 @@ def calculate_adjoint_source(observed, synthetic, min_period, max_period,
             left_window_border, right_window_border,
             VERBOSE_NAME)
 
-    return ret_val
+    if config.measure_type == "dt":
+        return ret_val_p
+
+    if config.measure_type == "am":
+        return ret_val_q
