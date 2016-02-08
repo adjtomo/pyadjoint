@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import os
 
 import obspy
-
+import numpy as np
 
 EXAMPLE_DATA_PDIFF = (800, 900)
 EXAMPLE_DATA_SDIFF = (1500, 1600)
