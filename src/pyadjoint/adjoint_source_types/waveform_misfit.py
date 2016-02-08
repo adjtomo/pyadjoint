@@ -19,7 +19,7 @@ from scipy.integrate import simps
 from ..utils import generic_adjoint_source_plot
 from ..utils import sac_hann_taper
 
-
+import numpy as np
 # This is the verbose and pretty name of the adjoint source defined in this
 # function.
 VERBOSE_NAME = "Waveform Misfit"
@@ -115,18 +115,18 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         sac_hann_taper(d, taper_percentage=config.taper_percentage)
         sac_hann_taper(s, taper_percentage=config.taper_percentage)
 
-        diff = d - s
+        diff = s - d
 
         # Integrate with the composite Simpson's rule.
         misfit_sum += 0.5 * simps(y=diff ** 2, dx=deltat)
 
-        # a conjugate taper apply to adjoint source
+        # a conjugate windowing taper apply to adjoint source
         sac_hann_taper(diff, taper_percentage=config.taper_percentage)
         adj[left_sample: right_sample] = diff[0:nlen]
 
     if adjoint_src is True:
-        # Reverse in time and reverse the actual values.
-        ret_val["adjoint_source"] = (-1.0 * diff)[::-1]
+        # Reverse in time
+        ret_val["adjoint_source"] = adj[::-1]
         ret_val["misfit"] = misfit_sum
 
     if figure:
