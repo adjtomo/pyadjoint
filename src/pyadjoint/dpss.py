@@ -36,8 +36,12 @@ def tridisolve(d, e, b, overwrite_b=True):
     x : ndarray
       Solution to Ax = b (if overwrite_b is False). Otherwise solution is
       stored in previous RHS vector b
+      :param b:
+      :param e:
+      :param d:
+      :param overwrite_b:
     """
-    N = len(b)
+    n = len(b)
     # work vectors
     dw = d.copy()
     ew = e.copy()
@@ -45,16 +49,16 @@ def tridisolve(d, e, b, overwrite_b=True):
         x = b
     else:
         x = b.copy()
-    for k in range(1, N):
+    for k in range(1, n):
         # e^(k-1) = e(k-1) / d(k-1)
         # d(k) = d(k) - e^(k-1)e(k-1) / d(k-1)
         t = ew[k - 1]
         ew[k - 1] = t / dw[k - 1]
         dw[k] = dw[k] - t * ew[k - 1]
-    for k in range(1, N):
+    for k in range(1, n):
         x[k] = x[k] - ew[k - 1] * x[k - 1]
-    x[N - 1] = x[N - 1] / dw[N - 1]
-    for k in range(N - 2, -1, -1):
+    x[n - 1] = x[n - 1] / dw[n - 1]
+    for k in range(n - 2, -1, -1):
         x[k] = x[k] / dw[k] - ew[k] * x[k + 1]
 
     if not overwrite_b:
@@ -105,24 +109,24 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
     return x0
 
 
-def sum_squared(X):
+def sum_squared(x):
     """
     Compute norm of an array
 
     Parameters
     ----------
-    X : array
+    x : array
         Data whose norm must be found
     Returns
     -------
     value : float
         Sum of squares of the input array X
     """
-    X_flat = X.ravel(order='F' if np.isfortran(X) else 'C')
-    return np.dot(X_flat, X_flat)
+    x_flat = x.ravel(order='F' if np.isfortran(x) else 'C')
+    return np.dot(x_flat, x_flat)
 
 
-def dpss_windows(N, half_nbw, Kmax, low_bias=True, interp_from=None,
+def dpss_windows(n, half_nbw, k_max, low_bias=True, interp_from=None,
                  interp_kind='linear'):
     """
     Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
@@ -132,12 +136,12 @@ def dpss_windows(N, half_nbw, Kmax, low_bias=True, interp_from=None,
 
     Parameters
     ----------
-    N : int
+    n : int
         Sequence length
     half_nbw : float, unitless
         Standardized half bandwidth corresponding to 2 * half_bw = BW*f0
         = BW*N/dt but with dt taken as 1
-    Kmax : int
+    k_max : int
         Number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
     low_bias : Bool
         Keep only tapers with eigenvalues > 0.9
@@ -166,25 +170,25 @@ def dpss_windows(N, half_nbw, Kmax, low_bias=True, interp_from=None,
     uncertainty V: The discrete case. Bell System Technical Journal,
     Volume 57 (1978), 1371430
     """
-    Kmax = int(Kmax)
-    W = float(half_nbw) / N
-    nidx = np.arange(N, dtype='d')
+    k_max = int(k_max)
+    w_bin = float(half_nbw) / n
+    nidx = np.arange(n, dtype='d')
 
     # In this case, we create the dpss windows of the smaller size
     # (interp_from) and then interpolate to the larger size (N)
     if interp_from is not None:
-        if interp_from > N:
+        if interp_from > n:
             e_s = 'In dpss_windows, interp_from is: %s ' % interp_from
-            e_s += 'and N is: %s. ' % N
+            e_s += 'and N is: %s. ' % n
             e_s += 'Please enter interp_from smaller than N.'
             raise ValueError(e_s)
         dpss = []
-        d, e = dpss_windows(interp_from, half_nbw, Kmax, low_bias=False)
+        d, e = dpss_windows(interp_from, half_nbw, k_max, low_bias=False)
         for this_d in d:
             x = np.arange(this_d.shape[-1])
-            I = interpolate.interp1d(x, this_d, kind=interp_kind)
-            d_temp = I(np.arange(0, this_d.shape[-1] - 1,
-                                 float(this_d.shape[-1] - 1) / N))
+            x_interp = interpolate.interp1d(x, this_d, kind=interp_kind)
+            d_temp = x_interp(np.arange(0, this_d.shape[-1] - 1,
+                              float(this_d.shape[-1] - 1)/n))
 
             # Rescale:
             d_temp = d_temp / np.sqrt(sum_squared(d_temp))
@@ -212,22 +216,22 @@ def dpss_windows(N, half_nbw, Kmax, low_bias=True, interp_from=None,
         # the main diagonal = ([N-1-2*t]/2)**2 cos(2PIW), t=[0,1,2,...,N-1]
         # and the first off-diagonal = t(N-t)/2, t=[1,2,...,N-1]
         # [see Percival and Walden, 1993]
-        diagonal = ((N - 1 - 2 * nidx) / 2.) ** 2 * np.cos(2 * np.pi * W)
+        diagonal = ((n - 1 - 2*nidx)/2.)**2*np.cos(2*np.pi*w_bin)
         off_diag = np.zeros_like(nidx)
-        off_diag[:-1] = nidx[1:] * (N - nidx[1:]) / 2.
+        off_diag[:-1] = nidx[1:] * (n - nidx[1:])/2.
         # put the diagonals in LAPACK "packed" storage
-        ab = np.zeros((2, N), 'd')
+        ab = np.zeros((2, n), 'd')
         ab[1] = diagonal
         ab[0, 1:] = off_diag[:-1]
         # only calculate the highest Kmax eigenvalues
         w = linalg.eigvals_banded(ab, select='i',
-                                  select_range=(N - Kmax, N - 1))
+                                  select_range=(n - k_max, n - 1))
         w = w[::-1]
 
         # find the corresponding eigenvectors via inverse iteration
-        t = np.linspace(0, np.pi, N)
-        dpss = np.zeros((Kmax, N), 'd')
-        for k in range(Kmax):
+        t = np.linspace(0, np.pi, n)
+        dpss = np.zeros((k_max, n), 'd')
+        for k in range(k_max):
             dpss[k] = tridi_inverse_iteration(diagonal, off_diag, w[k],
                                               x0=np.sin((k + 1) * t))
 
@@ -247,14 +251,14 @@ def dpss_windows(N, half_nbw, Kmax, low_bias=True, interp_from=None,
     # Use the autocorr sequence technique from Percival and Walden, 1993 pg 390
 
     # compute autocorr using FFT (same as nitime.utils.autocorr(dpss) * N)
-    rxx_size = 2 * N - 1
+    rxx_size = 2*n - 1
     n_fft = 2 ** int(np.ceil(np.log2(rxx_size)))
     dpss_fft = fftpack.fft(dpss, n_fft)
     dpss_rxx = np.real(fftpack.ifft(dpss_fft * dpss_fft.conj()))
-    dpss_rxx = dpss_rxx[:, :N]
+    dpss_rxx = dpss_rxx[:, :n]
 
-    r = 4 * W * np.sinc(2 * W * nidx)
-    r[0] = 2 * W
+    r = 4 * w_bin * np.sinc(2 * w_bin * nidx)
+    r[0] = 2 * w_bin
     eigvals = np.dot(dpss_rxx, r)
 
     if low_bias:

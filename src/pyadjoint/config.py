@@ -12,12 +12,6 @@ Configuration object for pyadjoint.
 """
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
-from future.builtins import *  # NOQA
-
-import collections
-import numpy as np
-
-from . import PyadjointError
 
 
 class Config(object):
@@ -69,43 +63,45 @@ class Config(object):
             seconds.
         :type max_period: float
 
-        :param lnpt: power index to determin the time lenght use in FFT (2^lnpt)
+        :param lnpt: power index to determin the time lenght use in
+            FFT (2^lnpt)
         :type lnpt: int
 
-        :param transfunc_waterlevel: Water level on the transfer function between
-            data and synthetic. 
+        :param transfunc_waterlevel: Water level on the transfer function
+            between data and synthetic.
         :type transfunc_waterlevel: float
 
-        :param ipower_costaper: order of cosine taper, higher the value, steeper the 
-            shoulders. 
+        :param ipower_costaper: order of cosine taper, higher the value,
+            steeper the shoulders.
         :type ipower_costaper: int
 
-        :param min_cycle_in_window:  Minimum cycle of a wave in time window to 
-            determin the maximum period can be reliably measured. 
+        :param min_cycle_in_window:  Minimum cycle of a wave in time window to
+            determin the maximum period can be reliably measured.
         :type min_cycle_in_window: int
 
-        :param taper_percentage: Percentage of a time window needs to be tapered 
-            at two ends, to remove the non-zero values for adjoint source and for 
-            fft.
+        :param taper_percentage: Percentage of a time window needs to be
+            tapered at two ends, to remove the non-zero values for adjoint
+            source and for fft.
         :type taper_percentage: float
 
         :param taper_type: Taper type, supports anything
             :meth:`obspy.core.trace.Trace.taper` can use.
         :type taper_type: str
 
-        :param mt_nw: bin width of multitapers (nw*df is the the half bandwidth of 
-            multitapers in frequency domain, typical values are 2.5, 3., 3.5, 4.0)
+        :param mt_nw: bin width of multitapers (nw*df is the the half
+            bandwidth of multitapers in frequency domain,
+            typical values are 2.5, 3., 3.5, 4.0)
         :type mt_nw: float
 
-        :param num_taper: number of eigen tapers (2*nw - 3 gives tapers with eigen values 
-            larger than 0.96)
+        :param num_taper: number of eigen tapers (2*nw - 3 gives tapers
+            with eigen values larger than 0.96)
         :type num_taper: int
 
         :param dt_fac
         :type dt_fac: float
 
-        :param err_fac 
-        :type err_fac: float 
+        :param err_fac
+        :type err_fac: float
 
         :param dt_max_scale
         :type dt_max_scale: float
@@ -113,18 +109,19 @@ class Config(object):
         :param phase_step: maximum step for cycle skip correction (?)
         :type phase_step: float
 
-        :param measure_type: type of measurements-- dt(dt), am(dlnA), wf(waveform) 
-        :param use_cc_error: use cross correlation errors for 
+        :param measure_type: type of measurements-- dt(dt),
+            am(dlnA), wf(waveform)
+        :param use_cc_error: use cross correlation errors for
         :type use_cc_error: logic
 
-        :param use_mt_error: use multi-taper error 
+        :param use_mt_error: use multi-taper error
         :type use_mt_error: logic
         """
 
         self.min_period = min_period
         self.max_period = max_period
 
-        self.lnpt=lnpt
+        self.lnpt = lnpt
 
         self.transfunc_waterlevel = transfunc_waterlevel
         self.water_threshold = water_threshold
@@ -147,4 +144,3 @@ class Config(object):
         self.measure_type = measure_type
         self.use_cc_error = use_cc_error
         self.use_mt_error = use_mt_error
-

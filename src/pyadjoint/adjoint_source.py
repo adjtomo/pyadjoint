@@ -350,7 +350,8 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     return AdjointSource(adj_src_type, misfit=misfit,
                          adjoint_source=adjoint_source,
                          dt=observed.stats.delta,
-                         min_period=config.min_period, max_period=config.max_period,
+                         min_period=config.min_period,
+                         max_period=config.max_period,
                          network=observed.stats.network,
                          station=observed.stats.station,
                          component=observed.stats.channel[-1])
@@ -436,10 +437,10 @@ def _discover_adjoint_sources():
 
     AdjointSource._ad_srcs = {}
 
-    FCT_NAME = "calculate_adjoint_source"
-    NAME_ATTR = "VERBOSE_NAME"
-    DESC_ATTR = "DESCRIPTION"
-    ADD_ATTR = "ADDITIONAL_PARAMETERS"
+    fct_name = "calculate_adjoint_source"
+    name_attr = "VERBOSE_NAME"
+    desc_attr = "DESCRIPTION"
+    add_attr = "ADDITIONAL_PARAMETERS"
 
     path = os.path.join(
         os.path.dirname(inspect.getfile(inspect.currentframe())),
@@ -447,30 +448,30 @@ def _discover_adjoint_sources():
     for importer, modname, _ in pkgutil.iter_modules(
             [path], prefix=adjoint_source_types.__name__ + "."):
         m = importer.find_module(modname).load_module(modname)
-        if not hasattr(m, FCT_NAME):
+        if not hasattr(m, fct_name):
             continue
-        fct = getattr(m, FCT_NAME)
+        fct = getattr(m, fct_name)
         if not callable(fct):
             continue
 
         name = modname.split('.')[-1]
 
-        if not hasattr(m, NAME_ATTR):
+        if not hasattr(m, name_attr):
             raise PyadjointError(
                 "Adjoint source '%s' does not have a variable named %s." %
-                (name, NAME_ATTR))
+                (name, name_attr))
 
-        if not hasattr(m, DESC_ATTR):
+        if not hasattr(m, desc_attr):
             raise PyadjointError(
                 "Adjoint source '%s' does not have a variable named %s." %
-                (name, DESC_ATTR))
+                (name, desc_attr))
 
         # Add tuple of name, verbose name, and description.
         AdjointSource._ad_srcs[name] = (
             fct,
-            getattr(m, NAME_ATTR),
-            getattr(m, DESC_ATTR),
-            getattr(m, ADD_ATTR) if hasattr(m, ADD_ATTR) else None)
+            getattr(m, name_attr),
+            getattr(m, desc_attr),
+            getattr(m, add_attr) if hasattr(m, add_attr) else None)
 
 
 _discover_adjoint_sources()

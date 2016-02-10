@@ -17,7 +17,7 @@ import numpy as np
 from scipy.integrate import simps
 import warnings
 
-from ..utils import generic_adjoint_source_plot, taper_window, sac_hann_taper
+from ..utils import sac_hann_taper  # , generic_adjoint_source_plot
 
 
 VERBOSE_NAME = "Cross Correlation Traveltime Misfit"
@@ -89,6 +89,7 @@ def _xcorr_shift(d, s):
     time_shift = cc.argmax() - len(d) + 1
     return time_shift
 
+
 def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
 
     nlen_t = len(d1)
@@ -109,11 +110,12 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
 
     # the estimated error for dt and dlna with uncorrelation assumption
 
-    #sigma_dt_top = np.sum((d1[1:nlen_T] - d2_cc[1:nlen_T]) * 
-    #                      (d1[1:nlen_T] - d2_cc[1:nlen_T]))
-    #sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_T] * d2_cc_vel[1:nlen_T])
-    #sigma_dlna_top = sigma_dt_top
-    #sigma_dlna_bot = np.sum(d2_cc[1:nlen_T] * d2_cc[1:nlen_T]) / (cc_dlna * cc_dlna)
+    # sigma_dt_top = np.sum((d1[1:nlen_T] - d2_cc[1:nlen_T]) *
+    #                       (d1[1:nlen_T] - d2_cc[1:nlen_T]))
+    # sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_T] * d2_cc_vel[1:nlen_T])
+    # sigma_dlna_top = sigma_dt_top
+    # sigma_dlna_bot = np.sum(d2_cc[1:nlen_T] * d2_cc[1:nlen_T]) /
+    #                 (cc_dlna * cc_dlna)
 
     sigma_dt_top = np.sum((d1 - d2_cc_dtdlna)**2)
     sigma_dt_bot = np.sum(d2_cc_vel**2)
@@ -131,6 +133,8 @@ def subsample_xcorr_shift(d, s):
     """
     Calculate the correlation time shift around the maximum amplitude of the
     synthetic trace with subsample accuracy.
+    :param s:
+    :param d:
     """
     # Estimate shift and use it as a guideline for the subsample accuracy
     # shift.
@@ -150,16 +154,14 @@ def subsample_xcorr_shift(d, s):
 
 def calculate_adjoint_source(observed, synthetic, config, window,
                              adjoint_src, figure):  # NOQA
+    # All adjoint sources will need some kind of windowing taper.
+    # Thus pyadjoint has a convenience function to assist with that.
+    # The next block tapers both observed and synthetic data.
 
-
-    # All adjoint sources will need some kind of windowing taper. Thus pyadjoint has a
-    # convenience function to assist with that. The next block tapers both
-    # observed and synthetic data.
-
-    #taper_window(observed, left_window_border, right_window_border,
-    #             taper_percentage=taper_percentage, taper_type=taper_type)
-    #taper_window(synthetic, left_window_border, right_window_border,
-    #             taper_percentage=taper_percentage, taper_type=taper_type)
+    # taper_window(observed, left_window_border, right_window_border,
+    #              taper_percentage=taper_percentage, taper_type=taper_type)
+    # taper_window(synthetic, left_window_border, right_window_border,
+    #              taper_percentage=taper_percentage, taper_type=taper_type)
 
     ret_val_p = {}
     ret_val_q = {}
@@ -172,16 +174,17 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
     misfit_sum_p = 0.0
     misfit_sum_q = 0.0
-    
-    #===
+
+    # ===
     # loop over time windows
-    #===
+    # ===
     for wins in window:
         left_window_border = wins[0]
         right_window_border = wins[1]
 
-        left_sample  = int(np.floor( left_window_border / deltat)) + 1
-        nlen = int(np.floor((right_window_border - left_window_border) / deltat)) + 1
+        left_sample = int(np.floor(left_window_border / deltat)) + 1
+        nlen = int(np.floor((right_window_border -
+                             left_window_border) / deltat)) + 1
         right_sample = left_sample + nlen
 
         d = np.zeros(nlen)
@@ -199,7 +202,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         i_shift = _xcorr_shift(d, s)
         t_shift = i_shift * deltat
 
-        cc_dlna = 0.5 * np.log(sum(d[0:nlen]*d[0:nlen]) / sum(s[0:nlen]*s[0:nlen]))
+        cc_dlna = 0.5 * np.log(sum(d[0:nlen]*d[0:nlen]) /
+                               sum(s[0:nlen]*s[0:nlen]))
         sigma_dt, sigma_dlna = cc_error(d, s, deltat, i_shift, cc_dlna)
 
         misfit_sum_p += 0.5 * t_shift ** 2
@@ -210,7 +214,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         fp[left_sample:right_sample] = dsdt[:] * t_shift / nnorm / sigma_dt**2
 
         mnorm = simps(y=s*s, dx=deltat)
-        fq[left_sample:right_sample] = -1.0 * s[:] * cc_dlna / mnorm / sigma_dlna**2
+        fq[left_sample:right_sample] = -1.0 * s[:] * cc_dlna / \
+            mnorm / sigma_dlna**2
 
     if adjoint_src is True:
         ret_val_p["misfit"] = misfit_sum_p
@@ -219,12 +224,13 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         ret_val_p["adjoint_source"] = fp[::-1]
         ret_val_q["adjoint_source"] = fq[::-1]
 
-
     if figure:
-        generic_adjoint_source_plot(
-            observed, synthetic, ret_val["adjoint_source"], ret_val["misfit"],
-            left_window_border, right_window_border,
-            VERBOSE_NAME)
+        return NotImplemented
+        # generic_adjoint_source_plot(
+        #     observed, synthetic,
+        #    ret_val["adjoint_source"], ret_val["misfit"],
+        #     left_window_border, right_window_border,
+        #     VERBOSE_NAME)
 
     if config.measure_type == "dt":
         return ret_val_p
