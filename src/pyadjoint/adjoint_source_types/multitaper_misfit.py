@@ -449,15 +449,13 @@ def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_F, wtr_mtm, phase_step,
 
 def cc_adj(synt, cc_shift, cc_dlna, deltat, err_dt_cc, err_dlna_cc):
 
-    #ret_val_p["misfit"] = 0.5 * time_shift ** 2
-
     dsdt = np.gradient(synt) / deltat
 
     nnorm = simps(y=dsdt*dsdt, dx=deltat)
-    dt_adj = cc_shift / err_dt_cc**2 / nnorm * dsdt
+    dt_adj = cc_shift * deltat / err_dt_cc**2 / nnorm * dsdt
 
-    nnorm = simps(y=synt*synt, dx=deltat)
-    am_adj = -1.0 * cc_dlna / err_dlna_cc**2 / nnorm * synt
+    mnorm = simps(y=synt*synt, dx=deltat)
+    am_adj = -1.0 * cc_dlna / err_dlna_cc**2 / mnorm * synt
 
     return dt_adj, am_adj
 
@@ -475,28 +473,29 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_F,
     # an frequency domain weighting function for adjoint source and 
     # misfit function.
 
-    W_taper = np.zeros(nlen_F)
-    Wp_w = np.zeros(nlen_F)
-    Wq_w = np.zeros(nlen_F)
+    w_taper = np.zeros(nlen_F)
+    wp_w = np.zeros(nlen_F)
+    wq_w = np.zeros(nlen_F)
 
     iw = np.arange(nfreq_min, nfreq_max, 1)
-    W_taper[nfreq_min: nfreq_max] = 1.0
+    w_taper[nfreq_min: nfreq_max] = 1.0
 
     # Original higher order cosine taper 
-    #ipwr_w = 10
-    #W_taper[nfreq_min: nfreq_max] = 1.0 - np.cos(np.pi * (iw[0:len(iw)] 
-    #                  - nfreq_min) / (nfreq_max - nfreq_min)) ** ipwr_w
+    ipwr_w = 10
+    w_taper[nfreq_min: nfreq_max] = 1.0 - np.cos(np.pi * (iw[0:len(iw)] 
+                      - nfreq_min) / (nfreq_max - nfreq_min)) ** ipwr_w
 
     # normalized factor
-    ffac = 2.0 * df * np.sum(W_taper[nfreq_min: nfreq_max])
-    Wp_w = W_taper / ffac
-    Wq_w = W_taper / ffac
+    ffac = 2.0 * df * np.sum(w_taper[nfreq_min: nfreq_max])
+
+    wp_w = w_taper / ffac
+    wq_w = w_taper / ffac
 
     # add error estimate
     # cc error
     if use_cc_error:
-        Wp_w = Wp_w / (err_dt_cc * err_dt_cc)
-        Wq_w = Wq_w / (err_dlna_cc * err_dlna_cc)
+        wp_w = wp_w / (err_dt_cc**2)
+        wq_w = wq_w / (err_dlna_cc**2)
 
     # mt error
     if use_mt_error:
@@ -512,15 +511,16 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_F,
         err_dlna_mt[nfreq_min: nfreq_max] = \
             err_dlna_mt[nfreq_min: nfreq_max] + dlna_wtr * \
             (err_dlna_mt[nfreq_min: nfreq_max] < dlna_wtr)
-        Wp_w[nfreq_min: nfreq_max] = Wp_w[nfreq_min: nfreq_max] / \
+
+        wp_w[nfreq_min: nfreq_max] = wp_w[nfreq_min: nfreq_max] / \
             ((err_dtau_mt[nfreq_min: nfreq_max]) ** 2)
-        Wq_w[nfreq_min: nfreq_max] = Wq_w[nfreq_min: nfreq_max] / \
+        wq_w[nfreq_min: nfreq_max] = wq_w[nfreq_min: nfreq_max] / \
             ((err_dlna_mt[nfreq_min: nfreq_max]) ** 2)
 
     # YY Ruan for test 10/28/2015
     # don't weight with err
-    Wp_w = W_taper / ffac
-    Wq_w = W_taper / ffac
+    #wp_w = w_taper / ffac
+    #wq_w = w_taper / ffac
     
 
     # initialization
@@ -569,8 +569,8 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_F,
         # calculate weighted adjoint Pj(w) Qj(w) adding measurement dtau dlna
         # P_w = np.zeros(nlen_F, dtype=complex)
         # P_w = np.zeros(nlen_F, dtype=complex)
-        P_w = p_w * dtau_mtm * Wp_w
-        Q_w = q_w * dlna_mtm * Wq_w
+        P_w = p_w * dtau_mtm * wp_w
+        Q_w = q_w * dlna_mtm * wq_w
 
         # inverse FFT to weighted adjoint (take real part)
         # P_wt = np.zeros(nlen_F)
