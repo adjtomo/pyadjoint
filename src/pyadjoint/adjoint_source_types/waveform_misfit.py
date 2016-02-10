@@ -118,8 +118,6 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # Integrate with the composite Simpson's rule.
         misfit_sum += 0.5 * simps(y=diff ** 2, dx=deltat)
 
-        # a conjugate windowing taper apply to adjoint source
-        sac_hann_taper(diff, taper_percentage=config.taper_percentage)
         adj[left_sample: right_sample] = diff[0:nlen]
 
     if adjoint_src is True:
