@@ -807,7 +807,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
                               dtau_mtm, dt_fac, sigma_dtau_mt, err_fac,
                               cc_tshift, dt_max_scale, is_mtm)
 
-        # FIXME: Why another if(is_mtm): ?
+        # Danger: is_mtm is change by previous function calls.
+        # FIXME: branch structure should be revised.
         if is_mtm:
             # calculate multi-taper adjoint source
             fp_t, fq_t = mt_adj(d, s, deltat, tapers, dtau_mtm, dlna_mtm,
