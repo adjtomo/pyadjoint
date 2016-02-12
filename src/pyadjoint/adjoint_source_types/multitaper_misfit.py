@@ -847,11 +847,10 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # print(len(fp_wind),len(fp),nlen_data)
         # print(left_sample,right_sample)
 
+    ret_val_p["misfit"] = misfit_sum_p
+    ret_val_q["misfit"] = misfit_sum_q
+
     if adjoint_src is True:
-
-        ret_val_p["misfit"] = misfit_sum_p
-        ret_val_q["misfit"] = misfit_sum_q
-
         # Reverse in time and reverse the actual values.
         ret_val_p["adjoint_source"] = fp[::-1]
         ret_val_q["adjoint_source"] = fq[::-1]

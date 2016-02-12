@@ -105,17 +105,9 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
             d2_cc_dtdlna[index] = np.exp(cc_dlna) * d2[index_shift]
 
     # velocity of d2_cc
-    # d2_cc_vel = np.zeros(nlen_T)
     d2_cc_vel = np.gradient(d2_cc_dtdlna) / deltat
 
     # the estimated error for dt and dlna with uncorrelation assumption
-
-    # sigma_dt_top = np.sum((d1[1:nlen_T] - d2_cc[1:nlen_T]) *
-    #                       (d1[1:nlen_T] - d2_cc[1:nlen_T]))
-    # sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_T] * d2_cc_vel[1:nlen_T])
-    # sigma_dlna_top = sigma_dt_top
-    # sigma_dlna_bot = np.sum(d2_cc[1:nlen_T] * d2_cc[1:nlen_T]) /
-    #                 (cc_dlna * cc_dlna)
 
     sigma_dt_top = np.sum((d1 - d2_cc_dtdlna)**2)
     sigma_dt_bot = np.sum(d2_cc_vel**2)
@@ -217,10 +209,10 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         fq[left_sample:right_sample] = -1.0 * s[:] * cc_dlna / \
             mnorm / sigma_dlna**2
 
-    if adjoint_src is True:
-        ret_val_p["misfit"] = misfit_sum_p
-        ret_val_q["misfit"] = misfit_sum_q
+    ret_val_p["misfit"] = misfit_sum_p
+    ret_val_q["misfit"] = misfit_sum_q
 
+    if adjoint_src is True:
         ret_val_p["adjoint_source"] = fp[::-1]
         ret_val_q["adjoint_source"] = fq[::-1]
 

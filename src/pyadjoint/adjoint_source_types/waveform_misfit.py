@@ -121,10 +121,11 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         adj[left_sample: right_sample] = diff[0:nlen]
 
+    ret_val["misfit"] = misfit_sum
+
     if adjoint_src is True:
         # Reverse in time
         ret_val["adjoint_source"] = adj[::-1]
-        ret_val["misfit"] = misfit_sum
 
     if figure:
         generic_adjoint_source_plot(
