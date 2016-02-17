@@ -125,7 +125,7 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
 
 
 def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
-                    min_period, max_period, nw, is_mtm):
+                    min_period, max_period, nw):
     """
     First check if the window is suitable for mtm measurements, then
     find the maximum frequency point for measurement using the spectrum of
@@ -143,20 +143,17 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     :param nlen:
     :param s: synthetics
     :type s: float ndarray
-
-
     """
 
     # reject mtm if wave of min_period experience cycles less than ncycle
     # _in_window in the selected window, and switch to c.c. method.
     # In this case frequency limits is not needed.
     if ncycle_in_window * min_period > nlen * deltat:
-        # is_mtm = False
         print ("ncycle_in_window * min_period: %f" %
                (ncycle_in_window * min_period))
         print ("nlen * deltat: %f" % (nlen * deltat))
         print ("MTM: rejecting for too few cycles within time window:")
-        return int(1.0 / (max_period * df)), int(1.0 / (min_period * df))
+        return int(1.0 / (max_period * df)), int(1.0 / (min_period * df)), False 
 
     fnum = int(nlen_f/2 + 1)
     s_w = np.fft.fft(s, nlen_f) * deltat
@@ -171,12 +168,13 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     nfreq_max = fnum - 1
     is_search = 1
     for iw in range(0, fnum):
-        if iw > i_ampmax and abs(s_w[iw]) < wtr_thrd and is_search == 1:
-            is_search = 0
-            nfreq_max = iw
-        if iw > i_ampmax and abs(s_w[iw]) > 10 * wtr_thrd and is_search == 0:
-            is_search = 1
-            nfreq_max = iw
+        if iw > i_ampmax:
+            if abs(s_w[iw]) < wtr_thrd and is_search == 1:
+                is_search = 0
+                nfreq_max = iw
+            if abs(s_w[iw]) > 10 * wtr_thrd and is_search == 0:
+                is_search = 1
+                nfreq_max = iw
 
     nfreq_max = min(nfreq_max, int(1.0 / (2 * deltat) / df) - 1)
     nfreq_max = min(nfreq_max, ifreq_max)
@@ -184,12 +182,13 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     nfreq_min = 0
     is_search = 1
     for iw in range(fnum - 1, 0, -1):
-        if iw < i_ampmax and abs(s_w[iw]) < wtr_thrd and is_search == 1:
-            is_search = 0
-            nfreq_min = iw
-        if iw < i_ampmax and abs(s_w[iw]) > 10 * wtr_thrd and is_search == 0:
-            is_search = 1
-            nfreq_min = iw
+        if iw < i_ampmax:
+            if abs(s_w[iw]) < wtr_thrd and is_search == 1:
+                is_search = 0
+                nfreq_min = iw
+            if abs(s_w[iw]) > 10 * wtr_thrd and is_search == 0:
+                is_search = 1
+                nfreq_min = iw
 
     # assume there are at least N cycles within the window
     nfreq_min = max(nfreq_min,
@@ -198,7 +197,7 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
 
     # assume the frequency range is larger than the bandwidth of multi-tapers
     #if (nfreq_max - nfreq_min) * df < nw / (nlen * deltat):
-        # is_mtm = False
+    #    is_mtm = False
     #    print ("(nfreq_max - nfreq_min) * df: %f" %
     #           ((nfreq_max - nfreq_min) * df))
     #    print ("nw*2.0 / (nlen * deltat): %f" % (nw*2.0 / (nlen * deltat)))
@@ -206,11 +205,11 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     #           "range narrower than taper bandwith:")
     #    return int(1.0 / (max_period * df)), int(1.0 / (min_period * df))
 
-    return nfreq_min, nfreq_max
+    return nfreq_min, nfreq_max, True
 
 
 def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
-                      err_dt, err_fac, cc_tshift,  dt_max_scale, is_mtm):
+                      err_dt, err_fac, cc_tshift, dt_max_scale):
     """
     check mtm measurement see if the measurements are good to keep
     otherwise use c.c. measurement instead
@@ -229,23 +228,22 @@ def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
     """
 
     # If any mtm measurements is out of the resonable range,
-    #  switch from mtm to c.c.
+    # switch from mtm to c.c.
     for j in range(nfreq_min, nfreq_max):
 
         # dt larger than 1/dt_fac of the wave period
         if np.abs(dtau_w[j]) > 1./(dt_fac*j*df):
-            # is_mtm = False
-            return
+            return False
 
         # error larger than 1/err_fac of wave period
         if err_dt[j] > 1./(err_fac*j*df):
-            # is_mtm = False
-            return
+            return False
 
         # dt larger than the maximum time shift allowed
         if np.abs(dtau_w[j]) > dt_max_scale*abs(cc_tshift):
-            # is_mtm = False
-            return
+            return False
+
+    return True
 
 
 def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
@@ -281,7 +279,6 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
         top_tf[:] = top_tf[:] + d1_tw[:] * d2_tw[:].conjugate()
         bot_tf[:] = bot_tf[:] + d2_tw[:] * d2_tw[:].conjugate()
 
-
     # ===
     # Calculate transfer function using top
     # and bottom part of transfer function
@@ -292,8 +289,8 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
 
     # transfrer function
     trans_func = np.zeros(nlen_f, dtype=complex)
-    trans_func[nfreq_min:nfreq_max] = \
-        top_tf[nfreq_min:nfreq_max] / \
+    trans_func[nfreq_min:nfreq_max] =\
+        top_tf[nfreq_min:nfreq_max] /\
         (bot_tf[nfreq_min:nfreq_max] + wtr_use *
         (abs(bot_tf[nfreq_min:nfreq_max]) < wtr_use))
 
@@ -446,8 +443,8 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
 
     # Y. Ruan, 11/05/2015
     # frequency-domain taper based on adjusted frequency band and
-    # error estimation. It's not one of the filtering processes that 
-    # needed to applied to adjoint source but an frequency domain 
+    # error estimation. It's not one of the filtering processes that
+    # needed to applied to adjoint source but an frequency domain
     # weighting function for adjoint source and misfit function.
 
     w_taper = np.zeros(nlen_f)
@@ -460,7 +457,7 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
     # Y. Ruan, 11/09/2015
     # Original higher order cosine taper used in measure_adj
     # this cosine weighting function tapering too much information
-    # will be replaced by a less aggressive taper 
+    # will be replaced by a less aggressive taper
     ipwr_w = 10
     w_taper[nfreq_min: nfreq_max] = 1.0 - \
         np.cos(np.pi * (iw - nfreq_min) / (nfreq_max - nfreq_min)) ** ipwr_w
@@ -562,8 +559,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     # sampling rate, be sampled at the same points in time and a couple
     # other things.
 
-    # All adjoint sources will need some kind of windowing taper. 
-    # Thus pyadjoint has a convenience function to assist with that. 
+    # All adjoint sources will need some kind of windowing taper.
+    # Thus pyadjoint has a convenience function to assist with that.
     # The next block tapers both observed and synthetic data.
 
     # frequencies points for FFT
@@ -619,7 +616,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # ===
         left_sample = int(np.floor(left_window_border / deltat)) + 1
         nlen = int(np.floor((right_window_border - left_window_border) /
-            deltat)) + 1
+                   deltat)) + 1
         right_sample = left_sample + nlen
 
         d = np.zeros(nlen)
@@ -644,7 +641,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         if use_cc_error:
             cc_dlna = 0.5 * np.log(sum(d**2) / sum(s**2))
             sigma_dt_cc, sigma_dlna_cc =\
-                    cc_error(d, s, deltat, cc_shift, cc_dlna)
+                cc_error(d, s, deltat, cc_shift, cc_dlna)
 
             #print("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
             #print("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
@@ -680,10 +677,10 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         # check window if okay for mtm measurements, and then find min/max
         # frequency limit for calculations.
-        nfreq_min, nfreq_max = frequency_limit(s, nlen, nlen_f, deltat, df,
-                                               wtr, ncycle_in_window,
-                                               min_period, max_period,
-                                               config.mt_nw, is_mtm)
+        nfreq_min, nfreq_max, is_mtm = frequency_limit(s, nlen, nlen_f, deltat,
+                                            df, wtr, ncycle_in_window,
+                                            min_period, max_period,
+                                            config.mt_nw)
 
         if is_mtm:
             # Set the Rayleigh bin parameter (determin taper bandwithin 
@@ -717,14 +714,11 @@ def calculate_adjoint_source(observed, synthetic, config, window,
                          phase_step, nfreq_min, nfreq_max, cc_tshift, cc_dlna,
                          phi_mtm, abs_mtm, dtau_mtm, dlna_mtm)
 
-            # check if the multi-taper measurements okay, 
-            # change is_mtm if it's not okay
-            mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat,
-                              dtau_mtm, dt_fac, sigma_dtau_mt, err_fac,
-                              cc_tshift, dt_max_scale, is_mtm)
-
-        # check is_mtm again if the multitaper measurement results failed 
-        # the selctuing criteria 
+            # check is_mtm again if the multitaper measurement results failed 
+            # the selctuing criteria.  change is_mtm if it's not okay
+            is_mtm = mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat,
+                                       dtau_mtm, dt_fac, sigma_dtau_mt, err_fac,
+                                       cc_tshift, dt_max_scale)
 
         # final decision which misfit will be used for adjoint source.
         if is_mtm:
