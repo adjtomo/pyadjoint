@@ -153,7 +153,9 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
                (ncycle_in_window * min_period))
         print ("nlen * deltat: %f" % (nlen * deltat))
         print ("MTM: rejecting for too few cycles within time window:")
-        return int(1.0 / (max_period * df)), int(1.0 / (min_period * df)), False 
+        return (int(1.0 / (max_period * df)),
+                int(1.0 / (min_period * df)),
+                False)
 
     fnum = int(nlen_f/2 + 1)
     s_w = np.fft.fft(s, nlen_f) * deltat
@@ -165,38 +167,13 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     ifreq_max = int(1.0 / (min_period * df))
 
     # initialization
-    nfreq_max = fnum - 1
-    is_search = 1
-    for iw in range(0, fnum):
-        if iw > i_ampmax:
-            if abs(s_w[iw]) < wtr_thrd and is_search == 1:
-                is_search = 0
-                nfreq_max = iw
-            if abs(s_w[iw]) > 10 * wtr_thrd and is_search == 0:
-                is_search = 1
-                nfreq_max = iw
-
-    nfreq_max = min(nfreq_max, int(1.0 / (2 * deltat) / df) - 1)
-    nfreq_max = min(nfreq_max, ifreq_max)
-
-    nfreq_min = 0
-    is_search = 1
-    for iw in range(fnum - 1, 0, -1):
-        if iw < i_ampmax:
-            if abs(s_w[iw]) < wtr_thrd and is_search == 1:
-                is_search = 0
-                nfreq_min = iw
-            if abs(s_w[iw]) > 10 * wtr_thrd and is_search == 0:
-                is_search = 1
-                nfreq_min = iw
-
-    # assume there are at least N cycles within the window
-    nfreq_min = max(nfreq_min,
-                    int(ncycle_in_window / (nlen * deltat) / df) - 1)
-    nfreq_min = max(nfreq_min, ifreq_min)
+    nfreq_max = get_max_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_max,
+                                        s_w, wtr_thrd)
+    nfreq_min = get_min_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_min,
+                                        ncycle_in_window, nlen, s_w, wtr_thrd)
 
     # assume the frequency range is larger than the bandwidth of multi-tapers
-    #if (nfreq_max - nfreq_min) * df < nw / (nlen * deltat):
+    # if (nfreq_max - nfreq_min) * df < nw / (nlen * deltat):
     #    is_mtm = False
     #    print ("(nfreq_max - nfreq_min) * df: %f" %
     #           ((nfreq_max - nfreq_min) * df))
@@ -206,6 +183,46 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     #    return int(1.0 / (max_period * df)), int(1.0 / (min_period * df))
 
     return nfreq_min, nfreq_max, True
+
+
+def get_min_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_min,
+                            ncycle_in_window, nlen, s_w, wtr_thrd):
+    nfreq_min = 0
+    is_search = True
+    for iw in range(fnum - 1, 0, -1):
+        if iw < i_ampmax:
+            nfreq_min = search_frequency_limit(is_search, iw, nfreq_min, s_w,
+                                               wtr_thrd)
+
+    # assume there are at least N cycles within the window
+    nfreq_min = max(nfreq_min,
+                    int(ncycle_in_window/(nlen*deltat)/df) - 1)
+    nfreq_min = max(nfreq_min, ifreq_min)
+    return nfreq_min
+
+
+def get_max_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_max, s_w,
+                            wtr_thrd):
+    nfreq_max = fnum - 1
+    is_search = True
+    for iw in range(0, fnum):
+        if iw > i_ampmax:
+            nfreq_max = search_frequency_limit(is_search, iw, nfreq_max, s_w,
+                                               wtr_thrd)
+    nfreq_max = min(nfreq_max, int(1.0/(2*deltat)/df) - 1)
+    nfreq_max = min(nfreq_max, ifreq_max)
+    return nfreq_max
+
+
+def search_frequency_limit(is_search, iw, nfreq_limit, s_w, wtr_thrd):
+    if abs(s_w[iw]) < wtr_thrd and is_search:
+        is_search = False
+        nfreq_limit = iw
+    if abs(s_w[iw]) > 10*wtr_thrd and not is_search:
+        is_search = True
+        nfreq_limit = iw
+
+    return nfreq_limit
 
 
 def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
@@ -289,10 +306,10 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
 
     # transfrer function
     trans_func = np.zeros(nlen_f, dtype=complex)
-    trans_func[nfreq_min:nfreq_max] =\
-        top_tf[nfreq_min:nfreq_max] /\
+    trans_func[nfreq_min:nfreq_max] = \
+        top_tf[nfreq_min:nfreq_max] / \
         (bot_tf[nfreq_min:nfreq_max] + wtr_use *
-        (abs(bot_tf[nfreq_min:nfreq_max]) < wtr_use))
+         (abs(bot_tf[nfreq_min:nfreq_max]) < wtr_use))
 
     # Estimate phase and amplitude anomaly from transfer function
     phi_w = np.zeros(nlen_f)
@@ -643,8 +660,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             sigma_dt_cc, sigma_dlna_cc =\
                 cc_error(d, s, deltat, cc_shift, cc_dlna)
 
-            #print("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
-            #print("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
+            # print("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
+            # print("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
 
         # re-window observed to align observed with synthetic for multitaper
         # measurement:
@@ -664,7 +681,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         # ===
         # Make decision wihich method to use: c.c. or multi-taper
-        # always starts from multi-taper, if it doesn't work then 
+        # always starts from multi-taper, if it doesn't work then
         # switch to cross correlation misfit
         # ===
         is_mtm = True
@@ -677,13 +694,13 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         # check window if okay for mtm measurements, and then find min/max
         # frequency limit for calculations.
-        nfreq_min, nfreq_max, is_mtm = frequency_limit(s, nlen, nlen_f, deltat,
-                                            df, wtr, ncycle_in_window,
-                                            min_period, max_period,
-                                            config.mt_nw)
+        nfreq_min, nfreq_max, is_mtm = \
+            frequency_limit(s, nlen, nlen_f, deltat,
+                            df, wtr, ncycle_in_window, min_period, max_period,
+                            config.mt_nw)
 
         if is_mtm:
-            # Set the Rayleigh bin parameter (determin taper bandwithin 
+            # Set the Rayleigh bin parameter (determin taper bandwithin
             # frequency domain): nw (typical values are 2.5,3,3.5,4).
             nw = config.mt_nw
             ntaper = config.num_taper
@@ -694,13 +711,13 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             # normalization
             tapers = tapers * np.sqrt(nlen)
 
-            # measure frequency-dependent phase and amplitude difference 
+            # measure frequency-dependent phase and amplitude difference
             phi_mtm = np.zeros(nlen_f)
             abs_mtm = np.zeros(nlen_f)
 
             phi_mtm, abs_mtm, dtau_mtm, dlna_mtm =\
                 mt_measure(d, s, deltat, tapers, wvec, df, nlen_f, wtr_mtm,
-                           phase_step, nfreq_min, nfreq_max, cc_tshift, 
+                           phase_step, nfreq_min, nfreq_max, cc_tshift,
                            cc_dlna)
 
             # multi-taper error estimation
@@ -714,11 +731,11 @@ def calculate_adjoint_source(observed, synthetic, config, window,
                          phase_step, nfreq_min, nfreq_max, cc_tshift, cc_dlna,
                          phi_mtm, abs_mtm, dtau_mtm, dlna_mtm)
 
-            # check is_mtm again if the multitaper measurement results failed 
+            # check is_mtm again if the multitaper measurement results failed
             # the selctuing criteria.  change is_mtm if it's not okay
             is_mtm = mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat,
-                                       dtau_mtm, dt_fac, sigma_dtau_mt, err_fac,
-                                       cc_tshift, dt_max_scale)
+                                       dtau_mtm, dt_fac, sigma_dtau_mt,
+                                       err_fac, cc_tshift, dt_max_scale)
 
         # final decision which misfit will be used for adjoint source.
         if is_mtm:
