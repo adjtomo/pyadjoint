@@ -28,7 +28,8 @@ class AdjointSource(object):
     _ad_srcs = {}
 
     def __init__(self, adj_src_type, misfit, dt, min_period, max_period,
-                 component, adjoint_source=None, network=None, station=None):
+                 component, adjoint_source=None, network=None, station=None,
+                 location=None, starttime=None):
         """
         Class representing an already calculated adjoint source.
 
@@ -53,6 +54,10 @@ class AdjointSource(object):
         :type network: str
         :param station: The station code of the station.
         :type station: str
+        :param location: The location code of the station.
+        :type location: str
+        :param starttime: starttime of adjoint source
+        :type starttime: obspy.UTCDateTime
         """
         if adj_src_type not in self._ad_srcs:
             raise ValueError("Unknown adjoint source type '%s'." %
@@ -66,6 +71,8 @@ class AdjointSource(object):
         self.component = component
         self.network = network
         self.station = station
+        self.location = location
+        self.starttime = starttime
         self.adjoint_source = adjoint_source
 
     def __str__(self):
@@ -354,7 +361,9 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
                          max_period=config.max_period,
                          network=observed.stats.network,
                          station=observed.stats.station,
-                         component=observed.stats.channel[-1])
+                         component=observed.stats.channel,
+                         location=observed.stats.location,
+                         starttime=observed.stats.starttime)
 
 
 def _sanity_checks(observed, synthetic):
