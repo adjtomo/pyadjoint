@@ -4,8 +4,9 @@
 Multitaper based phase and amplitude misfit and adjoint source.
 
 :copyright:
-    Yanhua O. Yuan (yanhuay@princeton.edu), 2015
     Youyi Ruan (youyir@princeton.edu), 2016
+    Matthieu Lefebvre (ml15@princeton.edu), 2016
+    Yanhua O. Yuan (yanhuay@princeton.edu), 2015
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
@@ -90,33 +91,38 @@ in which :math:`h_k(t)` is one (the :math:`k`th) of multi-tapers.
 
 
 def _xcorr_shift(d, s):
+    """
+    Calculate cross correlation shift in points
+    """
     cc = np.correlate(d, s, mode="full")
     time_shift = cc.argmax() - len(d) + 1
     return time_shift
 
 
 def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
+    """
+    Estimate error for dt and dlna with uncorrelation assumption
+    """
     nlen_t = len(d1)
 
     # make cc-based corrections to d2
     d2_cc = np.zeros(nlen_t)
+
     for index in range(0, nlen_t):
         index_shift = index - cc_shift
         if 0 <= index_shift < nlen_t:
             d2_cc[index] = np.exp(cc_dlna) * d2[index_shift]
 
-    # velocity of d2_cc
-    # d2_cc_vel = np.zeros(nlen_t)
+    # time derivative of d2_cc (velocity)
     d2_cc_vel = np.gradient(d2_cc) / deltat
 
-    # the estimated error for dt and dlna with uncorrelation assumption
-    sigma_dt_top = np.sum((d1[1:nlen_t] - d2_cc[1:nlen_t]) *
-                          (d1[1:nlen_t] - d2_cc[1:nlen_t]))
-    sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_t] * d2_cc_vel[1:nlen_t])
+    # Note: Beware of the first and last value in gradient calculation,
+    #       ignored for safety reason, will be added in future
+    sigma_dt_top = np.sum((d1[1:nlen_t] - d2_cc[1:nlen_t]) ** 2)
+    sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_t] ** 2)
 
     sigma_dlna_top = sigma_dt_top
-    sigma_dlna_bot = np.sum(d2_cc[1:nlen_t] * d2_cc[1:nlen_t]) / \
-        (cc_dlna * cc_dlna)
+    sigma_dlna_bot = np.sum(d2_cc[1:nlen_t] ** 2) / (cc_dlna ** 2)
 
     sigma_dt = np.sqrt(sigma_dt_top / sigma_dt_bot)
     sigma_dlna = np.sqrt(sigma_dlna_top / sigma_dlna_bot)
@@ -145,32 +151,31 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     :type s: float ndarray
     """
 
+    ifreq_min = int(1.0 / (max_period * df))
+    ifreq_max = int(1.0 / (min_period * df))
+
     # reject mtm if wave of min_period experience cycles less than ncycle
     # _in_window in the selected window, and switch to c.c. method.
     # In this case frequency limits is not needed.
     if ncycle_in_window * min_period > nlen * deltat:
-        print ("ncycle_in_window * min_period: %f" %
-               (ncycle_in_window * min_period))
-        print ("nlen * deltat: %f" % (nlen * deltat))
+        print ("min_period: %6.0f  window length: %6.0f" %
+               (min_period, nlen*deltat))
         print ("MTM: rejecting for too few cycles within time window:")
-        return (int(1.0 / (max_period * df)),
-                int(1.0 / (min_period * df)),
-                False)
+        return (ifreq_min, ifreq_max, False)
 
     fnum = int(nlen_f/2 + 1)
-    s_w = np.fft.fft(s, nlen_f) * deltat
-    ampmax = max(abs(s_w[0: fnum]))
-    i_ampmax = np.argmax(abs(s_w[0: fnum]))
-    wtr_thrd = ampmax * wtr
+    s_spectra = np.fft.fft(s, nlen_f) * deltat
 
-    ifreq_min = int(1.0 / (max_period * df))
-    ifreq_max = int(1.0 / (min_period * df))
+    ampmax = max(abs(s_spectra[0: fnum]))
+    i_ampmax = np.argmax(abs(s_spectra[0: fnum]))
 
-    # initialization
+    water_threshold = ampmax * wtr
+
     nfreq_max = get_max_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_max,
-                                        s_w, wtr_thrd)
+                        s_spectra, water_threshold)
+
     nfreq_min = get_min_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_min,
-                                        ncycle_in_window, nlen, s_w, wtr_thrd)
+                        ncycle_in_window, nlen, s_spectra, water_threshold)
 
     # assume the frequency range is larger than the bandwidth of multi-tapers
     # if (nfreq_max - nfreq_min) * df < nw / (nlen * deltat):
@@ -186,41 +191,62 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
 
 
 def get_min_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_min,
-                            ncycle_in_window, nlen, s_w, wtr_thrd):
+                            ncycle_in_window, nlen, s_spectra, water_threshold):
     nfreq_min = 0
     is_search = True
+
     for iw in range(fnum - 1, 0, -1):
         if iw < i_ampmax:
-            nfreq_min = search_frequency_limit(is_search, iw, nfreq_min, s_w,
-                                               wtr_thrd)
+            nfreq_min = search_frequency_limit(is_search, iw, nfreq_min, s_spectra,
+                                               water_threshold)
 
     # assume there are at least N cycles within the window
-    nfreq_min = max(nfreq_min,
-                    int(ncycle_in_window/(nlen*deltat)/df) - 1)
+    nfreq_min = max(nfreq_min, int(ncycle_in_window/(nlen*deltat)/df) - 1)
     nfreq_min = max(nfreq_min, ifreq_min)
+
     return nfreq_min
 
 
-def get_max_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_max, s_w,
-                            wtr_thrd):
+def get_max_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_max, s_spectra,
+                            water_threshold):
     nfreq_max = fnum - 1
     is_search = True
+
     for iw in range(0, fnum):
         if iw > i_ampmax:
-            nfreq_max = search_frequency_limit(is_search, iw, nfreq_max, s_w,
-                                               wtr_thrd)
+            nfreq_max = search_frequency_limit(is_search, iw, nfreq_max, s_spectra,
+                                               water_threshold)
+    # Don't go beyond the Nyquist frequency
     nfreq_max = min(nfreq_max, int(1.0/(2*deltat)/df) - 1)
     nfreq_max = min(nfreq_max, ifreq_max)
+
     return nfreq_max
 
 
-def search_frequency_limit(is_search, iw, nfreq_limit, s_w, wtr_thrd):
-    if abs(s_w[iw]) < wtr_thrd and is_search:
+def search_frequency_limit(is_search, index, nfreq_limit, spectra,
+        water_threshold):
+    """
+    Search valid frequency range of spectra
+
+    :param is_search: Logic switch
+    :param spectra: spectra of signal
+    :param index: index of spectra
+    :water_threshold: the triggering value to stop the search
+                    
+    If the spectra larger than 10*water_threshold will trigger the 
+    search again, works like the heating thermostat.
+
+    The constant 10 may need to move outside to allow user choose  
+    different values.
+    """
+
+    if abs(spectra[index]) < water_threshold and is_search:
         is_search = False
-        nfreq_limit = iw
-    if abs(s_w[iw]) > 10*wtr_thrd and not is_search:
+        nfreq_limit = index
+
+    if abs(spectra[index]) > 10 * water_threshold and not is_search:
         is_search = True
-        nfreq_limit = iw
+        nfreq_limit = index
 
     return nfreq_limit
 
@@ -228,10 +254,11 @@ def search_frequency_limit(is_search, iw, nfreq_limit, s_w, wtr_thrd):
 def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
                       err_dt, err_fac, cc_tshift, dt_max_scale):
     """
-    check mtm measurement see if the measurements are good to keep
+    check mtm measurement see if the measurements are good to keep,
     otherwise use c.c. measurement instead
-    :param is_mtm:
-    :param dt_max_scale:
+
+    :param is_mtm: logic switch of c.c. or mtm 
+    :param dt_max_scale: 
     :param cc_tshift:
     :param err_fac:
     :param err_dt:
@@ -263,7 +290,7 @@ def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
     return True
 
 
-def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
+def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, waterlevel_mtm, phase_step,
                nfreq_min, nfreq_max, cc_tshift, cc_dlna):
 
     nlen_t = len(d1)
@@ -302,7 +329,7 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
     # ===
 
     # water level
-    wtr_use = max(abs(bot_tf[0:fnum])) * wtr_mtm ** 2
+    wtr_use = max(abs(bot_tf[0:fnum])) * waterlevel_mtm ** 2
 
     # transfrer function
     trans_func = np.zeros(nlen_f, dtype=complex)
@@ -353,7 +380,7 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
     return phi_w, abs_w, dtau_w, dlna_w
 
 
-def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
+def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_f, waterlevel_mtm, phase_step,
              nfreq_min, nfreq_max, cc_tshift, cc_dlna, phi_mtm, abs_mtm,
              dtau_mtm, dlna_mtm):
 
@@ -382,7 +409,7 @@ def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_f, wtr_mtm, phase_step,
 
         phi_om, abs_om, dtau_om, dlna_om =\
             mt_measure(d1, d2, deltat, tapers_om,
-                       wvec, df, nlen_f, wtr_mtm, phase_step,
+                       wvec, df, nlen_f, waterlevel_mtm, phase_step,
                        nfreq_min, nfreq_max, cc_tshift, cc_dlna)
 
         phi_mul[0:nlen_f, itaper] = phi_om[0:nlen_f]
@@ -528,7 +555,7 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
         d2_tv = np.gradient(d2_t) / deltat
 
         # apply FFT to tapered measurements
-        d2_tw[:,  itaper] = np.fft.fft(d2_t, nlen_f)[:]*deltat
+        d2_tw[:, itaper] = np.fft.fft(d2_t, nlen_f)[:]*deltat
         d2_tvw[:, itaper] = np.fft.fft(d2_tv, nlen_f)[:]*deltat
 
         # calculate bottom of adjoint term pj(w) qj(w)
@@ -584,7 +611,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     nlen_f = 2**config.lnpt
 
     # constant for transfer function
-    wtr_mtm = config.transfunc_waterlevel
+    waterlevel_mtm = config.transfunc_waterlevel
     wtr = config.water_threshold
 
     # constant for cycle skip correction
@@ -654,7 +681,6 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         sigma_dt_cc = 1.0
         sigma_dlna_cc = 1.0
 
-        # Y. Ruan: 01/27/2016
         if use_cc_error:
             cc_dlna = 0.5 * np.log(sum(d**2) / sum(s**2))
             sigma_dt_cc, sigma_dlna_cc =\
@@ -695,9 +721,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # check window if okay for mtm measurements, and then find min/max
         # frequency limit for calculations.
         nfreq_min, nfreq_max, is_mtm = \
-            frequency_limit(s, nlen, nlen_f, deltat,
-                            df, wtr, ncycle_in_window, min_period, max_period,
-                            config.mt_nw)
+            frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
+                            min_period, max_period, config.mt_nw)
 
         if is_mtm:
             # Set the Rayleigh bin parameter (determin taper bandwithin
@@ -716,9 +741,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             abs_mtm = np.zeros(nlen_f)
 
             phi_mtm, abs_mtm, dtau_mtm, dlna_mtm =\
-                mt_measure(d, s, deltat, tapers, wvec, df, nlen_f, wtr_mtm,
-                           phase_step, nfreq_min, nfreq_max, cc_tshift,
-                           cc_dlna)
+                mt_measure(d, s, deltat, tapers, wvec, df, nlen_f,
+                           waterlevel_mtm, phase_step, nfreq_min, nfreq_max,
+                           cc_tshift, cc_dlna)
 
             # multi-taper error estimation
             sigma_phi_mt = np.zeros(nlen_f)
@@ -727,7 +752,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             sigma_dlna_mt = np.zeros(nlen_f)
 
             sigma_phi_mt, sigma_abs_mt, sigma_dtau_mt, sigma_dlna_mt =\
-                mt_error(d, s, deltat, tapers, wvec, df, nlen_f, wtr_mtm,
+                mt_error(d, s, deltat, tapers, wvec, df, nlen_f, waterlevel_mtm,
                          phase_step, nfreq_min, nfreq_max, cc_tshift, cc_dlna,
                          phi_mtm, abs_mtm, dtau_mtm, dlna_mtm)
 
@@ -746,14 +771,18 @@ def calculate_adjoint_source(observed, synthetic, config, window,
                                 sigma_dlna_cc, sigma_dtau_mt,
                                 sigma_dlna_mt, wtr)
 
+            # calculate misfit
+            # Integrate with the composite Simpson's rule.
+            misfit_sum_p += 0.5 * simps(y=dtau_mtm ** 2, dx=dw)
+            misfit_sum_q += 0.5 * simps(y=dlna_mtm ** 2, dx=dw)
+
         else:
             # calculate c.c. adjoint source
             fp_t, fq_t = cc_adj(s, cc_shift, cc_dlna, deltat,
                                 sigma_dt_cc, sigma_dlna_cc)
 
-        # ===
-        # post-processing
-        # ===
+            misfit_sum_p += 0.5 * (cc_shift * deltat)**2
+            misfit_sum_q += 0.5 * cc_dlna**2
 
         # return to original location before windowing
         # initialization
@@ -766,10 +795,6 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         fp = fp + fp_wind
         fq = fq + fq_wind
 
-        # return misfit and adjoint source
-        # Integrate with the composite Simpson's rule.
-        misfit_sum_p += 0.5 * simps(y=dtau_mtm ** 2, dx=dw)
-        misfit_sum_q += 0.5 * simps(y=dlna_mtm ** 2, dx=dw)
 
     ret_val_p["misfit"] = misfit_sum_p
     ret_val_q["misfit"] = misfit_sum_q
