@@ -4,8 +4,8 @@
 Cross correlation traveltime misfit.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
     Youyi Ruan (youyir@princeton.edu) 2016
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
@@ -90,25 +90,27 @@ def _xcorr_shift(d, s):
     return time_shift
 
 
-def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
+def cc_error(d1, d2, deltat, cc_shift, cc_dlna, sigma_dt_min, sigma_dlna_min):
 
     nlen_t = len(d1)
 
-    # make cc-based corrections to d2
     d2_cc_dt = np.zeros(nlen_t)
     d2_cc_dtdlna = np.zeros(nlen_t)
 
     for index in range(0, nlen_t):
         index_shift = index - cc_shift
+
         if 0 <= index_shift < nlen_t:
+            # corrected by c.c. shift
             d2_cc_dt[index] = d2[index_shift]
+
+            # corrected by c.c. shift and amplitude
             d2_cc_dtdlna[index] = np.exp(cc_dlna) * d2[index_shift]
 
-    # velocity of d2_cc
-    d2_cc_vel = np.gradient(d2_cc_dtdlna) / deltat
+    # time derivative of d2_cc (velocity)
+    d2_cc_vel = np.gradient(d2_cc_dtdlna, deltat)
 
     # the estimated error for dt and dlna with uncorrelation assumption
-
     sigma_dt_top = np.sum((d1 - d2_cc_dtdlna)**2)
     sigma_dt_bot = np.sum(d2_cc_vel**2)
 
@@ -117,6 +119,12 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
 
     sigma_dt = np.sqrt(sigma_dt_top / sigma_dt_bot)
     sigma_dlna = np.sqrt(sigma_dlna_top / sigma_dlna_bot)
+
+    if sigma_dt < sigma_dt_min:
+        sigma_dt = sigma_dt_min
+
+    if sigma_dlna < sigma_dlna_min:
+        sigma_dlna = sigma_dlna_min
 
     return sigma_dt, sigma_dlna
 
@@ -146,14 +154,6 @@ def subsample_xcorr_shift(d, s):
 
 def calculate_adjoint_source(observed, synthetic, config, window,
                              adjoint_src, figure):  # NOQA
-    # All adjoint sources will need some kind of windowing taper.
-    # Thus pyadjoint has a convenience function to assist with that.
-    # The next block tapers both observed and synthetic data.
-
-    # taper_window(observed, left_window_border, right_window_border,
-    #              taper_percentage=taper_percentage, taper_type=taper_type)
-    # taper_window(synthetic, left_window_border, right_window_border,
-    #              taper_percentage=taper_percentage, taper_type=taper_type)
 
     ret_val_p = {}
     ret_val_q = {}
@@ -186,28 +186,29 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         s[0:nlen] = synthetic.data[left_sample:right_sample]
 
         # All adjoint sources will need some kind of windowing taper
-        # to get rid of kinks at two ends
-        sac_hann_taper(d, taper_percentage=config.taper_percentage)
-        sac_hann_taper(s, taper_percentage=config.taper_percentage)
+        if config.taper_type == 'hann':
+            sac_hann_taper(d, taper_percentage=config.taper_percentage)
+            sac_hann_taper(s, taper_percentage=config.taper_percentage)
 
-        # Subsample accuracy time shift
         i_shift = _xcorr_shift(d, s)
         t_shift = i_shift * deltat
 
         cc_dlna = 0.5 * np.log(sum(d[0:nlen]*d[0:nlen]) /
                                sum(s[0:nlen]*s[0:nlen]))
-        sigma_dt, sigma_dlna = cc_error(d, s, deltat, i_shift, cc_dlna)
 
-        misfit_sum_p += 0.5 * t_shift ** 2
-        misfit_sum_q += 0.5 * cc_dlna ** 2
+        sigma_dt, sigma_dlna = cc_error(d, s, deltat, i_shift, cc_dlna,
+                                config.dt_sigma_min, config.dlna_sigma_min)
 
-        dsdt = np.gradient(s) / deltat
+        misfit_sum_p += 0.5 * (t_shift/sigma_dt) ** 2
+        misfit_sum_q += 0.5 * (cc_dlna/sigma_dlna) ** 2
+
+        dsdt = np.gradient(s, deltat)
         nnorm = simps(y=dsdt*dsdt, dx=deltat)
         fp[left_sample:right_sample] = dsdt[:] * t_shift / nnorm / sigma_dt**2
 
         mnorm = simps(y=s*s, dx=deltat)
         fq[left_sample:right_sample] = -1.0 * s[:] * cc_dlna / \
-            mnorm / sigma_dlna**2
+                                        mnorm / sigma_dlna**2
 
     ret_val_p["misfit"] = misfit_sum_p
     ret_val_q["misfit"] = misfit_sum_q
