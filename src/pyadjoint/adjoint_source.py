@@ -151,7 +151,7 @@ class AdjointSource(object):
         to_write[:, 0] = np.linspace(0, (l - 1) * self.dt, l)
         to_write[:, 0] += time_offset
         # SPECFEM expects non-time reversed adjoint sources.
-        to_write[:, 1] += self.adjoint_source[::-1]
+        to_write[:, 1] = self.adjoint_source[::-1]
 
         np.savetxt(buf, to_write)
 
