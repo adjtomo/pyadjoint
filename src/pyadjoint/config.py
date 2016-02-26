@@ -4,8 +4,8 @@
 Configuration object for pyadjoint.
 
 :copyright:
-    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2016
     Youyi Ruan (youyir@princeton.edu), 2016
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2016
 :license:
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
@@ -20,7 +20,7 @@ class Config(object):
                  transfunc_waterlevel=1.0E-10,
                  water_threshold=0.02,
                  ipower_costaper=10,
-                 min_cycle_in_window=3,
+                 min_cycle_in_window=0.5,
                  taper_type='hann',
                  taper_percentage=0.3,
                  mt_nw=4.0,
@@ -30,6 +30,8 @@ class Config(object):
                  err_fac=2.5,
                  dt_max_scale=3.5,
                  measure_type='dt',
+                 dt_sigma_min=1.0,
+                 dlna_sigma_min=0.5,
                  use_cc_error=True,
                  use_mt_error=False):
         """
@@ -52,6 +54,8 @@ class Config(object):
                  err_fac=2.5,
                  dt_max_scale=3.5,
                  measure_type='dt',
+                 dt_sigma_min=1.0,
+                 dlna_sigma_min=0.5,
                  use_cc_error=False,
                  use_mt_error=False)
 
@@ -109,8 +113,18 @@ class Config(object):
         :param phase_step: maximum step for cycle skip correction (?)
         :type phase_step: float
 
-        :param measure_type: type of measurements-- dt(dt),
-            am(dlnA), wf(waveform)
+        :param dt_sigma_min: minimum travel time error allowed (1.0)
+        :type dt_sigma_min: float
+
+        :param dlna_sigma_min: minimum amplitude error allowed (0.5)
+        :type dlna_sigma_min: float
+
+        :param measure_type: type of measurements: 
+                                dt(travel time),
+                                am(dlnA), 
+                                wf(full waveform)
+        :param measure_type: string
+
         :param use_cc_error: use cross correlation errors for
         :type use_cc_error: logic
 
@@ -140,6 +154,9 @@ class Config(object):
         self.dt_fac = dt_fac
         self.err_fac = err_fac
         self.dt_max_scale = dt_max_scale
+
+        self.dt_sigma_min=dt_sigma_min
+        self.dlna_sigma_min=dlna_sigma_min
 
         self.measure_type = measure_type
         self.use_cc_error = use_cc_error
