@@ -17,7 +17,7 @@ import numpy as np
 from scipy.integrate import simps
 
 from ..utils import generic_adjoint_source_plot
-from ..utils import sac_hann_taper
+from ..utils import window_taper
 from ..dpss import dpss_windows
 
 
@@ -99,33 +99,44 @@ def _xcorr_shift(d, s):
     return time_shift
 
 
-def cc_error(d1, d2, deltat, cc_shift, cc_dlna):
+def cc_error(d1, d2, deltat, cc_shift, cc_dlna, sigma_dt_min, sigma_dlna_min):
     """
     Estimate error for dt and dlna with uncorrelation assumption
+    copied from c.c. misfit. should not duplicate the code but keep it for
+    now and may need to move to utils later
     """
     nlen_t = len(d1)
 
     # make cc-based corrections to d2
-    d2_cc = np.zeros(nlen_t)
+    d2_cc_dt = np.zeros(nlen_t)
+    d2_cc_dtdlna = np.zeros(nlen_t)
 
     for index in range(0, nlen_t):
         index_shift = index - cc_shift
+
         if 0 <= index_shift < nlen_t:
-            d2_cc[index] = np.exp(cc_dlna) * d2[index_shift]
+            d2_cc_dt[index] = d2[index_shift]
+            d2_cc_dtdlna[index] = np.exp(cc_dlna) * d2[index_shift]
 
     # time derivative of d2_cc (velocity)
-    d2_cc_vel = np.gradient(d2_cc) / deltat
+    d2_cc_vel = np.gradient(d2_cc_dtdlna, deltat)
 
     # Note: Beware of the first and last value in gradient calculation,
     #       ignored for safety reason, will be added in future
-    sigma_dt_top = np.sum((d1[1:nlen_t] - d2_cc[1:nlen_t]) ** 2)
-    sigma_dt_bot = np.sum(d2_cc_vel[1:nlen_t] ** 2)
+    sigma_dt_top = np.sum((d1 - d2_cc_dtdlna) ** 2)
+    sigma_dt_bot = np.sum(d2_cc_vel** 2)
 
     sigma_dlna_top = sigma_dt_top
-    sigma_dlna_bot = np.sum(d2_cc[1:nlen_t] ** 2) / (cc_dlna ** 2)
+    sigma_dlna_bot = np.sum(d2_cc_dt**2)
 
     sigma_dt = np.sqrt(sigma_dt_top / sigma_dt_bot)
     sigma_dlna = np.sqrt(sigma_dlna_top / sigma_dlna_bot)
+
+    if sigma_dt < sigma_dt_min:
+            sigma_dt = sigma_dt_min
+
+    if sigma_dlna < sigma_dlna_min:
+                sigma_dlna = sigma_dlna_min
 
     return sigma_dt, sigma_dlna
 
@@ -177,7 +188,8 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     nfreq_min = get_min_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_min,
                         ncycle_in_window, nlen, s_spectra, water_threshold)
 
-    # assume the frequency range is larger than the bandwidth of multi-tapers
+    # Assume the frequency range is larger than the bandwidth of multi-tapers
+    # Too strict to implement, more experiments are needed. 
     # if (nfreq_max - nfreq_min) * df < nw / (nlen * deltat):
     #    is_mtm = False
     #    print ("(nfreq_max - nfreq_min) * df: %f" %
@@ -224,7 +236,7 @@ def get_max_frequency_limit(deltat, df, fnum, i_ampmax, ifreq_max, s_spectra,
 
 
 def search_frequency_limit(is_search, index, nfreq_limit, spectra,
-        water_threshold):
+                           water_threshold):
     """
     Search valid frequency range of spectra
 
@@ -324,8 +336,7 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, waterlevel_mtm, phase_step,
         bot_tf[:] = bot_tf[:] + d2_tw[:] * d2_tw[:].conjugate()
 
     # ===
-    # Calculate transfer function using top
-    # and bottom part of transfer function
+    # Calculate transfer function 
     # ===
 
     # water level
@@ -466,6 +477,12 @@ def mt_error(d1, d2, deltat, tapers, wvec, df, nlen_f, waterlevel_mtm, phase_ste
 
 
 def cc_adj(synt, cc_shift, cc_dlna, deltat, err_dt_cc, err_dlna_cc):
+    """
+    cross correlation adjoint source and misfit
+    """
+
+    misfit_p = 0.0
+    misfit_q = 0.0
 
     dsdt = np.gradient(synt) / deltat
 
@@ -475,7 +492,11 @@ def cc_adj(synt, cc_shift, cc_dlna, deltat, err_dt_cc, err_dlna_cc):
     mnorm = simps(y=synt*synt, dx=deltat)
     am_adj = -1.0 * cc_dlna / err_dlna_cc**2 / mnorm * synt
 
-    return dt_adj, am_adj
+    cc_tshift = cc_shift * deltat
+    misfit_p = 0.5 * (cc_tshift/err_dt_cc)**2
+    misfit_q = 0.5 * (cc_dlna/err_dlna_cc)**2
+
+    return dt_adj, am_adj, misfit_p, misfit_q
 
 
 def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
@@ -484,6 +505,9 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
 
     nlen_t = len(d1)
     ntaper = len(tapers[0])
+
+    misfit_p = 0.0
+    misfit_q = 0.0
 
     # Y. Ruan, 11/05/2015
     # frequency-domain taper based on adjusted frequency band and
@@ -512,6 +536,8 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
     wp_w = w_taper / ffac
     wq_w = w_taper / ffac
 
+    print("err_dt: %f err_dlnA %f" %(err_dt_cc,err_dlna_cc))
+    print("f-dom taper normalization factor, ffac = %f" % ffac)
     # cc error
     if use_cc_error:
         wp_w /= err_dt_cc**2
@@ -525,6 +551,7 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
         dlna_wtr = wtr * \
             np.sum(np.abs(dlna_mtm[nfreq_min: nfreq_max])) / \
             (nfreq_max - nfreq_min)
+
         err_dtau_mt[nfreq_min: nfreq_max] = \
             err_dtau_mt[nfreq_min: nfreq_max] + dtau_wtr * \
             (err_dtau_mt[nfreq_min: nfreq_max] < dtau_wtr)
@@ -540,6 +567,7 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
     # initialization
     bottom_p = np.zeros(nlen_f, dtype=complex)
     bottom_q = np.zeros(nlen_f, dtype=complex)
+
     d2_tw = np.zeros((nlen_f, ntaper), dtype=complex)
     d2_tvw = np.zeros((nlen_f, ntaper), dtype=complex)
 
@@ -552,7 +580,7 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
         d2_t = np.zeros(nlen_t)
         d2_tv = np.zeros(nlen_t)
         d2_t[0:nlen_t] = d2[0:nlen_t] * taper[0:nlen_t]
-        d2_tv = np.gradient(d2_t) / deltat
+        d2_tv = np.gradient(d2_t, deltat)
 
         # apply FFT to tapered measurements
         d2_tw[:, itaper] = np.fft.fft(d2_t, nlen_f)[:]*deltat
@@ -568,6 +596,7 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
     fp_t = np.zeros(nlen_f)
     fq_t = np.zeros(nlen_f)
 
+    print("nlen_t: %d nlen_f %d" % (nlen_t, nlen_f)) 
     for itaper in range(0, ntaper):
         taper = np.zeros(nlen_f)
         taper[0: nlen_t] = tapers[0:nlen_t, itaper]
@@ -582,18 +611,26 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
             (bottom_q[nfreq_min:nfreq_max])
 
         # calculate weighted adjoint Pj(w), Qj(w) adding measurement dtau dlna
-        p_w = p_w * dtau_mtm * wp_w
-        q_w = q_w * dlna_mtm * wq_w
+        p_w *= dtau_mtm * wp_w
+        q_w *= dlna_mtm * wq_w
 
         # inverse FFT to weighted adjoint (take real part)
-        p_wt = np.fft.ifft(p_w, nlen_f).real * 2 / deltat
-        q_wt = np.fft.ifft(q_w, nlen_f).real * 2 / deltat
+        p_wt = np.fft.ifft(p_w, nlen_f).real * 2. / deltat
+        q_wt = np.fft.ifft(q_w, nlen_f).real * 2. / deltat
 
         # apply tapering to adjoint source
-        fp_t = fp_t + p_wt * taper
-        fq_t = fq_t + q_wt * taper
+        fp_t += p_wt * taper
+        fq_t += q_wt * taper
 
-    return fp_t, fq_t
+    # calculate misfit
+    dtau_mtm_weigh_sqr = dtau_mtm**2 * wp_w
+    dlna_mtm_weigh_sqr = dlna_mtm**2 * wq_w
+
+    # Integrate with the composite Simpson's rule.
+    misfit_p = 0.5 * 2.0 * simps(y=dtau_mtm_weigh_sqr, dx=df)
+    misfit_q = 0.5 * 2.0 * simps(y=dlna_mtm_weigh_sqr, dx=df)
+
+    return fp_t, fq_t, misfit_p, misfit_q
 
 
 def calculate_adjoint_source(observed, synthetic, config, window,
@@ -670,8 +707,10 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         s[0: nlen] = synthetic.data[left_sample: right_sample]
 
         # Taper signals following the SAC taper command
-        sac_hann_taper(d, taper_percentage=config.taper_percentage)
-        sac_hann_taper(s, taper_percentage=config.taper_percentage)
+        window_taper(d, taper_percentage=config.taper_percentage,
+                        taper_type=config.taper_type)
+        window_taper(s, taper_percentage=config.taper_percentage)
+                        taper_type=config.taper_type)
 
         # cross-correlation
         cc_shift = _xcorr_shift(d, s)
@@ -683,8 +722,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         if use_cc_error:
             cc_dlna = 0.5 * np.log(sum(d**2) / sum(s**2))
-            sigma_dt_cc, sigma_dlna_cc =\
-                cc_error(d, s, deltat, cc_shift, cc_dlna)
+            sigma_dt_cc, sigma_dlna_cc = cc_error(d, s, deltat, cc_shift, cc_dlna,
+                                        config.dt_sigma_min, config.dlna_sigma_min)
 
             # print("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
             # print("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
@@ -701,7 +740,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             cc_dlna = 0
             d[0:nlen] = np.exp(-cc_dlna) * \
                 observed.data[left_sample_d:right_sample_d]
-            sac_hann_taper(d, taper_percentage=config.taper_percentage)
+            window_taper(d, taper_percentage=config.taper_percentage)
+                            taper_type=config.taper_type)
         else:
             raise Exception
 
@@ -765,24 +805,18 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # final decision which misfit will be used for adjoint source.
         if is_mtm:
             # calculate multi-taper adjoint source
-            fp_t, fq_t = mt_adj(d, s, deltat, tapers, dtau_mtm, dlna_mtm,
-                                df, nlen_f, use_cc_error, use_mt_error,
-                                nfreq_min, nfreq_max, sigma_dt_cc,
-                                sigma_dlna_cc, sigma_dtau_mt,
+            fp_t, fq_t, misfit_p, misfit_q = mt_adj(d, s, deltat, tapers, 
+                                dtau_mtm, dlna_mtm, df, nlen_f, use_cc_error,
+                                use_mt_error, nfreq_min, nfreq_max,
+                                sigma_dt_cc, sigma_dlna_cc, sigma_dtau_mt,
                                 sigma_dlna_mt, wtr)
 
-            # calculate misfit
-            # Integrate with the composite Simpson's rule.
-            misfit_sum_p += 0.5 * simps(y=dtau_mtm ** 2, dx=dw)
-            misfit_sum_q += 0.5 * simps(y=dlna_mtm ** 2, dx=dw)
 
         else:
             # calculate c.c. adjoint source
-            fp_t, fq_t = cc_adj(s, cc_shift, cc_dlna, deltat,
-                                sigma_dt_cc, sigma_dlna_cc)
+            fp_t, fq_t, misfit_p, misfit_q = cc_adj(s, cc_shift, cc_dlna, 
+                                deltat, sigma_dt_cc, sigma_dlna_cc)
 
-            misfit_sum_p += 0.5 * (cc_shift * deltat)**2
-            misfit_sum_q += 0.5 * cc_dlna**2
 
         # return to original location before windowing
         # initialization
@@ -792,9 +826,11 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         fp_wind[left_sample: right_sample] = fp_t[0:nlen]
         fq_wind[left_sample: right_sample] = fq_t[0:nlen]
 
-        fp = fp + fp_wind
-        fq = fq + fq_wind
+        fp += fp_wind
+        fq += fq_wind
 
+        misfit_sum_p += misfit_p
+        misfit_sum_q += misfit_q
 
     ret_val_p["misfit"] = misfit_sum_p
     ret_val_q["misfit"] = misfit_sum_q

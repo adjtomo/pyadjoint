@@ -17,7 +17,7 @@ import numpy as np
 from scipy.integrate import simps
 import warnings
 
-from ..utils import sac_hann_taper  # , generic_adjoint_source_plot
+from ..utils import window_taper  # , generic_adjoint_source_plot
 
 
 VERBOSE_NAME = "Cross Correlation Traveltime Misfit"
@@ -91,7 +91,9 @@ def _xcorr_shift(d, s):
 
 
 def cc_error(d1, d2, deltat, cc_shift, cc_dlna, sigma_dt_min, sigma_dlna_min):
-
+    """
+    Estimate error for dt and dlna with uncorrelation assumption
+    """
     nlen_t = len(d1)
 
     d2_cc_dt = np.zeros(nlen_t)
@@ -186,9 +188,10 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         s[0:nlen] = synthetic.data[left_sample:right_sample]
 
         # All adjoint sources will need some kind of windowing taper
-        if config.taper_type == 'hann':
-            sac_hann_taper(d, taper_percentage=config.taper_percentage)
-            sac_hann_taper(s, taper_percentage=config.taper_percentage)
+        window_taper(d, taper_percentage=config.taper_percentage,
+                        taper_type=config.taper_type)
+        window_taper(s, taper_percentage=config.taper_percentage,
+                        taper_type=config.taper_type)
 
         i_shift = _xcorr_shift(d, s)
         t_shift = i_shift * deltat
@@ -209,14 +212,14 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         mnorm = simps(y=s*s, dx=deltat)
         fq[left_sample:right_sample] = -1.0 * s[:] * cc_dlna / \
                                         mnorm / sigma_dlna**2
-
+        
     ret_val_p["misfit"] = misfit_sum_p
     ret_val_q["misfit"] = misfit_sum_q
 
     if adjoint_src is True:
         ret_val_p["adjoint_source"] = fp[::-1]
         ret_val_q["adjoint_source"] = fq[::-1]
-
+        
     if figure:
         return NotImplemented
         # generic_adjoint_source_plot(

@@ -78,17 +78,32 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
     return trace
 
 
-def sac_hann_taper(signal, taper_percentage):
+def window_taper(signal, taper_percentage, taper_type):
     """
-    SAC taper function.
+    window taper function.
 
     :param signal: time series
-    :type signal: array(float)
+    :type signal: ndarray(float)
 
     :param taper_percentage: total percentage of taper in decimal
     :type taper_percentage: float
+    
+    return : tapered input ndarray
 
+    taper_type:
+    1, cos
+    2, cos_p10
+    3, hann
+
+
+    To do: 
+    with options of more tapers
     """
+    taper_collection = ('cos', 'cos_p10', 'hann')
+
+    if taper_type not in taper_collection:
+        raise ValueError("Window taper not supported")
+
     if taper_percentage < 0 or taper_percentage > 1:
         raise ValueError("Wrong taper percentage")
 
@@ -102,10 +117,24 @@ def sac_hann_taper(signal, taper_percentage):
     idx1 = frac
     idx2 = npts - frac
 
-    signal[:idx1] *= (0.5 - 0.5 * np.cos(2.0 * np.pi *
-                                         np.arange(0, frac) / (2*frac-1)))
-    signal[idx2:] *= (0.5 - 0.5 * np.cos(2.0 * np.pi *
-                                         np.arange(frac, 2*frac) / (2*frac-1)))
+    if taper_type == 'hann':
+        signal[:idx1] *= (0.5 - 0.5 * np.cos(2.0 * np.pi *
+                        np.arange(0, frac) / (2*frac-1)))
+        signal[idx2:] *= (0.5 - 0.5 * np.cos(2.0 * np.pi *
+                        np.arange(frac, 2*frac) / (2*frac-1)))
+
+    if taper_type = 'cos'
+        signal[:idx1] *= 1. - np.cos( np.pi * np.range(0, frac) /\
+                                    (2*frac-1) )
+        signal[idx2:] *= 1. - np.cos( np.pi * np.range(frac, 2*frac) /\
+                                    (2*frac-1) )
+
+    if taper_type = 'cos_p10'
+        power = 10.
+        signal[:idx1] *= 1. - np.cos( np.pi * np.range(0, frac) /\
+                                    (2*frac-1) )**power
+        signal[idx2:] *= 1. - np.cos( np.pi * np.range(frac, 2*frac) /\
+                                    (2*frac-1) )**power
 
     return signal
 

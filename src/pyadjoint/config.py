@@ -88,8 +88,8 @@ class Config(object):
             source and for fft.
         :type taper_percentage: float
 
-        :param taper_type: Taper type, supports anything
-            :meth:`obspy.core.trace.Trace.taper` can use.
+        :param taper_type: Taper type, supports 
+            "hann", "cos", "cos_p10" so far
         :type taper_type: str
 
         :param mt_nw: bin width of multitapers (nw*df is the the half
@@ -113,10 +113,10 @@ class Config(object):
         :param phase_step: maximum step for cycle skip correction (?)
         :type phase_step: float
 
-        :param dt_sigma_min: minimum travel time error allowed (1.0)
+        :param dt_sigma_min: minimum travel time error allowed 
         :type dt_sigma_min: float
 
-        :param dlna_sigma_min: minimum amplitude error allowed (0.5)
+        :param dlna_sigma_min: minimum amplitude error allowed 
         :type dlna_sigma_min: float
 
         :param measure_type: type of measurements: 

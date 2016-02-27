@@ -17,7 +17,7 @@ from __future__ import (absolute_import, division, print_function,
 from scipy.integrate import simps
 
 from ..utils import generic_adjoint_source_plot
-from ..utils import sac_hann_taper
+from ..utils import window_taper
 
 import numpy as np
 
@@ -93,7 +93,6 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     misfit_sum = 0.0
 
     # loop over time windows
-
     for wins in window:
         left_window_border = wins[0]
         right_window_border = wins[1]
@@ -111,13 +110,19 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         # All adjoint sources will need some kind of windowing taper
         # to get rid of kinks at two ends
-        sac_hann_taper(d, taper_percentage=config.taper_percentage)
-        sac_hann_taper(s, taper_percentage=config.taper_percentage)
+        #window_taper(d, taper_percentage=config.taper_percentage,
+        #                 taper_type=congif.taper_type)
+        #window_taper(s, taper_percentage=config.taper_percentage)
+        #                 taper_type=congif.taper_type)
 
         diff = s - d
-
         # Integrate with the composite Simpson's rule.
-        misfit_sum += 0.5 * simps(y=diff ** 2, dx=deltat)
+        diff_w = diff * -1.0
+        #window_taper(diff_w, taper_percentage=config.taper_percentage)
+        # for some reason the 0.5 (see 2012 measure_adj mannual, P11) is
+        # not in misfit definetion in measure_adj
+        #misfit_sum += 0.5 * simps(y=diff_w**2, dx=deltat)
+        misfit_sum += simps(y=diff_w**2, dx=deltat)
 
         adj[left_sample: right_sample] = diff[0:nlen]
 
@@ -128,9 +133,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         ret_val["adjoint_source"] = adj[::-1]
 
     if figure:
-        generic_adjoint_source_plot(
-            observed, synthetic, ret_val["adjoint_source"], ret_val["misfit"],
-            left_window_border, right_window_border,
-            VERBOSE_NAME)
+        generic_adjoint_source_plot(observed, synthetic, 
+                ret_val["adjoint_source"], ret_val["misfit"],
+                left_window_border, right_window_border,
+                VERBOSE_NAME)
 
     return ret_val
