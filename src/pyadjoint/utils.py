@@ -123,19 +123,18 @@ def window_taper(signal, taper_percentage, taper_type):
         signal[idx2:] *= (0.5 - 0.5 * np.cos(2.0 * np.pi *
                         np.arange(frac, 2*frac) / (2*frac-1)))
 
-    if taper_type = 'cos'
+    if taper_type == 'cos':
         signal[:idx1] *= 1. - np.cos( np.pi * np.range(0, frac) /\
                                     (2*frac-1) )
         signal[idx2:] *= 1. - np.cos( np.pi * np.range(frac, 2*frac) /\
                                     (2*frac-1) )
 
-    if taper_type = 'cos_p10'
+    if taper_type == 'cos_p10':
         power = 10.
         signal[:idx1] *= 1. - np.cos( np.pi * np.range(0, frac) /\
                                     (2*frac-1) )**power
         signal[idx2:] *= 1. - np.cos( np.pi * np.range(frac, 2*frac) /\
                                     (2*frac-1) )**power
-
     return signal
 
 

@@ -344,10 +344,15 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, waterlevel_mtm, phase_step,
 
     # transfrer function
     trans_func = np.zeros(nlen_f, dtype=complex)
-    trans_func[nfreq_min:nfreq_max] = \
-        top_tf[nfreq_min:nfreq_max] / \
-        (bot_tf[nfreq_min:nfreq_max] + wtr_use *
-         (abs(bot_tf[nfreq_min:nfreq_max]) < wtr_use))
+    for i in range(nfreq_min,nfreq_max):
+        if abs(bot_tf[i]) < wtr_use:
+            trans_func[i] = top_tf[i] / bot_tf[i]
+        else:
+            trans_func[i] = top_tf[i] / (bot_tf[i] + wtr_use)
+    #trans_func[nfreq_min:nfreq_max] = \
+    #    top_tf[nfreq_min:nfreq_max] / \
+    #    (bot_tf[nfreq_min:nfreq_max] + wtr_use *
+    #     (abs(bot_tf[nfreq_min:nfreq_max]) < wtr_use))
 
     # Estimate phase and amplitude anomaly from transfer function
     phi_w = np.zeros(nlen_f)
@@ -387,6 +392,8 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, waterlevel_mtm, phase_step,
         phi_w[max(nfreq_min, 1): nfreq_max] + cc_tshift
 
     dlna_w[nfreq_min:nfreq_max] = np.log(abs_w[nfreq_min:nfreq_max]) + cc_dlna
+    # Warning: needs to be fixed. check if cc_dlna is not applied before the transf cal
+    #dlna_w[nfreq_min:nfreq_max] = np.log(abs_w[nfreq_min:nfreq_max])
 
     return phi_w, abs_w, dtau_w, dlna_w
 
@@ -509,18 +516,20 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
     misfit_p = 0.0
     misfit_q = 0.0
 
+
     # Y. Ruan, 11/05/2015
     # frequency-domain taper based on adjusted frequency band and
     # error estimation. It's not one of the filtering processes that
     # needed to applied to adjoint source but an frequency domain
     # weighting function for adjoint source and misfit function.
 
-    w_taper = np.zeros(nlen_f)
     wp_w = np.zeros(nlen_f)
     wq_w = np.zeros(nlen_f)
 
     iw = np.arange(nfreq_min, nfreq_max, 1)
-    w_taper[nfreq_min: nfreq_max] = 1.0
+
+    w_taper = np.zeros(nlen_f)
+    #w_taper[nfreq_min: nfreq_max] = 1.0
 
     # Y. Ruan, 11/09/2015
     # Original higher order cosine taper used in measure_adj
@@ -530,14 +539,13 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
     w_taper[nfreq_min: nfreq_max] = 1.0 - \
         np.cos(np.pi * (iw - nfreq_min) / (nfreq_max - nfreq_min)) ** ipwr_w
 
-    # normalization factor
+    # normalization factor, factor 2 is needed for the integration from 
+    # -inf to inf
     ffac = 2.0 * df * np.sum(w_taper[nfreq_min: nfreq_max])
 
     wp_w = w_taper / ffac
     wq_w = w_taper / ffac
 
-    print("err_dt: %f err_dlnA %f" %(err_dt_cc,err_dlna_cc))
-    print("f-dom taper normalization factor, ffac = %f" % ffac)
     # cc error
     if use_cc_error:
         wp_w /= err_dt_cc**2
@@ -579,12 +587,13 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
         # multi-tapered measurements
         d2_t = np.zeros(nlen_t)
         d2_tv = np.zeros(nlen_t)
-        d2_t[0:nlen_t] = d2[0:nlen_t] * taper[0:nlen_t]
+        #d2_t[0:nlen_t] = d2[0:nlen_t] * taper[0:nlen_t]
+        d2_t = d2 * taper[0:nlen_t]
         d2_tv = np.gradient(d2_t, deltat)
 
         # apply FFT to tapered measurements
-        d2_tw[:, itaper] = np.fft.fft(d2_t, nlen_f)[:]*deltat
-        d2_tvw[:, itaper] = np.fft.fft(d2_tv, nlen_f)[:]*deltat
+        d2_tw[:, itaper] = np.fft.fft(d2_t, nlen_f)[:] * deltat
+        d2_tvw[:, itaper] = np.fft.fft(d2_tv, nlen_f)[:] * deltat
 
         # calculate bottom of adjoint term pj(w) qj(w)
         bottom_p[:] = bottom_p[:] + \
@@ -592,11 +601,9 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
         bottom_q[:] = bottom_q[:] + \
             d2_tw[:, itaper] * d2_tw[:, itaper].conjugate()
 
-    # Calculate adjoint source
     fp_t = np.zeros(nlen_f)
     fq_t = np.zeros(nlen_f)
 
-    print("nlen_t: %d nlen_f %d" % (nlen_t, nlen_f)) 
     for itaper in range(0, ntaper):
         taper = np.zeros(nlen_f)
         taper[0: nlen_t] = tapers[0:nlen_t, itaper]
@@ -695,7 +702,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # pre-processing of the observed and sythetic
         # to get windowed obsd and synt
         # ===
-        left_sample = int(np.floor(left_window_border / deltat)) + 1
+        left_sample = int(np.floor(left_window_border / deltat))
         nlen = int(np.floor((right_window_border - left_window_border) /
                    deltat)) + 1
         right_sample = left_sample + nlen
@@ -709,7 +716,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # Taper signals following the SAC taper command
         window_taper(d, taper_percentage=config.taper_percentage,
                         taper_type=config.taper_type)
-        window_taper(s, taper_percentage=config.taper_percentage)
+        window_taper(s, taper_percentage=config.taper_percentage,
                         taper_type=config.taper_type)
 
         # cross-correlation
@@ -737,10 +744,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         if nlen_d == nlen:
             # Y. Ruan: No need to correct cc_dlna in multitaper measurements
-            cc_dlna = 0
-            d[0:nlen] = np.exp(-cc_dlna) * \
-                observed.data[left_sample_d:right_sample_d]
-            window_taper(d, taper_percentage=config.taper_percentage)
+            d[0:nlen] = observed.data[left_sample_d:right_sample_d]
+            window_taper(d, taper_percentage=config.taper_percentage,
                             taper_type=config.taper_type)
         else:
             raise Exception
