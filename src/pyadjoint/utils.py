@@ -94,12 +94,12 @@ def window_taper(signal, taper_percentage, taper_type):
     1, cos
     2, cos_p10
     3, hann
-
+    4, hamming
 
     To do: 
     with options of more tapers
     """
-    taper_collection = ('cos', 'cos_p10', 'hann')
+    taper_collection = ('cos', 'cos_p10', 'hann', "hamming")
 
     if taper_type not in taper_collection:
         raise ValueError("Window taper not supported")
@@ -123,17 +123,25 @@ def window_taper(signal, taper_percentage, taper_type):
         signal[idx2:] *= (0.5 - 0.5 * np.cos(2.0 * np.pi *
                         np.arange(frac, 2*frac) / (2*frac-1)))
 
+    if taper_type == 'hamming':
+        signal[:idx1] *= (0.54 - 0.46 * np.cos(2.0 * np.pi *
+                        np.arange(0, frac) / (2*frac-1)))
+        signal[idx2:] *= (0.54 - 0.46 * np.cos(2.0 * np.pi *
+                        np.arange(frac, 2*frac) / (2*frac-1)))
+
     if taper_type == 'cos':
-        signal[:idx1] *= 1. - np.cos( np.pi * np.range(0, frac) /\
-                                    (2*frac-1) )
-        signal[idx2:] *= 1. - np.cos( np.pi * np.range(frac, 2*frac) /\
-                                    (2*frac-1) )
+        power = 1.
+        signal[:idx1] *= np.cos( np.pi * np.arange(0, frac) /\
+                            (2*frac-1) - np.pi / 2.0 )**power
+        signal[idx2:] *= np.cos( np.pi * np.arange(frac, 2*frac) /\
+                            (2*frac-1) - np.pi / 2.0 )**power
+
 
     if taper_type == 'cos_p10':
         power = 10.
-        signal[:idx1] *= 1. - np.cos( np.pi * np.range(0, frac) /\
+        signal[:idx1] *= 1. - np.cos( np.pi * np.arange(0, frac) /\
                                     (2*frac-1) )**power
-        signal[idx2:] *= 1. - np.cos( np.pi * np.range(frac, 2*frac) /\
+        signal[idx2:] *= 1. - np.cos( np.pi * np.arange(frac, 2*frac) /\
                                     (2*frac-1) )**power
     return signal
 

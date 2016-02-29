@@ -287,6 +287,10 @@ def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
     # switch from mtm to c.c.
     for j in range(nfreq_min, nfreq_max):
 
+        #
+        if cc_tshift <= deltat:
+            return False
+
         # dt larger than 1/dt_fac of the wave period
         if np.abs(dtau_w[j]) > 1./(dt_fac*j*df):
             return False
@@ -533,11 +537,17 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
 
     # Y. Ruan, 11/09/2015
     # Original higher order cosine taper used in measure_adj
-    # this cosine weighting function tapering too much information
+    # this cosine weighting function may taper off too much information
     # will be replaced by a less aggressive taper
-    ipwr_w = 10
-    w_taper[nfreq_min: nfreq_max] = 1.0 - \
-        np.cos(np.pi * (iw - nfreq_min) / (nfreq_max - nfreq_min)) ** ipwr_w
+    #ipwr_w = 10
+    #w_taper[nfreq_min: nfreq_max] = 1.0 -\
+    #    np.cos(np.pi * (iw - nfreq_min) / (nfreq_max - nfreq_min)) ** ipwr_w
+    #for i in range(nfreq_min,nfreq_m):
+    #    print(i, w_taper[i])
+    win_taper_len = nfreq_max - nfreq_min
+    win_taper = np.ones(win_taper_len) 
+    window_taper(win_taper, taper_percentage=1.0, taper_type="cos_p10") 
+    w_taper[nfreq_min: nfreq_max] = win_taper[0:win_taper_len]
 
     # normalization factor, factor 2 is needed for the integration from 
     # -inf to inf
@@ -732,8 +742,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             sigma_dt_cc, sigma_dlna_cc = cc_error(d, s, deltat, cc_shift, cc_dlna,
                                         config.dt_sigma_min, config.dlna_sigma_min)
 
-            # print("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
-            # print("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
+            #print("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
+            #print("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
 
         # re-window observed to align observed with synthetic for multitaper
         # measurement:
@@ -745,6 +755,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         if nlen_d == nlen:
             # Y. Ruan: No need to correct cc_dlna in multitaper measurements
             d[0:nlen] = observed.data[left_sample_d:right_sample_d]
+            d *= np.exp(-cc_dlna)
             window_taper(d, taper_percentage=config.taper_percentage,
                             taper_type=config.taper_type)
         else:
