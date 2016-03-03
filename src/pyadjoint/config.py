@@ -88,7 +88,7 @@ class Config(object):
             source and for fft.
         :type taper_percentage: float
 
-        :param taper_type: Taper type, supports 
+        :param taper_type: Taper type, supports
             "hann", "cos", "cos_p10" so far
         :type taper_type: str
 
@@ -113,15 +113,15 @@ class Config(object):
         :param phase_step: maximum step for cycle skip correction (?)
         :type phase_step: float
 
-        :param dt_sigma_min: minimum travel time error allowed 
+        :param dt_sigma_min: minimum travel time error allowed
         :type dt_sigma_min: float
 
-        :param dlna_sigma_min: minimum amplitude error allowed 
+        :param dlna_sigma_min: minimum amplitude error allowed
         :type dlna_sigma_min: float
 
-        :param measure_type: type of measurements: 
+        :param measure_type: type of measurements:
                                 dt(travel time),
-                                am(dlnA), 
+                                am(dlnA),
                                 wf(full waveform)
         :param measure_type: string
 
@@ -155,8 +155,8 @@ class Config(object):
         self.err_fac = err_fac
         self.dt_max_scale = dt_max_scale
 
-        self.dt_sigma_min=dt_sigma_min
-        self.dlna_sigma_min=dlna_sigma_min
+        self.dt_sigma_min = dt_sigma_min
+        self.dlna_sigma_min = dlna_sigma_min
 
         self.measure_type = measure_type
         self.use_cc_error = use_cc_error

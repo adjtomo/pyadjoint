@@ -110,18 +110,19 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         # All adjoint sources will need some kind of windowing taper
         # to get rid of kinks at two ends
-        #window_taper(d, taper_percentage=config.taper_percentage,
-        #                 taper_type=congif.taper_type)
-        #window_taper(s, taper_percentage=config.taper_percentage)
-        #                 taper_type=congif.taper_type)
+        window_taper(d, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
+        window_taper(s, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
 
         diff = s - d
         # Integrate with the composite Simpson's rule.
         diff_w = diff * -1.0
-        #window_taper(diff_w, taper_percentage=config.taper_percentage)
+        window_taper(diff_w, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
         # for some reason the 0.5 (see 2012 measure_adj mannual, P11) is
         # not in misfit definetion in measure_adj
-        #misfit_sum += 0.5 * simps(y=diff_w**2, dx=deltat)
+        # misfit_sum += 0.5 * simps(y=diff_w**2, dx=deltat)
         misfit_sum += simps(y=diff_w**2, dx=deltat)
 
         adj[left_sample: right_sample] = diff[0:nlen]
@@ -133,9 +134,10 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         ret_val["adjoint_source"] = adj[::-1]
 
     if figure:
-        generic_adjoint_source_plot(observed, synthetic, 
-                ret_val["adjoint_source"], ret_val["misfit"],
-                left_window_border, right_window_border,
-                VERBOSE_NAME)
+        # return NotImplemented
+        generic_adjoint_source_plot(observed, synthetic,
+                                    ret_val["adjoint_source"],
+                                    ret_val["misfit"],
+                                    window, VERBOSE_NAME)
 
     return ret_val

@@ -10,6 +10,7 @@ Utility functions for Pyadjoint.
 """
 import inspect
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import os
 
 import obspy
@@ -87,7 +88,7 @@ def window_taper(signal, taper_percentage, taper_type):
 
     :param taper_percentage: total percentage of taper in decimal
     :type taper_percentage: float
-    
+
     return : tapered input ndarray
 
     taper_type:
@@ -96,7 +97,7 @@ def window_taper(signal, taper_percentage, taper_type):
     3, hann
     4, hamming
 
-    To do: 
+    To do:
     with options of more tapers
     """
     taper_collection = ('cos', 'cos_p10', 'hann', "hamming")
@@ -118,31 +119,34 @@ def window_taper(signal, taper_percentage, taper_type):
     idx2 = npts - frac
 
     if taper_type == 'hann':
-        signal[:idx1] *= (0.5 - 0.5 * np.cos(2.0 * np.pi *
-                        np.arange(0, frac) / (2*frac-1)))
-        signal[idx2:] *= (0.5 - 0.5 * np.cos(2.0 * np.pi *
-                        np.arange(frac, 2*frac) / (2*frac-1)))
+        signal[:idx1] *=\
+            (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(0, frac) /
+                                (2 * frac - 1)))
+        signal[idx2:] *=\
+            (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(frac, 2 * frac) /
+                                (2 * frac - 1)))
 
     if taper_type == 'hamming':
-        signal[:idx1] *= (0.54 - 0.46 * np.cos(2.0 * np.pi *
-                        np.arange(0, frac) / (2*frac-1)))
-        signal[idx2:] *= (0.54 - 0.46 * np.cos(2.0 * np.pi *
-                        np.arange(frac, 2*frac) / (2*frac-1)))
+        signal[:idx1] *=\
+            (0.54 - 0.46 * np.cos(2.0 * np.pi * np.arange(0, frac) /
+                                  (2 * frac - 1)))
+        signal[idx2:] *=\
+            (0.54 - 0.46 * np.cos(2.0 * np.pi * np.arange(frac, 2 * frac) /
+                                  (2 * frac - 1)))
 
     if taper_type == 'cos':
         power = 1.
-        signal[:idx1] *= np.cos( np.pi * np.arange(0, frac) /\
-                            (2*frac-1) - np.pi / 2.0 )**power
-        signal[idx2:] *= np.cos( np.pi * np.arange(frac, 2*frac) /\
-                            (2*frac-1) - np.pi / 2.0 )**power
-
+        signal[:idx1] *= np.cos(np.pi * np.arange(0, frac) /
+                                (2 * frac - 1) - np.pi / 2.0) ** power
+        signal[idx2:] *= np.cos(np.pi * np.arange(frac, 2 * frac) /
+                                (2 * frac - 1) - np.pi / 2.0) ** power
 
     if taper_type == 'cos_p10':
         power = 10.
-        signal[:idx1] *= 1. - np.cos( np.pi * np.arange(0, frac) /\
-                                    (2*frac-1) )**power
-        signal[idx2:] *= 1. - np.cos( np.pi * np.arange(frac, 2*frac) /\
-                                    (2*frac-1) )**power
+        signal[:idx1] *= 1. - np.cos(np.pi * np.arange(0, frac) /
+                                     (2 * frac - 1)) ** power
+        signal[idx2:] *= 1. - np.cos(np.pi * np.arange(frac, 2 * frac) /
+                                     (2 * frac - 1)) ** power
     return signal
 
 
@@ -182,8 +186,7 @@ def get_example_data():
 
 
 def generic_adjoint_source_plot(observed, synthetic, adjoint_source, misfit,
-                                left_window_border, right_window_border,
-                                adjoint_source_name):
+                                window, adjoint_source_name):
     """
     Generic plotting function for adjoint sources and data.
 
@@ -209,7 +212,14 @@ def generic_adjoint_source_plot(observed, synthetic, adjoint_source, misfit,
     :type adjoint_source_name: str
     """
     x_range = observed.stats.endtime - observed.stats.starttime
-    buf = (right_window_border - left_window_border) * 1.0
+    left_window_border = 60000.
+    right_window_border = 0.
+
+    for wins in window:
+        left_window_border = min(left_window_border, wins[0])
+        right_window_border = max(right_window_border, wins[1])
+
+    buf = (right_window_border - left_window_border) * 0.3
     left_window_border -= buf
     right_window_border += buf
     left_window_border = max(0, left_window_border)
@@ -220,6 +230,13 @@ def generic_adjoint_source_plot(observed, synthetic, adjoint_source, misfit,
              lw=2)
     plt.plot(synthetic.times(), synthetic.data, color="#bb474f",
              label="Synthetic", lw=2)
+    for wins in window:
+        re = patches.Rectangle((wins[0], plt.ylim()[0]),
+                               wins[1] - wins[0],
+                               plt.ylim()[1] - plt.ylim()[0],
+                               color="blue", alpha=0.1)
+        plt.gca().add_patch(re)
+
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
     plt.xlim(left_window_border, right_window_border)
@@ -227,12 +244,15 @@ def generic_adjoint_source_plot(observed, synthetic, adjoint_source, misfit,
     plt.ylim(-ylim, ylim)
 
     plt.subplot(212)
-    plt.plot(observed.times(), adjoint_source, color="#2f8d5b", lw=2,
+    plt.plot(observed.times(), adjoint_source[::-1], color="#2f8d5b", lw=2,
              label="Adjoint Source")
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
-    plt.xlim(x_range - right_window_border, x_range - left_window_border)
-    plt.xlabel("Time in seconds since first sample")
+    # No time reversal for comparison with data
+    # plt.xlim(x_range - right_window_border, x_range - left_window_border)
+    # plt.xlabel("Time in seconds since first sample")
+    plt.xlim(left_window_border, right_window_border)
+    plt.xlabel("Time (seconds)")
     ylim = max(map(abs, plt.ylim()))
     plt.ylim(-ylim, ylim)
 

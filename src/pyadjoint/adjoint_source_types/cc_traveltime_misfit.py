@@ -17,7 +17,7 @@ import numpy as np
 from scipy.integrate import simps
 import warnings
 
-from ..utils import window_taper  # , generic_adjoint_source_plot
+from ..utils import window_taper,  generic_adjoint_source_plot
 
 
 VERBOSE_NAME = "Cross Correlation Traveltime Misfit"
@@ -189,9 +189,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
         # All adjoint sources will need some kind of windowing taper
         window_taper(d, taper_percentage=config.taper_percentage,
-                        taper_type=config.taper_type)
+                     taper_type=config.taper_type)
         window_taper(s, taper_percentage=config.taper_percentage,
-                        taper_type=config.taper_type)
+                     taper_type=config.taper_type)
 
         i_shift = _xcorr_shift(d, s)
         t_shift = i_shift * deltat
@@ -200,7 +200,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
                                sum(s[0:nlen]*s[0:nlen]))
 
         sigma_dt, sigma_dlna = cc_error(d, s, deltat, i_shift, cc_dlna,
-                                config.dt_sigma_min, config.dlna_sigma_min)
+                                        config.dt_sigma_min,
+                                        config.dlna_sigma_min)
 
         misfit_sum_p += 0.5 * (t_shift/sigma_dt) ** 2
         misfit_sum_q += 0.5 * (cc_dlna/sigma_dlna) ** 2
@@ -210,26 +211,30 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         fp[left_sample:right_sample] = dsdt[:] * t_shift / nnorm / sigma_dt**2
 
         mnorm = simps(y=s*s, dx=deltat)
-        fq[left_sample:right_sample] = -1.0 * s[:] * cc_dlna / \
-                                        mnorm / sigma_dlna**2
-        
+        fq[left_sample:right_sample] =\
+            -1.0 * s[:] * cc_dlna / mnorm / sigma_dlna ** 2
+
     ret_val_p["misfit"] = misfit_sum_p
     ret_val_q["misfit"] = misfit_sum_q
 
     if adjoint_src is True:
         ret_val_p["adjoint_source"] = fp[::-1]
         ret_val_q["adjoint_source"] = fq[::-1]
-        
-    if figure:
-        return NotImplemented
-        # generic_adjoint_source_plot(
-        #     observed, synthetic,
-        #    ret_val["adjoint_source"], ret_val["misfit"],
-        #     left_window_border, right_window_border,
-        #     VERBOSE_NAME)
 
     if config.measure_type == "dt":
+        if figure:
+            generic_adjoint_source_plot(observed, synthetic,
+                                        ret_val_p["adjoint_source"],
+                                        ret_val_p["misfit"],
+                                        window, VERBOSE_NAME)
+
         return ret_val_p
 
     if config.measure_type == "am":
+        if figure:
+            generic_adjoint_source_plot(observed, synthetic,
+                                        ret_val_q["adjoint_source"],
+                                        ret_val_q["misfit"],
+                                        window, VERBOSE_NAME)
+
         return ret_val_q
