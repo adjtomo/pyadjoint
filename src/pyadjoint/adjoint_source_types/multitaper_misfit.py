@@ -730,13 +730,13 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # cross-correlation
         cc_shift = _xcorr_shift(d, s)
         cc_tshift = cc_shift * deltat
+        cc_dlna = 0.5 * np.log(sum(d**2) / sum(s**2))
 
         # uncertainty estimate based on cross-correlations
         sigma_dt_cc = 1.0
         sigma_dlna_cc = 1.0
 
         if use_cc_error:
-            cc_dlna = 0.5 * np.log(sum(d**2) / sum(s**2))
             sigma_dt_cc, sigma_dlna_cc = cc_error(d, s, deltat, cc_shift,
                                                   cc_dlna, config.dt_sigma_min,
                                                   config.dlna_sigma_min)

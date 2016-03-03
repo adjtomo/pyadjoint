@@ -94,7 +94,7 @@ def test_no_adjoint_src_calculation_is_honored(adj_src):
     #    adj_src, obs, syn, 20, 100, start, end, adjoint_src=False)
 
     assert a_src.adjoint_source is None
-    #assert a_src.misfit >= 0.0
+    # assert a_src.misfit >= 0.0
 
     # But the misfit should nonetheless be identical as if the adjoint
     # source would have been calculated.
