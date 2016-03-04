@@ -33,7 +33,7 @@ __version__ = "0.0.1a"
 
 # setup the logger
 logger = logging.getLogger("pyadjoint")
-logger.setLevel(logging.WARNING)
+logger.setLevel(logging.DEBUG)
 # Prevent propagating to higher loggers.
 logger.propagate = 0
 # Console log handler.
@@ -42,6 +42,7 @@ ch = logging.StreamHandler()
 FORMAT = "[%(asctime)s] - %(name)s - %(levelname)s: %(message)s"
 formatter = logging.Formatter(FORMAT)
 ch.setFormatter(formatter)
+ch.setLevel(logging.DEBUG)
 logger.addHandler(ch)
 
 # Main objects and functions available at the top level.
