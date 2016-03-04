@@ -16,6 +16,7 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 from scipy.integrate import simps
 
+from . import logger # PyadjointError, PyadjointWarning, logger
 from ..utils import generic_adjoint_source_plot
 from ..utils import window_taper
 from ..dpss import dpss_windows
@@ -286,6 +287,8 @@ def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
 
     # If the c.c. measurements is too small
     if cc_tshift <= deltat:
+        msg = "C.C. time shift less than time domain sample length"
+        logger.debug(msg)
         return False
 
     # If any mtm measurements is out of the resonable range,
