@@ -191,17 +191,14 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
                                         ncycle_in_window, nlen, s_spectra,
                                         water_threshold)
 
-    # Assume the frequency range is larger than the bandwidth of multi-tapers
-    # Too strict to implement, more experiments are needed.
-    # if (nfreq_max - nfreq_min) * df < nw / (nlen * deltat):
-    #    is_mtm = False
-    #    logger.debug("(nfreq_max - nfreq_min) * df: %f" %
-    #                 ((nfreq_max - nfreq_min) * df))
-    #    logger.debug("nw*2.0 / (nlen * deltat): %f" %
-    #                 (nw*2.0 / (nlen * deltat)))
-    #    logger.debug("MTM: rejecting for frequency "
-    #           "range narrower than taper bandwith:")
-    #    return int(1.0 / (max_period * df)), int(1.0 / (min_period * df))
+    # reject mtm if the chosen frequency band is narrower  than quater of
+    # multi-taper bandwidth
+    if (nfreq_max - nfreq_min) * df < nw / (4.0 * nlen * deltat):
+        logger.debug("chosen bandwidth: %f" % ((nfreq_max - nfreq_min) * df))
+        logger.debug("half taper bandwidth: %f" % (nw / (4.0 * nlen * deltat)))
+        logger.debug("MTM: rejecting for frequency range"
+                     "narrower than half taper bandwith:")
+        return (ifreq_min, ifreq_max, False)
 
     return nfreq_min, nfreq_max, True
 
@@ -562,6 +559,10 @@ def mt_adj(d1, d2, deltat, tapers, dtau_mtm, dlna_mtm, df, nlen_f,
     # normalization factor, factor 2 is needed for the integration from
     # -inf to inf
     ffac = 2.0 * df * np.sum(w_taper[nfreq_min: nfreq_max])
+    if ffac <= 0.0:
+        logger.warning("frequency band too narrow:")
+        logger.warning("fmin=%f fmax=%f ffac=%f" %
+                       (nfreq_min, nfreq_max, ffac))
 
     wp_w = w_taper / ffac
     wq_w = w_taper / ffac
