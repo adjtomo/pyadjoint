@@ -32,8 +32,8 @@ __version__ = "0.0.1a"
 
 
 # setup the logger
-logger = logging.getLogger("pyadjoint")
-logger.setLevel(logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.WARNING)
 # Prevent propagating to higher loggers.
 logger.propagate = 0
 # Console log handler.

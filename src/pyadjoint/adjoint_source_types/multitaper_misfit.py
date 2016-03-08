@@ -16,7 +16,8 @@ from __future__ import (absolute_import, division, print_function,
 import numpy as np
 from scipy.integrate import simps
 
-from . import logger # PyadjointError, PyadjointWarning, logger
+from .. import logger
+# from . import PyadjointError, PyadjointWarning
 from ..utils import generic_adjoint_source_plot
 from ..utils import window_taper
 from ..dpss import dpss_windows
@@ -170,9 +171,9 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     # _in_window in the selected window, and switch to c.c. method.
     # In this case frequency limits is not needed.
     if ncycle_in_window * min_period > nlen * deltat:
-        print ("min_period: %6.0f  window length: %6.0f" %
-               (min_period, nlen*deltat))
-        print ("MTM: rejecting for too few cycles within time window:")
+        logger.debug("min_period: %6.0f  window length: %6.0f" %
+                     (min_period, nlen*deltat))
+        logger.debug("MTM: rejecting for too few cycles within time window:")
         return (ifreq_min, ifreq_max, False)
 
     fnum = int(nlen_f/2 + 1)
@@ -194,10 +195,11 @@ def frequency_limit(s, nlen, nlen_f, deltat, df, wtr, ncycle_in_window,
     # Too strict to implement, more experiments are needed.
     # if (nfreq_max - nfreq_min) * df < nw / (nlen * deltat):
     #    is_mtm = False
-    #    print ("(nfreq_max - nfreq_min) * df: %f" %
-    #           ((nfreq_max - nfreq_min) * df))
-    #    print ("nw*2.0 / (nlen * deltat): %f" % (nw*2.0 / (nlen * deltat)))
-    #    print ("MTM: rejecting for frequency "
+    #    logger.debug("(nfreq_max - nfreq_min) * df: %f" %
+    #                 ((nfreq_max - nfreq_min) * df))
+    #    logger.debug("nw*2.0 / (nlen * deltat): %f" %
+    #                 (nw*2.0 / (nlen * deltat)))
+    #    logger.debug("MTM: rejecting for frequency "
     #           "range narrower than taper bandwith:")
     #    return int(1.0 / (max_period * df)), int(1.0 / (min_period * df))
 
@@ -286,8 +288,8 @@ def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
     """
 
     # If the c.c. measurements is too small
-    if cc_tshift <= deltat:
-        msg = "C.C. time shift less than time domain sample length"
+    if abs(cc_tshift) <= deltat:
+        msg = "C.C. time shift less than time domain sample length %f" % deltat
         logger.debug(msg)
         return False
 
@@ -297,14 +299,20 @@ def mt_measure_select(nfreq_min, nfreq_max, df, nlen, deltat, dtau_w, dt_fac,
 
         # dt larger than 1/dt_fac of the wave period
         if np.abs(dtau_w[j]) > 1./(dt_fac*j*df):
+            msg = "mtm dt measurements is too large"
+            logger.debug(msg)
             return False
 
         # error larger than 1/err_fac of wave period
         if err_dt[j] > 1./(err_fac*j*df):
+            msg = "mtm dt error is too large"
+            logger.debug(msg)
             return False
 
         # dt larger than the maximum time shift allowed
         if np.abs(dtau_w[j]) > dt_max_scale*abs(cc_tshift):
+            msg = "dt is larger than the maximum time shift allowed"
+            logger.debug(msg)
             return False
 
     return True
@@ -383,13 +391,13 @@ def mt_measure(d1, d2, dt, tapers, wvec, df, nlen_f, waterlevel_mtm,
 
         if smth1 < smth and smth1 < smth2 and \
                 abs(phi_w[iw] - phi_w[iw + 1]) > phase_step:
-            print('2pi phase shift at {0} w={1} diff={2}'.format(
+            logger.warning('2pi phase shift at {0} w={1} diff={2}'.format(
                 iw, wvec[iw], phi_w[iw] - phi_w[iw + 1]))
             phi_w[iw + 1:nfreq_max] = phi_w[iw + 1:nfreq_max] + 2 * np.pi
 
         if smth2 < smth and smth2 < smth1 and \
                 abs(phi_w[iw] - phi_w[iw + 1]) > phase_step:
-            print('-2pi phase shift at {0} w={1} diff={2}'.format(
+            logger.warning('-2pi phase shift at {0} w={1} diff={2}'.format(
                 iw, wvec[iw], phi_w[iw] - phi_w[iw + 1]))
             phi_w[iw + 1:nfreq_max] = phi_w[iw + 1:nfreq_max] - 2 * np.pi
 
@@ -744,8 +752,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
                                                   cc_dlna, config.dt_sigma_min,
                                                   config.dlna_sigma_min)
 
-            # print("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
-            # print("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
+            logger.debug("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
+            logger.debug("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
 
         # re-window observed to align observed with synthetic for multitaper
         # measurement:
