@@ -32,6 +32,7 @@ class Config(object):
                  measure_type='dt',
                  dt_sigma_min=1.0,
                  dlna_sigma_min=0.5,
+                 wtr_env=0.20,
                  use_cc_error=True,
                  use_mt_error=False):
         """
@@ -56,6 +57,7 @@ class Config(object):
                  measure_type='dt',
                  dt_sigma_min=1.0,
                  dlna_sigma_min=0.5,
+                 wtr_env=0.20,
                  use_cc_error=False,
                  use_mt_error=False)
 
@@ -119,6 +121,9 @@ class Config(object):
         :param dlna_sigma_min: minimum amplitude error allowed
         :type dlna_sigma_min: float
 
+        :param wtr_env: water level for envelope in denominator
+        :type wtr_env: float
+
         :param measure_type: type of measurements:
                                 dt(travel time),
                                 am(dlnA),
@@ -157,6 +162,8 @@ class Config(object):
 
         self.dt_sigma_min = dt_sigma_min
         self.dlna_sigma_min = dlna_sigma_min
+
+        self.wtr_env = wtr_env
 
         self.measure_type = measure_type
         self.use_cc_error = use_cc_error

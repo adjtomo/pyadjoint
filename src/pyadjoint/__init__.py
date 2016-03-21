@@ -32,7 +32,7 @@ __version__ = "0.0.1a"
 
 
 # setup the logger
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("pyadjoint")
 logger.setLevel(logging.WARNING)
 # Prevent propagating to higher loggers.
 logger.propagate = 0
@@ -42,9 +42,8 @@ ch = logging.StreamHandler()
 FORMAT = "[%(asctime)s] - %(name)s - %(levelname)s: %(message)s"
 formatter = logging.Formatter(FORMAT)
 ch.setFormatter(formatter)
-ch.setLevel(logging.DEBUG)
 logger.addHandler(ch)
 
 # Main objects and functions available at the top level.
-from .adjoint_source import AdjointSource, calculate_adjoint_source  # NOQA
+from .adjoint_source import AdjointSource, calculate_adjoint_source, calculate_adjoint_source_DD  # NOQA #YY
 from .config import Config  # NOQA
