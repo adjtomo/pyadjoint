@@ -681,5 +681,4 @@ def _discover_adjoint_sources_DD():
             getattr(m, desc_attr),
             getattr(m, add_attr) if hasattr(m, add_attr) else None)
 
-
 _discover_adjoint_sources_DD()

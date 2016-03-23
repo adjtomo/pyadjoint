@@ -55,7 +55,7 @@ def test_normal_adjoint_source_calculation(adj_src):
             adj_src_type=adj_src, observed1=obs,
             synthetic1=syn, observed2=obs, synthetic2=syn,
             config=config, window1=window1, window2=window2,
-            adjoint_src=True, plot=False)
+            adjoint_src=True, plot=True)
 
     assert a_src.adjoint_source.any()
     assert a_src.misfit >= 0.0

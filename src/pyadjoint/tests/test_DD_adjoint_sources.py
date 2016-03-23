@@ -1,7 +1,7 @@
 import pyadjoint
 # Yanhua O. Yuan
 adj_src = "cc_traveltime_misfit_DD"
-
+adj_src = "multitaper_misfit_DD"
 config = pyadjoint.Config(min_period=30.0, max_period=75.0,
                           lnpt=15,
                           transfunc_waterlevel=1.0E-10,
@@ -26,4 +26,4 @@ a_src = pyadjoint.calculate_adjoint_source_DD(
         adj_src_type=adj_src, observed1=obs,
         synthetic1=syn, observed2=obs, synthetic2=syn,
         config=config, window1=window1, window2=window2,
-        adjoint_src=True, plot=False)
+        adjoint_src=True, plot=True)
