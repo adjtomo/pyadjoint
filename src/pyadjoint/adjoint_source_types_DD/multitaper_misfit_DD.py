@@ -12,11 +12,12 @@ from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
 import numpy as np
-from ..dpss import dpss_windows
+from pyadjoint.dpss import dpss_windows
 
-from ..utils import window_taper,  generic_adjoint_source_plot
-from ..cc import _xcorr_shift, cc_error, cc_adj_DD
-from ..multitaper import frequency_limit, mt_measure, mt_error, mt_measure_select
+from pyadjoint.utils import window_taper,  generic_adjoint_source_plot
+from pyadjoint.cc import _xcorr_shift, cc_error, cc_adj_DD
+from pyadjoint.multitaper import frequency_limit, mt_measure,\
+        mt_error, mt_measure_select
 
 VERBOSE_NAME = "Double-difference Multitaper Misfit"
 
@@ -194,32 +195,32 @@ def calculate_adjoint_source_DD(observed1, synthetic1, observed2, synthetic2,
 
         # re-window observed1 to align observed1 with observed2
         # for multitaper measurement:
-       # left_sample_1 = max(left_sample_1 + cc_shift_d, 0)
-       # right_sample_1 = min(right_sample_1 + cc_shift_d, nlen_data)
-       # nlen1 = right_sample_1 - left_sample_1
+        # left_sample_1 = max(left_sample_1 + cc_shift_d, 0)
+        # right_sample_1 = min(right_sample_1 + cc_shift_d, nlen_data)
+        # nlen1 = right_sample_1 - left_sample_1
 
-       # if nlen1 == nlen:
-       #     d1[0:nlen] = observed1.data[left_sample_1:right_sample_1]
-       #     d1 *= np.exp(-cc_dlna_d)
-       #     window_taper(d1, taper_percentage=config.taper_percentage,
-       #                  taper_type=config.taper_type)
-       # else:
-       #     raise Exception
+        # if nlen1 == nlen:
+        #     d1[0:nlen] = observed1.data[left_sample_1:right_sample_1]
+        #     d1 *= np.exp(-cc_dlna_d)
+        #     window_taper(d1, taper_percentage=config.taper_percentage,
+        #                  taper_type=config.taper_type)
+        # else:
+        #     raise Exception
 
         # re-window synthetic1 to align synthetic1 with synthetic2
         # for multitaper measurement:
-       # left_sample_1 = max(left_sample_1 + cc_shift_s, 0)
-       # right_sample_1 = min(right_sample_1 + cc_shift_s, nlen_data)
-       # nlen1 = right_sample_1 - left_sample_1
+        # left_sample_1 = max(left_sample_1 + cc_shift_s, 0)
+        # right_sample_1 = min(right_sample_1 + cc_shift_s, nlen_data)
+        # nlen1 = right_sample_1 - left_sample_1
 
-       # YY: do we need to shift s1?
-       # if nlen1 == nlen:
-       #     s1[0:nlen] = synthetic1.data[left_sample_1:right_sample_1]
-       #     s1 *= np.exp(-cc_dlna_s)
-       #     window_taper(s1, taper_percentage=config.taper_percentage,
-       #                  taper_type=config.taper_type)
-       # else:
-       #     raise Exception
+        # YY: do we need to shift s1?
+        # if nlen1 == nlen:
+        #     s1[0:nlen] = synthetic1.data[left_sample_1:right_sample_1]
+        #     s1 *= np.exp(-cc_dlna_s)
+        #     window_taper(s1, taper_percentage=config.taper_percentage,
+        #                  taper_type=config.taper_type)
+        # else:
+        #     raise Exception
 
         # ===
         # Make decision wihich method to use: c.c. or multi-taper
