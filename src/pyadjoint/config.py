@@ -10,8 +10,7 @@ Configuration object for pyadjoint.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 
 class Config(object):

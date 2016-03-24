@@ -8,13 +8,15 @@ Utility functions for Pyadjoint.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
+from __future__ import absolute_import, division, print_function
+
 import inspect
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import os
 
-import obspy
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import numpy as np
+import obspy
 
 EXAMPLE_DATA_PDIFF = (800, 900)
 EXAMPLE_DATA_SDIFF = (1500, 1600)

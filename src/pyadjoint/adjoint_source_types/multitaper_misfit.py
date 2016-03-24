@@ -10,8 +10,7 @@ Multitaper based phase and amplitude misfit and adjoint source.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
 import numpy as np
 from scipy.integrate import simps

@@ -72,8 +72,7 @@ setup(
         "seismology", "adjoint", "science", "tomography", "inversion"
     ],
     install_requires=[
-        "obspy>=1.0.0", "flake8", "pytest", "nose", "future>=0.14.1", "numpy",
-        "scipy"
+        "obspy>=1.0.0", "flake8", "pytest", "nose", "numpy", "scipy"
     ],
     extras_require={
         "docs": ["sphinx", "ipython", "runipy"]

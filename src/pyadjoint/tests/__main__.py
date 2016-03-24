@@ -10,11 +10,15 @@ python -m pyadoint.tests
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
+from __future__ import absolute_import, division, print_function
+
+import inspect
+import os
+import pytest
+import sys
+
+
 if __name__ == "__main__":
-    import inspect
-    import os
-    import pytest
-    import sys
     PATH = os.path.dirname(os.path.dirname(
         os.path.abspath(inspect.getfile(inspect.currentframe()))))
 

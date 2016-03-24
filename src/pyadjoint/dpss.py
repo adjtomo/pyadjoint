@@ -8,6 +8,8 @@
 https://github.com/mne-tools/mne-python/blob/master/mne/time_frequency/
 multitaper.py
 """
+from __future__ import absolute_import, division, print_function
+
 import warnings
 
 import numpy as np

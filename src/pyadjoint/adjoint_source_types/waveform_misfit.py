@@ -11,15 +11,14 @@ sources to Pyadjoint.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function
 
+import numpy as np
 from scipy.integrate import simps
 
 from ..utils import generic_adjoint_source_plot
 from ..utils import window_taper
 
-import numpy as np
 
 # This is the verbose and pretty name of the adjoint source defined in this
 # function.
