@@ -99,7 +99,7 @@ def cc_correction(d, cc_shift, cc_dlna):
         ind_dt = _ind - cc_shift
 
         if 0 <= ind_dt < nlen_t:
-            d_cc[ind_dt] = d[_ind] * np.exp(cc_dlna)
+            d_cc[_ind] = d[ind_dt] * np.exp(cc_dlna)
 
     return d_cc
 
@@ -201,7 +201,6 @@ def cc_adj_DD(synt1, synt2, shift_syn, dd_shift, deltat,
     """
 
     misfit = 0.0
-
     ds1dt = np.gradient(synt1, deltat) / deltat
     ds2dt = np.gradient(synt2, deltat) / deltat
     synt2_cc = cc_correction(synt2, shift_syn, 0.0)
