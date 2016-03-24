@@ -208,8 +208,8 @@ def cc_adj_DD(synt1, synt2, shift_syn, dd_shift, deltat,
     ds2_ccdt = np.gradient(synt2_cc, deltat) / deltat
     nnorm12 = simps(y=ds1dt*ds2_ccdt, dx=deltat)
 
-    dt_adj1 = + 1.0 * ds2dt * dd_shift * deltat / nnorm12
-    dt_adj2 = - 1.0 * ds1dt * dd_shift * deltat / nnorm12
+    dt_adj1 = - 1.0 * ds2dt * dd_shift * deltat / nnorm12
+    dt_adj2 = + 1.0 * ds1dt * dd_shift * deltat / nnorm12
 
     dd_tshift = dd_shift * deltat
     misfit = 0.5 * (dd_tshift/err_dt_cc)**2
