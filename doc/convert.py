@@ -66,7 +66,7 @@ def convert_nb(nbname):
         current.write(nb, f, 'json')
 
     # Convert to rst.
-    os.system("ipython nbconvert --to rst %s" % nbname)
+    os.system("jupyter nbconvert --to rst %s" % nbname)
 
     with io.open(nbname, 'r', encoding='utf8') as f:
         nb = current.read(f, 'json')
