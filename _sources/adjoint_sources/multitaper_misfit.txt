@@ -45,20 +45,6 @@ in which :math:`h_k(t)` is one (the :math:`k`th) of multi-tapers.
 
 
 
-Additional Parameters
----------------------
-
-Additional parameters in addition to the default ones in the central
-:func:`~pyadjoint.adjoint_source.calculate_adjoint_source` function:
-
-
-**taper_percentage** (:class:`float`)
-    Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
-    ``0.5`` (50%)). Defauls to ``0.15``.
-
-**taper_type** (:class:`str`)
-    The taper type, supports anything :meth:`obspy.core.trace.Trace.taper`
-    can use. Defaults to ``"hann"``.
 
 
 Usage

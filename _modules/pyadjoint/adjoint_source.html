@@ -51,8 +51,8 @@
           <div class="body" role="main">
             
   <h1>Source code for pyadjoint.adjoint_source</h1><div class="highlight"><pre>
-<span class="c">#!/usr/bin/env python</span>
-<span class="c"># -*- encoding: utf8 -*-</span>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># -*- encoding: utf8 -*-</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Central interfaces for ``Pyadjoint``.</span>
 
@@ -61,8 +61,7 @@
 <span class="sd">:license:</span>
 <span class="sd">    BSD 3-Clause (&quot;BSD New&quot; or &quot;BSD Simplified&quot;)</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="p">(</span><span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span><span class="p">,</span>
-                        <span class="n">unicode_literals</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span><span class="p">,</span> <span class="n">division</span><span class="p">,</span> <span class="n">print_function</span>
 
 <span class="kn">import</span> <span class="nn">inspect</span>
 <span class="kn">import</span> <span class="nn">matplotlib.pylab</span> <span class="kn">as</span> <span class="nn">plt</span>
@@ -76,12 +75,13 @@
 
 
 <div class="viewcode-block" id="AdjointSource"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.AdjointSource">[docs]</a><span class="k">class</span> <span class="nc">AdjointSource</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="c"># Dictionary of available adjoint source. The key is the name, the value</span>
-    <span class="c"># a tuple of function, verbose name, and description.</span>
+    <span class="c1"># Dictionary of available adjoint source. The key is the name, the value</span>
+    <span class="c1"># a tuple of function, verbose name, and description.</span>
     <span class="n">_ad_srcs</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">adj_src_type</span><span class="p">,</span> <span class="n">misfit</span><span class="p">,</span> <span class="n">dt</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span>
-                 <span class="n">component</span><span class="p">,</span> <span class="n">adjoint_source</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+                 <span class="n">component</span><span class="p">,</span> <span class="n">adjoint_source</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">network</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">station</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                 <span class="n">location</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">starttime</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Class representing an already calculated adjoint source.</span>
 
@@ -106,9 +106,13 @@
 <span class="sd">        :type network: str</span>
 <span class="sd">        :param station: The station code of the station.</span>
 <span class="sd">        :type station: str</span>
+<span class="sd">        :param location: The location code of the station.</span>
+<span class="sd">        :type location: str</span>
+<span class="sd">        :param starttime: starttime of adjoint source</span>
+<span class="sd">        :type starttime: obspy.UTCDateTime</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">adj_src_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Unknown adjoint source type &#39;</span><span class="si">%s</span><span class="s">&#39;.&quot;</span> <span class="o">%</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown adjoint source type &#39;</span><span class="si">%s</span><span class="s2">&#39;.&quot;</span> <span class="o">%</span>
                              <span class="n">adj_src_type</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adj_src_type</span> <span class="o">=</span> <span class="n">adj_src_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adj_src_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="p">[</span><span class="n">adj_src_type</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
@@ -119,24 +123,26 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">component</span> <span class="o">=</span> <span class="n">component</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="o">=</span> <span class="n">network</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">station</span> <span class="o">=</span> <span class="n">station</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">starttime</span> <span class="o">=</span> <span class="n">starttime</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span> <span class="o">=</span> <span class="n">adjoint_source</span>
 
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">network</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">:</span>
-            <span class="n">station</span> <span class="o">=</span> <span class="s">&quot; at station </span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">)</span>
+            <span class="n">station</span> <span class="o">=</span> <span class="s2">&quot; at station </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">station</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+            <span class="n">station</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="n">adj_src_status</span> <span class="o">=</span> <span class="s">&quot;available with </span><span class="si">%i</span><span class="s"> samples&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span>
+            <span class="n">adj_src_status</span> <span class="o">=</span> <span class="s2">&quot;available with </span><span class="si">%i</span><span class="s2"> samples&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">adj_src_status</span> <span class="o">=</span> <span class="s">&quot;has not been calculated&quot;</span>
+            <span class="n">adj_src_status</span> <span class="o">=</span> <span class="s2">&quot;has not been calculated&quot;</span>
 
         <span class="k">return</span> <span class="p">(</span>
-            <span class="s">&quot;{name} Adjoint Source for component {component}{station}</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;    Misfit: {misfit:.4g}</span><span class="se">\n</span><span class="s">&quot;</span>
-            <span class="s">&quot;    Adjoint source {adj_src_status}&quot;</span>
+            <span class="s2">&quot;{name} Adjoint Source for component {component}{station}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;    Misfit: {misfit:.4g}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;    Adjoint source {adj_src_status}&quot;</span>
         <span class="p">)</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adj_src_name</span><span class="p">,</span>
             <span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">,</span>
@@ -165,24 +171,24 @@
 <span class="sd">        ...               time_offset=-10)  # doctest: +SKIP</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Can only write adjoint sources if the adjoint &quot;</span>
-                             <span class="s">&quot;source has been calculated.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can only write adjoint sources if the adjoint &quot;</span>
+                             <span class="s2">&quot;source has been calculated.&quot;</span><span class="p">)</span>
 
         <span class="n">format</span> <span class="o">=</span> <span class="n">format</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
-        <span class="n">available_formats</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;SPECFEM&quot;</span><span class="p">]</span>
+        <span class="n">available_formats</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;SPECFEM&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">format</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">available_formats</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;format &#39;</span><span class="si">%s</span><span class="s">&#39; not known. Available formats: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span>
-                             <span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">available_formats</span><span class="p">)))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;format &#39;</span><span class="si">%s</span><span class="s2">&#39; not known. Available formats: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="n">format</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">available_formats</span><span class="p">)))</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;write&quot;</span><span class="p">):</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;write&quot;</span><span class="p">):</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">fh</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">format</span><span class="o">=</span><span class="n">format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
     <span class="k">def</span> <span class="nf">_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="n">format</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s">&quot;SPECFEM&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_specfem</span><span class="p">(</span><span class="n">buf</span><span class="o">=</span><span class="n">buf</span><span class="p">,</span> <span class="n">time_offset</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s">&quot;time_offset&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">format</span> <span class="o">==</span> <span class="s2">&quot;SPECFEM&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_specfem</span><span class="p">(</span><span class="n">buf</span><span class="o">=</span><span class="n">buf</span><span class="p">,</span> <span class="n">time_offset</span><span class="o">=</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;time_offset&quot;</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span>
 
@@ -196,8 +202,8 @@
 
         <span class="n">to_write</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
         <span class="n">to_write</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="n">time_offset</span>
-        <span class="c"># SPECFEM expects non-time reversed adjoint sources.</span>
-        <span class="n">to_write</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># SPECFEM expects non-time reversed adjoint sources.</span>
+        <span class="n">to_write</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
         <span class="n">np</span><span class="o">.</span><span class="n">savetxt</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">to_write</span><span class="p">)</span>
 
@@ -227,60 +233,59 @@
 <span class="sd">        ...                            &#39;longitude&#39;:13.4,</span>
 <span class="sd">        ...                            &#39;elevation_in_m&#39;:2.0})</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c"># Import here to not have a global dependency on pyasdf</span>
+        <span class="c1"># Import here to not have a global dependency on pyasdf</span>
         <span class="kn">from</span> <span class="nn">pyasdf.exceptions</span> <span class="kn">import</span> <span class="n">NoStationXMLForStation</span>
 
-        <span class="c"># Convert the adjoint source to SPECFEM format</span>
+        <span class="c1"># Convert the adjoint source to SPECFEM format</span>
         <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">)</span>
         <span class="n">specfem_adj_source</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty</span><span class="p">((</span><span class="n">l</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
         <span class="n">specfem_adj_source</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">(</span><span class="n">l</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="n">l</span><span class="p">)</span>
         <span class="n">specfem_adj_source</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">time_offset</span>
         <span class="n">specfem_adj_source</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="n">tag</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">_</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
+        <span class="n">tag</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">_</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span><span class="p">)</span>
         <span class="n">min_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_period</span>
         <span class="n">max_period</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_period</span>
         <span class="n">component</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">component</span>
-        <span class="n">station_id</span> <span class="o">=</span> <span class="s">&quot;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">)</span>
+        <span class="n">station_id</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">coordinates</span><span class="p">:</span>
-            <span class="c"># If given, all three coordinates must be present</span>
-            <span class="k">if</span> <span class="p">{</span><span class="s">&quot;latitude&quot;</span><span class="p">,</span> <span class="s">&quot;longitude&quot;</span><span class="p">,</span> <span class="s">&quot;elevation_in_m&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
+            <span class="c1"># If given, all three coordinates must be present</span>
+            <span class="k">if</span> <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation_in_m&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">difference</span><span class="p">(</span>
                     <span class="nb">set</span><span class="p">(</span><span class="n">coordinates</span><span class="o">.</span><span class="n">keys</span><span class="p">())):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s">&quot;&#39;latitude&#39;, &#39;longitude&#39;, and &#39;elevation_in_m&#39;&quot;</span>
-                    <span class="s">&quot; must be given&quot;</span><span class="p">)</span>
+                    <span class="s2">&quot;&#39;latitude&#39;, &#39;longitude&#39;, and &#39;elevation_in_m&#39;&quot;</span>
+                    <span class="s2">&quot; must be given&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">coordinates</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">waveforms</span><span class="p">[</span>
-                    <span class="s">&quot;</span><span class="si">%s</span><span class="s">.</span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">)]</span><span class="o">.</span><span class="n">coordinates</span>
+                    <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">network</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station</span><span class="p">)]</span><span class="o">.</span><span class="n">coordinates</span>
             <span class="k">except</span> <span class="n">NoStationXMLForStation</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Coordinates must either be given &quot;</span>
-                                 <span class="s">&quot;directly or already be part of the &quot;</span>
-                                 <span class="s">&quot;ASDF file&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Coordinates must either be given &quot;</span>
+                                 <span class="s2">&quot;directly or already be part of the &quot;</span>
+                                 <span class="s2">&quot;ASDF file&quot;</span><span class="p">)</span>
 
-        <span class="c"># Safeguard against funny types in the coordinates dictionary</span>
-        <span class="n">latitude</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">])</span>
-        <span class="n">longitude</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;longitude&quot;</span><span class="p">])</span>
-        <span class="n">elevation_in_m</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s">&quot;elevation_in_m&quot;</span><span class="p">])</span>
+        <span class="c1"># Safeguard against funny types in the coordinates dictionary</span>
+        <span class="n">latitude</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">])</span>
+        <span class="n">longitude</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">])</span>
+        <span class="n">elevation_in_m</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">coordinates</span><span class="p">[</span><span class="s2">&quot;elevation_in_m&quot;</span><span class="p">])</span>
 
-        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;dt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="s">&quot;misfit_value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">misfit</span><span class="p">,</span>
-                      <span class="s">&quot;adjoint_source_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj_src_type</span><span class="p">,</span>
-                      <span class="s">&quot;min_period&quot;</span><span class="p">:</span> <span class="n">min_period</span><span class="p">,</span> <span class="s">&quot;max_period&quot;</span><span class="p">:</span> <span class="n">max_period</span><span class="p">,</span>
-                      <span class="s">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">latitude</span><span class="p">,</span> <span class="s">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">longitude</span><span class="p">,</span>
-                      <span class="s">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">elevation_in_m</span><span class="p">,</span>
-                      <span class="s">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">station_id</span><span class="p">,</span> <span class="s">&quot;component&quot;</span><span class="p">:</span> <span class="n">component</span><span class="p">,</span>
-                      <span class="s">&quot;units&quot;</span><span class="p">:</span> <span class="s">&quot;m&quot;</span><span class="p">}</span>
+        <span class="n">parameters</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;misfit_value&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">misfit</span><span class="p">,</span>
+                      <span class="s2">&quot;adjoint_source_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">adj_src_type</span><span class="p">,</span>
+                      <span class="s2">&quot;min_period&quot;</span><span class="p">:</span> <span class="n">min_period</span><span class="p">,</span> <span class="s2">&quot;max_period&quot;</span><span class="p">:</span> <span class="n">max_period</span><span class="p">,</span>
+                      <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">latitude</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">longitude</span><span class="p">,</span>
+                      <span class="s2">&quot;elevation_in_m&quot;</span><span class="p">:</span> <span class="n">elevation_in_m</span><span class="p">,</span>
+                      <span class="s2">&quot;station_id&quot;</span><span class="p">:</span> <span class="n">station_id</span><span class="p">,</span> <span class="s2">&quot;component&quot;</span><span class="p">:</span> <span class="n">component</span><span class="p">,</span>
+                      <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;m&quot;</span><span class="p">}</span>
 
-        <span class="c"># Use pyasdf to add auxiliary data to the ASDF file</span>
+        <span class="c1"># Use pyasdf to add auxiliary data to the ASDF file</span>
         <span class="n">ds</span><span class="o">.</span><span class="n">add_auxiliary_data</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">specfem_adj_source</span><span class="p">,</span>
-                              <span class="n">data_type</span><span class="o">=</span><span class="s">&quot;AdjointSource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span>
-                              <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span>
+                              <span class="n">data_type</span><span class="o">=</span><span class="s2">&quot;AdjointSource&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">tag</span><span class="p">,</span>
+                              <span class="n">parameters</span><span class="o">=</span><span class="n">parameters</span><span class="p">)</span></div></div>
 
-</div></div>
-<div class="viewcode-block" id="calculate_adjoint_source"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">adj_src_type</span><span class="p">,</span> <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span>
-                             <span class="n">max_period</span><span class="p">,</span> <span class="n">left_window_border</span><span class="p">,</span>
-                             <span class="n">right_window_border</span><span class="p">,</span> <span class="n">adjoint_src</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+
+<div class="viewcode-block" id="calculate_adjoint_source"><a class="viewcode-back" href="../../adjoint_source.html#pyadjoint.adjoint_source.calculate_adjoint_source">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">adj_src_type</span><span class="p">,</span> <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span>
+                             <span class="n">window</span><span class="p">,</span> <span class="n">adjoint_src</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
                              <span class="n">plot</span><span class="o">=</span><span class="bp">False</span><span class="p">,</span> <span class="n">plot_filename</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Central function of Pyadjoint used to calculate adjoint sources and misfit.</span>
@@ -322,33 +327,31 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span> <span class="o">=</span> <span class="n">_sanity_checks</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">)</span>
 
-    <span class="c"># Get number of samples now as the adjoint source calculation function</span>
-    <span class="c"># are allowed to mess with the trace objects.</span>
+    <span class="c1"># Get number of samples now as the adjoint source calculation function</span>
+    <span class="c1"># are allowed to mess with the trace objects.</span>
     <span class="n">npts</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span>
 
     <span class="k">if</span> <span class="n">adj_src_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">AdjointSource</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
-            <span class="s">&quot;Adjoint Source type &#39;</span><span class="si">%s</span><span class="s">&#39; is unknown. Available types: </span><span class="si">%s</span><span class="s">&quot;</span> <span class="o">%</span> <span class="p">(</span>
-                <span class="n">adj_src_type</span><span class="p">,</span> <span class="s">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="s2">&quot;Adjoint Source type &#39;</span><span class="si">%s</span><span class="s2">&#39; is unknown. Available types: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="n">adj_src_type</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                     <span class="nb">sorted</span><span class="p">(</span><span class="n">AdjointSource</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="o">.</span><span class="n">keys</span><span class="p">()))))</span>
 
     <span class="n">fct</span> <span class="o">=</span> <span class="n">AdjointSource</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="p">[</span><span class="n">adj_src_type</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
-        <span class="c"># The plot kwargs overwrites the adjoint_src kwarg.</span>
+        <span class="c1"># The plot kwargs overwrites the adjoint_src kwarg.</span>
         <span class="n">adjoint_src</span> <span class="o">=</span> <span class="bp">True</span>
         <span class="k">if</span> <span class="n">plot</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="c"># Assume plot is a preexisting figure instance</span>
+            <span class="c1"># Assume plot is a preexisting figure instance</span>
             <span class="n">figure</span> <span class="o">=</span> <span class="n">plot</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">figure</span> <span class="o">=</span> <span class="bp">None</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">ret_val</span> <span class="o">=</span> <span class="n">fct</span><span class="p">(</span><span class="n">observed</span><span class="o">=</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">synthetic</span><span class="p">,</span>
-                      <span class="n">min_period</span><span class="o">=</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="n">max_period</span><span class="p">,</span>
-                      <span class="n">left_window_border</span><span class="o">=</span><span class="n">left_window_border</span><span class="p">,</span>
-                      <span class="n">right_window_border</span><span class="o">=</span><span class="n">right_window_border</span><span class="p">,</span>
+                      <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">,</span>
                       <span class="n">adjoint_src</span><span class="o">=</span><span class="n">adjoint_src</span><span class="p">,</span> <span class="n">figure</span><span class="o">=</span><span class="n">figure</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">plot</span> <span class="ow">and</span> <span class="n">plot_filename</span><span class="p">:</span>
@@ -357,61 +360,64 @@
             <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 
     <span class="k">finally</span><span class="p">:</span>
-        <span class="c"># Assure the figure is closed. Otherwise matplotlib will leak</span>
-        <span class="c"># memory. If the figure has been created outside of Pyadjoint,</span>
-        <span class="c"># it will not be closed.</span>
+        <span class="c1"># Assure the figure is closed. Otherwise matplotlib will leak</span>
+        <span class="c1"># memory. If the figure has been created outside of Pyadjoint,</span>
+        <span class="c1"># it will not be closed.</span>
         <span class="k">if</span> <span class="n">plot</span> <span class="ow">is</span> <span class="bp">True</span><span class="p">:</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-    <span class="c"># Get misfit an warn for a negative one.</span>
-    <span class="n">misfit</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ret_val</span><span class="p">[</span><span class="s">&quot;misfit&quot;</span><span class="p">])</span>
+    <span class="c1"># Get misfit an warn for a negative one.</span>
+    <span class="n">misfit</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;misfit&quot;</span><span class="p">])</span>
     <span class="k">if</span> <span class="n">misfit</span> <span class="o">&lt;</span> <span class="mf">0.0</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;The misfit value is negative. Be cautious!&quot;</span><span class="p">,</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The misfit value is negative. Be cautious!&quot;</span><span class="p">,</span>
                       <span class="n">PyadjointWarning</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">adjoint_src</span> <span class="ow">and</span> <span class="s">&quot;adjoint_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret_val</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s">&quot;The actual adjoint source was not calculated &quot;</span>
-                             <span class="s">&quot;by the underlying function although it was &quot;</span>
-                             <span class="s">&quot;requested.&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">adjoint_src</span> <span class="ow">and</span> <span class="s2">&quot;adjoint_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ret_val</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s2">&quot;The actual adjoint source was not calculated &quot;</span>
+                             <span class="s2">&quot;by the underlying function although it was &quot;</span>
+                             <span class="s2">&quot;requested.&quot;</span><span class="p">)</span>
 
-    <span class="c"># Be very defensive. This assures future adjoint source types can be</span>
-    <span class="c"># integrated smoothly.</span>
+    <span class="c1"># Be very defensive. This assures future adjoint source types can be</span>
+    <span class="c1"># integrated smoothly.</span>
     <span class="k">if</span> <span class="n">adjoint_src</span><span class="p">:</span>
-        <span class="n">adjoint_source</span> <span class="o">=</span> <span class="n">ret_val</span><span class="p">[</span><span class="s">&quot;adjoint_source&quot;</span><span class="p">]</span>
-        <span class="c"># Raise if wrong type.</span>
+        <span class="n">adjoint_source</span> <span class="o">=</span> <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;adjoint_source&quot;</span><span class="p">]</span>
+        <span class="c1"># Raise if wrong type.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adjoint_source</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">or</span> \
                 <span class="n">adjoint_source</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s">&quot;The adjoint source calculated by the &quot;</span>
-                                 <span class="s">&quot;underlying function is no numpy array with &quot;</span>
-                                 <span class="s">&quot;a `float64` dtype.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s2">&quot;The adjoint source calculated by the &quot;</span>
+                                 <span class="s2">&quot;underlying function is no numpy array with &quot;</span>
+                                 <span class="s2">&quot;a `float64` dtype.&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">adjoint_source</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
-                <span class="s">&quot;The underlying function returned at adjoint source with &quot;</span>
-                <span class="s">&quot;shape </span><span class="si">%s</span><span class="s">. It must return a one-dimensional array.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span>
+                <span class="s2">&quot;The underlying function returned at adjoint source with &quot;</span>
+                <span class="s2">&quot;shape </span><span class="si">%s</span><span class="s2">. It must return a one-dimensional array.&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span>
                     <span class="n">adjoint_source</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">adjoint_source</span><span class="p">)</span> <span class="o">!=</span> <span class="n">npts</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
-                <span class="s">&quot;The underlying function returned an adjoint source with </span><span class="si">%i</span><span class="s"> &quot;</span>
-                <span class="s">&quot;samples. It must return a function with </span><span class="si">%i</span><span class="s"> samples which is &quot;</span>
-                <span class="s">&quot;the sample count of the input data.&quot;</span> <span class="o">%</span> <span class="p">(</span>
+                <span class="s2">&quot;The underlying function returned an adjoint source with </span><span class="si">%i</span><span class="s2"> &quot;</span>
+                <span class="s2">&quot;samples. It must return a function with </span><span class="si">%i</span><span class="s2"> samples which is &quot;</span>
+                <span class="s2">&quot;the sample count of the input data.&quot;</span> <span class="o">%</span> <span class="p">(</span>
                     <span class="nb">len</span><span class="p">(</span><span class="n">adjoint_source</span><span class="p">),</span> <span class="n">npts</span><span class="p">))</span>
-        <span class="c"># Make sure the data returned has no infs or NaNs.</span>
+        <span class="c1"># Make sure the data returned has no infs or NaNs.</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">adjoint_source</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
             <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
-                <span class="s">&quot;The underlying function returned an adjoint source with &quot;</span>
-                <span class="s">&quot;either NaNs or Inf values. This must not be.&quot;</span><span class="p">)</span>
+                <span class="s2">&quot;The underlying function returned an adjoint source with &quot;</span>
+                <span class="s2">&quot;either NaNs or Inf values. This must not be.&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">adjoint_source</span> <span class="o">=</span> <span class="bp">None</span>
 
     <span class="k">return</span> <span class="n">AdjointSource</span><span class="p">(</span><span class="n">adj_src_type</span><span class="p">,</span> <span class="n">misfit</span><span class="o">=</span><span class="n">misfit</span><span class="p">,</span>
                          <span class="n">adjoint_source</span><span class="o">=</span><span class="n">adjoint_source</span><span class="p">,</span>
                          <span class="n">dt</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span><span class="p">,</span>
-                         <span class="n">min_period</span><span class="o">=</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="n">max_period</span><span class="p">,</span>
+                         <span class="n">min_period</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">min_period</span><span class="p">,</span>
+                         <span class="n">max_period</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">max_period</span><span class="p">,</span>
                          <span class="n">network</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">network</span><span class="p">,</span>
                          <span class="n">station</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">station</span><span class="p">,</span>
-                         <span class="n">component</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                         <span class="n">component</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">,</span>
+                         <span class="n">location</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">location</span><span class="p">,</span>
+                         <span class="n">starttime</span><span class="o">=</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span><span class="p">)</span></div>
 
-</div>
+
 <span class="k">def</span> <span class="nf">_sanity_checks</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Perform a number of basic sanity checks to assure the data is valid</span>
@@ -428,56 +434,56 @@
 <span class="sd">    :raises: :class:`~pyadjoint.PyadjointError`</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Trace</span><span class="p">):</span>
-        <span class="c"># Also accept Stream objects.</span>
+        <span class="c1"># Also accept Stream objects.</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="nb">len</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">observed</span> <span class="o">=</span> <span class="n">observed</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
-                <span class="s">&quot;Observed data must be an ObsPy Trace object.&quot;</span><span class="p">)</span>
+                <span class="s2">&quot;Observed data must be an ObsPy Trace object.&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">synthetic</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Trace</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">synthetic</span><span class="p">,</span> <span class="n">obspy</span><span class="o">.</span><span class="n">Stream</span><span class="p">)</span> <span class="ow">and</span> \
                 <span class="nb">len</span><span class="p">(</span><span class="n">synthetic</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">synthetic</span> <span class="o">=</span> <span class="n">synthetic</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
-                <span class="s">&quot;Synthetic data must be an ObsPy Trace object.&quot;</span><span class="p">)</span>
+                <span class="s2">&quot;Synthetic data must be an ObsPy Trace object.&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span> <span class="o">!=</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s">&quot;Observed and synthetic data must have the same &quot;</span>
-                             <span class="s">&quot;number of samples.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s2">&quot;Observed and synthetic data must have the same &quot;</span>
+                             <span class="s2">&quot;number of samples.&quot;</span><span class="p">)</span>
 
     <span class="n">sr1</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span>
     <span class="n">sr2</span> <span class="o">=</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sampling_rate</span>
 
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">sr1</span> <span class="o">-</span> <span class="n">sr2</span><span class="p">)</span> <span class="o">/</span> <span class="n">sr1</span> <span class="o">&gt;=</span> <span class="mf">1E-5</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s">&quot;Observed and synthetic data must have the same &quot;</span>
-                             <span class="s">&quot;sampling rate.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s2">&quot;Observed and synthetic data must have the same &quot;</span>
+                             <span class="s2">&quot;sampling rate.&quot;</span><span class="p">)</span>
 
-    <span class="c"># Make sure data and synthetics start within half a sample interval.</span>
+    <span class="c1"># Make sure data and synthetics start within half a sample interval.</span>
     <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span> <span class="o">-</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">starttime</span><span class="p">)</span> <span class="o">&gt;</span> \
             <span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">delta</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s">&quot;Observed and synthetic data must have the same &quot;</span>
-                             <span class="s">&quot;starttime.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s2">&quot;Observed and synthetic data must have the same &quot;</span>
+                             <span class="s2">&quot;starttime.&quot;</span><span class="p">)</span>
 
     <span class="n">ptp</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">([</span><span class="n">observed</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">(),</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">ptp</span><span class="p">()])</span>
     <span class="k">if</span> <span class="n">ptp</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">ptp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;The amplitude difference between data and &quot;</span>
-                      <span class="s">&quot;synthetic is fairly large.&quot;</span><span class="p">,</span> <span class="n">PyadjointWarning</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The amplitude difference between data and &quot;</span>
+                      <span class="s2">&quot;synthetic is fairly large.&quot;</span><span class="p">,</span> <span class="n">PyadjointWarning</span><span class="p">)</span>
 
-    <span class="c"># Also check the components of the data to avoid silly mistakes of</span>
-    <span class="c"># users.</span>
+    <span class="c1"># Also check the components of the data to avoid silly mistakes of</span>
+    <span class="c1"># users.</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">([</span><span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">(),</span>
                 <span class="n">synthetic</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">channel</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()]))</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s">&quot;The orientation code of synthetic and observed &quot;</span>
-                      <span class="s">&quot;data is not equal.&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;The orientation code of synthetic and observed &quot;</span>
+                      <span class="s2">&quot;data is not equal.&quot;</span><span class="p">)</span>
 
     <span class="n">observed</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">synthetic</span> <span class="o">=</span> <span class="n">synthetic</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">observed</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">observed</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
-                               <span class="n">requirements</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">])</span>
+                               <span class="n">requirements</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">])</span>
     <span class="n">synthetic</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">require</span><span class="p">(</span><span class="n">synthetic</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
-                                <span class="n">requirements</span><span class="o">=</span><span class="p">[</span><span class="s">&quot;C&quot;</span><span class="p">])</span>
+                                <span class="n">requirements</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;C&quot;</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span>
 
@@ -492,41 +498,41 @@
 
     <span class="n">AdjointSource</span><span class="o">.</span><span class="n">_ad_srcs</span> <span class="o">=</span> <span class="p">{}</span>
 
-    <span class="n">FCT_NAME</span> <span class="o">=</span> <span class="s">&quot;calculate_adjoint_source&quot;</span>
-    <span class="n">NAME_ATTR</span> <span class="o">=</span> <span class="s">&quot;VERBOSE_NAME&quot;</span>
-    <span class="n">DESC_ATTR</span> <span class="o">=</span> <span class="s">&quot;DESCRIPTION&quot;</span>
-    <span class="n">ADD_ATTR</span> <span class="o">=</span> <span class="s">&quot;ADDITIONAL_PARAMETERS&quot;</span>
+    <span class="n">fct_name</span> <span class="o">=</span> <span class="s2">&quot;calculate_adjoint_source&quot;</span>
+    <span class="n">name_attr</span> <span class="o">=</span> <span class="s2">&quot;VERBOSE_NAME&quot;</span>
+    <span class="n">desc_attr</span> <span class="o">=</span> <span class="s2">&quot;DESCRIPTION&quot;</span>
+    <span class="n">add_attr</span> <span class="o">=</span> <span class="s2">&quot;ADDITIONAL_PARAMETERS&quot;</span>
 
     <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">getfile</span><span class="p">(</span><span class="n">inspect</span><span class="o">.</span><span class="n">currentframe</span><span class="p">())),</span>
-        <span class="s">&quot;adjoint_source_types&quot;</span><span class="p">)</span>
+        <span class="s2">&quot;adjoint_source_types&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">importer</span><span class="p">,</span> <span class="n">modname</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">pkgutil</span><span class="o">.</span><span class="n">iter_modules</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">path</span><span class="p">],</span> <span class="n">prefix</span><span class="o">=</span><span class="n">adjoint_source_types</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&quot;.&quot;</span><span class="p">):</span>
+            <span class="p">[</span><span class="n">path</span><span class="p">],</span> <span class="n">prefix</span><span class="o">=</span><span class="n">adjoint_source_types</span><span class="o">.</span><span class="n">__name__</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">):</span>
         <span class="n">m</span> <span class="o">=</span> <span class="n">importer</span><span class="o">.</span><span class="n">find_module</span><span class="p">(</span><span class="n">modname</span><span class="p">)</span><span class="o">.</span><span class="n">load_module</span><span class="p">(</span><span class="n">modname</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">FCT_NAME</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">fct_name</span><span class="p">):</span>
             <span class="k">continue</span>
-        <span class="n">fct</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">FCT_NAME</span><span class="p">)</span>
+        <span class="n">fct</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">fct_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">callable</span><span class="p">(</span><span class="n">fct</span><span class="p">):</span>
             <span class="k">continue</span>
 
-        <span class="n">name</span> <span class="o">=</span> <span class="n">modname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">modname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">NAME_ATTR</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
-                <span class="s">&quot;Adjoint source &#39;</span><span class="si">%s</span><span class="s">&#39; does not have a variable named </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span>
-                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">NAME_ATTR</span><span class="p">))</span>
+                <span class="s2">&quot;Adjoint source &#39;</span><span class="si">%s</span><span class="s2">&#39; does not have a variable named </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">DESC_ATTR</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">desc_attr</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span>
-                <span class="s">&quot;Adjoint source &#39;</span><span class="si">%s</span><span class="s">&#39; does not have a variable named </span><span class="si">%s</span><span class="s">.&quot;</span> <span class="o">%</span>
-                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">DESC_ATTR</span><span class="p">))</span>
+                <span class="s2">&quot;Adjoint source &#39;</span><span class="si">%s</span><span class="s2">&#39; does not have a variable named </span><span class="si">%s</span><span class="s2">.&quot;</span> <span class="o">%</span>
+                <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">desc_attr</span><span class="p">))</span>
 
-        <span class="c"># Add tuple of name, verbose name, and description.</span>
+        <span class="c1"># Add tuple of name, verbose name, and description.</span>
         <span class="n">AdjointSource</span><span class="o">.</span><span class="n">_ad_srcs</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">fct</span><span class="p">,</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">NAME_ATTR</span><span class="p">),</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">DESC_ATTR</span><span class="p">),</span>
-            <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">ADD_ATTR</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">ADD_ATTR</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span><span class="p">)</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">name_attr</span><span class="p">),</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">desc_attr</span><span class="p">),</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">add_attr</span><span class="p">)</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">m</span><span class="p">,</span> <span class="n">add_attr</span><span class="p">)</span> <span class="k">else</span> <span class="bp">None</span><span class="p">)</span>
 
 
 <span class="n">_discover_adjoint_sources</span><span class="p">()</span>
@@ -562,7 +568,7 @@
     </div>
   <div class="footer">
     &copy; Copyright 2015, Lion Krischer.
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.1.
+    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
   </div>
   
   </body>

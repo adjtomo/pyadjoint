@@ -91,64 +91,8 @@ Map of Source and Receiver
     plt.show()
 
 
-::
 
-
-    ---------------------------------------------------------------------------
-
-    RuntimeError                              Traceback (most recent call last)
-
-    RuntimeError: module compiled against API version a but this version of numpy is 9
-
-
-::
-
-
-    ---------------------------------------------------------------------------
-
-    ImportError                               Traceback (most recent call last)
-
-    <ipython-input-2-7c66885aa102> in <module>()
-    ----> 1 import matplotlib.pyplot as plt
-          2 plt.style.use("ggplot")
-          3 from mpl_toolkits.basemap import Basemap
-          4 
-          5 plt.figure(figsize=(12, 6))
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/pyplot.py in <module>()
-         25 
-         26 import matplotlib
-    ---> 27 import matplotlib.colorbar
-         28 from matplotlib import style
-         29 from matplotlib import _pylab_helpers, interactive
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/colorbar.py in <module>()
-         30 
-         31 import matplotlib as mpl
-    ---> 32 import matplotlib.artist as martist
-         33 import matplotlib.cbook as cbook
-         34 import matplotlib.collections as collections
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/artist.py in <module>()
-         10 import matplotlib.cbook as cbook
-         11 from matplotlib import docstring, rcParams
-    ---> 12 from .transforms import Bbox, IdentityTransform, TransformedBbox, \
-         13                        TransformedPath, Transform
-         14 from .path import Path
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/transforms.py in <module>()
-         37 import numpy as np
-         38 from numpy import ma
-    ---> 39 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
-         40     update_path_extents)
-         41 from numpy.linalg import inv
-
-
-    ImportError: numpy.core.multiarray failed to import
+.. image:: example_dataset_files/example_dataset_4_0.png
 
 
 Data
@@ -163,6 +107,19 @@ Data
     
     print(shakemovie_data)
     print(instaseis_data)
+
+
+.. parsed-literal::
+
+    3 Trace(s) in Stream:
+    SY.DBO.S3.MXE | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
+    SY.DBO.S3.MXN | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
+    SY.DBO.S3.MXZ | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
+    3 Trace(s) in Stream:
+    SY.DBO..LXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
+    SY.DBO..LXN | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
+    SY.DBO..LXE | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
+
 
 Data Processing
 ---------------
@@ -227,6 +184,15 @@ synthetics.
     
         return st
 
+
+.. parsed-literal::
+
+    /home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/obspy/__init__.py:157: ObsPyDeprecationWarning: Module 'obspy.core.util.geodetics' is deprecated and will stop working with the next ObsPy version. Please import module 'obspy.geodetics' instead.
+      ObsPyDeprecationWarning)
+    /home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/obspy/core/util/deprecation_helpers.py:57: ObsPyDeprecationWarning: Function 'obspy.geodetics.gps2DistAzimuth' is deprecated and will stop working with the next ObsPy version. Please use 'obspy.geodetics.base.gps2dist_azimuth' instead.
+      warnings.warn(msg, ObsPyDeprecationWarning)
+
+
 .. code:: python
 
     # From now one we will refer to them as observed data and synthetics.
@@ -235,6 +201,24 @@ synthetics.
     
     print(observed)
     print(synthetic)
+
+
+.. parsed-literal::
+
+    /home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:29: ObsPyDeprecationWarning: 'c_sac_taper' has been renamed to 'cosine_sac_taper'.Use that instead.
+
+
+.. parsed-literal::
+
+    3 Trace(s) in Stream:
+    SY.DBO.S3.MXT | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
+    SY.DBO.S3.MXR | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
+    SY.DBO.S3.MXZ | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
+    3 Trace(s) in Stream:
+    SY.DBO..LXZ | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
+    SY.DBO..LXR | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
+    SY.DBO..LXT | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
+
 
 Data Plots
 ----------
@@ -329,12 +313,32 @@ Plot of All Data
 
     plot_data()
 
+
+.. parsed-literal::
+
+    /home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:28: ObsPyDeprecationWarning: The getTravelTimes() function is deprecated. Please use the obspy.taup.TauPyModel class directly.
+
+
+
+.. image:: example_dataset_files/example_dataset_13_1.png
+
+
 Plot of First Arrivals
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. code:: python
 
     plot_data(700, 1200, show_tts=True)
+
+
+.. parsed-literal::
+
+    /home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:28: ObsPyDeprecationWarning: The getTravelTimes() function is deprecated. Please use the obspy.taup.TauPyModel class directly.
+
+
+
+.. image:: example_dataset_files/example_dataset_15_1.png
+
 
 Plot of Some Later Arrivals
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -343,6 +347,26 @@ Plot of Some Later Arrivals
 
     plot_data(1400, 1900, show_tts=True)
 
+
+.. parsed-literal::
+
+    /home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:28: ObsPyDeprecationWarning: The getTravelTimes() function is deprecated. Please use the obspy.taup.TauPyModel class directly.
+
+
+
+.. image:: example_dataset_files/example_dataset_17_1.png
+
+
 .. code:: python
 
     plot_data(2000, 3000, show_tts=True)
+
+
+.. parsed-literal::
+
+    /home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:28: ObsPyDeprecationWarning: The getTravelTimes() function is deprecated. Please use the obspy.taup.TauPyModel class directly.
+
+
+
+.. image:: example_dataset_files/example_dataset_18_1.png
+

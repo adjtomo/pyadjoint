@@ -17,9 +17,8 @@ ObsPy <https://github.com/obspy/obspy/wiki#installation>`_ for your
 given platform (we recommend the installation with
 `Anaconda <https://github.com/obspy/obspy/wiki/Installation-via-Anaconda>`_
 as it will most likely result in the least amount of problems).
-``Pyadjoint`` should work with Python versions 2.7, 3.3, and 3.4 (mainly
-depends on the used ObsPy version). To install it, best use ``pip`` (not
-working yet!):
+``Pyadjoint`` should work with Python versions 2.7, 3.4, and 3.5. To
+install it, best use ``pip`` (not working yet!):
 
 ::
 
@@ -56,86 +55,6 @@ The first step is to import ObsPy and ``Pyadjoint``.
 
     import obspy
     import pyadjoint
-
-
-::
-
-
-    ---------------------------------------------------------------------------
-
-    RuntimeError                              Traceback (most recent call last)
-
-    RuntimeError: module compiled against API version a but this version of numpy is 9
-
-
-::
-
-
-    ---------------------------------------------------------------------------
-
-    ImportError                               Traceback (most recent call last)
-
-    <ipython-input-1-09b481244fd7> in <module>()
-          1 import obspy
-    ----> 2 import pyadjoint
-    
-
-    /home/travis/build/krischer/pyadjoint/src/pyadjoint/__init__.py in <module>()
-         32 
-         33 # Main objects and functions available at the top level.
-    ---> 34 from .adjoint_source import AdjointSource, calculate_adjoint_source  # NOQA
-    
-
-    /home/travis/build/krischer/pyadjoint/src/pyadjoint/adjoint_source.py in <module>()
-         13 
-         14 import inspect
-    ---> 15 import matplotlib.pylab as plt
-         16 import numpy as np
-         17 import obspy
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/pylab.py in <module>()
-        229 # make mpl.finance module available for backwards compatability, in case folks
-        230 # using pylab interface depended on not having to import it
-    --> 231 import matplotlib.finance
-        232 
-        233 from matplotlib.dates import date2num, num2date,\
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/finance.py in <module>()
-         34 
-         35 from matplotlib import verbose, get_cachedir
-    ---> 36 from matplotlib.dates import date2num
-         37 from matplotlib.cbook import iterable, mkdirs
-         38 from matplotlib.collections import LineCollection, PolyCollection
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/dates.py in <module>()
-        135 import matplotlib.units as units
-        136 import matplotlib.cbook as cbook
-    --> 137 import matplotlib.ticker as ticker
-        138 
-        139 
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/ticker.py in <module>()
-        156 from matplotlib import rcParams
-        157 from matplotlib import cbook
-    --> 158 from matplotlib import transforms as mtransforms
-        159 
-        160 
-
-
-    /home/travis/miniconda/envs/condaenv/lib/python3.4/site-packages/matplotlib/transforms.py in <module>()
-         37 import numpy as np
-         38 from numpy import ma
-    ---> 39 from matplotlib._path import (affine_transform, count_bboxes_overlapping_bbox,
-         40     update_path_extents)
-         41 from numpy.linalg import inv
-
-
-    ImportError: numpy.core.multiarray failed to import
-
 
 ``Pyadjoint`` expects the data to be fully preprocessed thus both
 observed and synthetic data are expected to have exactly the same
@@ -174,6 +93,24 @@ adjoint source types can be found in :doc:`adjoint_sources/index`.
         left_window_border=800.0,
         right_window_border=900.0)
     print(adj_src)
+
+
+::
+
+
+    ---------------------------------------------------------------------------
+
+    TypeError                                 Traceback (most recent call last)
+
+    <ipython-input-3-62434aaf8cde> in <module>()
+          8     # The window borders in seconds since the first sample.
+          9     left_window_border=800.0,
+    ---> 10     right_window_border=900.0)
+         11 print(adj_src)
+
+
+    TypeError: calculate_adjoint_source() missing 2 required positional arguments: 'config' and 'window'
+
 
 
 It returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object.
