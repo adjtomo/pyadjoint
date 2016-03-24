@@ -195,6 +195,9 @@ def cc_adj_DD(synt1, synt2, shift_syn, dd_shift, deltat,
               err_dt_cc=1.0, err_dlna_cc=1.0):
     """
     double-difference cross correlation adjoint source and misfit
+    Y. Yuan
+    need a pair of syntheticis
+    return a pair of adjoint sources
     """
 
     misfit = 0.0

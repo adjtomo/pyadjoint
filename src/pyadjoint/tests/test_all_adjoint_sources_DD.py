@@ -19,14 +19,14 @@ import pyadjoint
 
 
 @pytest.fixture(params=list(pyadjoint.AdjointSource._ad_srcs_DD.keys()))
-def adj_src(request):
+def adj_src_DD(request):
     """
     Fixture returning the name of all adjoint sources.
     """
     return request.param
 
 
-def test_normal_adjoint_source_calculation(adj_src):
+def test_normal_adjoint_source_calculation(adj_src_DD):
     """
     Make sure everything at least runs. Executed for every adjoint source type.
     """
@@ -52,7 +52,7 @@ def test_normal_adjoint_source_calculation(adj_src):
     window2 = [[2193., 2263.0]]
 
     a_src = pyadjoint.calculate_adjoint_source_DD(
-            adj_src_type=adj_src, observed1=obs,
+            adj_src_type=adj_src_DD, observed1=obs,
             synthetic1=syn, observed2=obs, synthetic2=syn,
             config=config, window1=window1, window2=window2,
             adjoint_src=True, plot=False)
@@ -63,7 +63,7 @@ def test_normal_adjoint_source_calculation(adj_src):
     assert isinstance(a_src.adjoint_source, np.ndarray)
 
 
-def test_no_adjoint_src_calculation_is_honored(adj_src):
+def test_no_adjoint_src_calculation_is_honored(adj_src_DD):
     """
     If no adjoint source is requested, it should not be returned/calculated.
     """
@@ -87,7 +87,7 @@ def test_no_adjoint_src_calculation_is_honored(adj_src):
     window2 = [[2193., 2263.0]]
 
     a_src = pyadjoint.calculate_adjoint_source_DD(
-            adj_src_type=adj_src, observed1=obs,
+            adj_src_type=adj_src_DD, observed1=obs,
             synthetic1=syn, observed2=obs, synthetic2=syn,
             config=config, window1=window1, window2=window2,
             adjoint_src=False, plot=False)
@@ -97,15 +97,4 @@ def test_no_adjoint_src_calculation_is_honored(adj_src):
     #    adj_src, obs, syn, 20, 100, start, end, adjoint_src=False)
 
     assert a_src.adjoint_source is None
-    # assert a_src.misfit >= 0.0
-
-    # But the misfit should nonetheless be identical as if the adjoint
-    # source would have been calculated.
-
-    # assert a_src.misfit == pyadjoint.calculate_adjoint_source(
-    #    adj_src_type=adj_src, observed=obs,
-    #    synthetic=syn, config=config, window=window,
-    #    adjoint_src=True, plot=False).misfit
-
-    # pyadjoint.calculate_adjoint_source(
-    # adj_src, obs, syn, 20, 100, start, end, adjoint_src=True).misfit
+    assert a_src.misfit >= 0.0

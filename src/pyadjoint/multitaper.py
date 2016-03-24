@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- encoding: utf8 -*-
 """
-Gallory of functions to be used in Multitaper approach.
+Gallery of functions to be used in Multitaper approach.
 
 :copyright:
     Youyi Ruan (youyir@princeton.edu), 2016
