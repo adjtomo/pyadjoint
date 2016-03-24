@@ -4,17 +4,21 @@ python:
   - "2.7"
   - "3.3"
   - "3.4"
+  - "3.5"
 
 env:
   global:
     secure: "lA8kB2x48k7Y4fkdIX5ecOtD/DJgJWCTI6rSkSjshNYwaTTBN6rK4qeRGWZXueYW/P28oJ3A5wdb+JsK2OMlLM0iTnwoX3SwCuD7SI0QpzWn6xcX1+vQgOTMq3fsI7jIbVjjLXxi2vx7oTtXlH6icAr1rqB5lW45AYjTdORkXws="
 
 before_install:
+  # Unfortunately necessary for now (Jan 2016). It slows down the builds quite a bit.
+  # See here for more details: https://github.com/travis-ci/travis-ci/issues/5221
+  - sudo apt-get update
   - sudo apt-get install -qq pandoc
   - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
   - chmod +x miniconda.sh
-  - ./miniconda.sh -b
-  - export PATH=/home/travis/miniconda/bin:$PATH
+  - ./miniconda.sh -b -p $HOME/miniconda
+  - export PATH=$HOME/miniconda/bin:$PATH
   - conda update --yes conda
   - conda create --yes -n condaenv python=$TRAVIS_PYTHON_VERSION
   - conda install --yes -n condaenv pip
@@ -22,10 +26,10 @@ before_install:
   # The next couple lines fix a crash with multiprocessing on Travis and are not specific to using Miniconda
   - sudo rm -rf /dev/shm
   - sudo ln -s /run/shm /dev/shm
-  - conda install --yes python=$TRAVIS_PYTHON_VERSION nose pytest flake8 sphinx ipython-notebook sqlalchemy=0.9.9
-  - conda install --yes -c obspy obspy python=$TRAVIS_PYTHON_VERSION
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then pip install sphinx-readable-theme runipy; fi
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then conda install --yes basemap; fi
+  - conda install --yes -c obspy obspy nose pytest flake8 python=$TRAVIS_PYTHON_VERSION
+  # Python 3.5 builds the docs.
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then conda install --yes sphinx basemap jupyter; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then pip install sphinx-readable-theme runipy; fi
   - pip install coveralls
 
 install:
@@ -33,8 +37,8 @@ install:
 
 script:
   - coverage run --source=src/pyadjoint -m pyadjoint.tests
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
 
 after_success:
   - cd $TRAVIS_BUILD_DIR; coveralls
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.4' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then bash $TRAVIS_BUILD_DIR/.travis-update-gh-pages.sh ; fi
