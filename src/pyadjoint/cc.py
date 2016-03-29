@@ -201,6 +201,7 @@ def cc_adj_DD(synt1, synt2, shift_syn, dd_shift, deltat,
     """
 
     misfit = 0.0
+
     ds1dt = np.gradient(synt1, deltat) / deltat
     ds2dt = np.gradient(synt2, deltat) / deltat
     synt2_cc = cc_correction(synt2, shift_syn, 0.0)

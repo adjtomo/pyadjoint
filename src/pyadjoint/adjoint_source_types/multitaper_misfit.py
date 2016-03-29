@@ -834,6 +834,12 @@ def calculate_adjoint_source(observed, synthetic, config, window,
                 cc_adj(s, cc_shift, cc_dlna, deltat, sigma_dt_cc,
                        sigma_dlna_cc)
 
+        # YY: All adjoint sources will need windowing taper again
+        window_taper(fp_t, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
+        window_taper(fq_t, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
+
         # return to original location before windowing
         # initialization
         fp_wind = np.zeros(len(synthetic.data))

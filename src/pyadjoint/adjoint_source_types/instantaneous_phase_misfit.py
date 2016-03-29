@@ -141,6 +141,13 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             + np.imag(signal.hilbert(diff_real * s * Hilbt_s / E_s_wtr**3))
         adj_imag = - diff_imag * s * Hilbt_s / E_s_wtr**3 \
             - np.imag(signal.hilbert(diff_imag * s**2 / E_s_wtr**3))
+
+        # YY: All adjoint sources will need windowing taper again
+        window_taper(adj_real, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
+        window_taper(adj_imag, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
+
         adj[left_sample: right_sample] = adj_real[0:nlen] + adj_imag[0:nlen]
 
     ret_val["misfit"] = misfit_sum

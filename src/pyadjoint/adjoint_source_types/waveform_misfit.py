@@ -127,6 +127,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         misfit_sum += simps(y=diff_w**2, dx=deltat)
 
         # adjoint source
+        # YY: All adjoint sources will need windowing taper again
+        window_taper(diff, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
         adj[left_sample: right_sample] = diff[0:nlen]
 
     ret_val["misfit"] = misfit_sum

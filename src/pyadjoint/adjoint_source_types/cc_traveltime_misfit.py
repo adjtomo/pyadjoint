@@ -12,13 +12,10 @@ Cross correlation traveltime misfit.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from obspy.signal.cross_correlation import xcorrPickCorrection
 import numpy as np
-from scipy.integrate import simps
-import warnings
 
 from ..utils import window_taper,  generic_adjoint_source_plot
-
+from ..cc import _xcorr_shift, cc_error, cc_adj
 
 VERBOSE_NAME = "Cross Correlation Traveltime Misfit"
 
@@ -84,76 +81,6 @@ ADDITIONAL_PARAMETERS = r"""
 """
 
 
-def _xcorr_shift(d, s):
-    cc = np.correlate(d, s, mode="full")
-    time_shift = cc.argmax() - len(d) + 1
-    return time_shift
-
-
-def cc_error(d1, d2, deltat, cc_shift, cc_dlna, sigma_dt_min, sigma_dlna_min):
-    """
-    Estimate error for dt and dlna with uncorrelation assumption
-    """
-    nlen_t = len(d1)
-
-    d2_cc_dt = np.zeros(nlen_t)
-    d2_cc_dtdlna = np.zeros(nlen_t)
-
-    for index in range(0, nlen_t):
-        index_shift = index - cc_shift
-
-        if 0 <= index_shift < nlen_t:
-            # corrected by c.c. shift
-            d2_cc_dt[index] = d2[index_shift]
-
-            # corrected by c.c. shift and amplitude
-            d2_cc_dtdlna[index] = np.exp(cc_dlna) * d2[index_shift]
-
-    # time derivative of d2_cc (velocity)
-    d2_cc_vel = np.gradient(d2_cc_dtdlna, deltat)
-
-    # the estimated error for dt and dlna with uncorrelation assumption
-    sigma_dt_top = np.sum((d1 - d2_cc_dtdlna)**2)
-    sigma_dt_bot = np.sum(d2_cc_vel**2)
-
-    sigma_dlna_top = sigma_dt_top
-    sigma_dlna_bot = np.sum(d2_cc_dt**2)
-
-    sigma_dt = np.sqrt(sigma_dt_top / sigma_dt_bot)
-    sigma_dlna = np.sqrt(sigma_dlna_top / sigma_dlna_bot)
-
-    if sigma_dt < sigma_dt_min:
-        sigma_dt = sigma_dt_min
-
-    if sigma_dlna < sigma_dlna_min:
-        sigma_dlna = sigma_dlna_min
-
-    return sigma_dt, sigma_dlna
-
-
-def subsample_xcorr_shift(d, s):
-    """
-    Calculate the correlation time shift around the maximum amplitude of the
-    synthetic trace with subsample accuracy.
-    :param s:
-    :param d:
-    """
-    # Estimate shift and use it as a guideline for the subsample accuracy
-    # shift.
-    time_shift = _xcorr_shift(d.data, s.data) * d.stats.delta
-
-    # Align on the maximum amplitude of the synthetics.
-    pick_time = s.stats.starttime + s.data.argmax() * s.stats.delta
-
-    # Will raise a warning if the trace ids don't match which we don't care
-    # about here.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        return xcorrPickCorrection(
-            pick_time, s, pick_time, d, 20.0 * time_shift,
-            20.0 * time_shift, 10.0 * time_shift)[0]
-
-
 def calculate_adjoint_source(observed, synthetic, config, window,
                              adjoint_src, figure):  # NOQA
 
@@ -193,26 +120,30 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         window_taper(s, taper_percentage=config.taper_percentage,
                      taper_type=config.taper_type)
 
-        i_shift = _xcorr_shift(d, s)
-        t_shift = i_shift * deltat
+        cc_shift = _xcorr_shift(d, s)
 
         cc_dlna = 0.5 * np.log(sum(d[0:nlen]*d[0:nlen]) /
                                sum(s[0:nlen]*s[0:nlen]))
 
-        sigma_dt, sigma_dlna = cc_error(d, s, deltat, i_shift, cc_dlna,
+        sigma_dt, sigma_dlna = cc_error(d, s, deltat, cc_shift, cc_dlna,
                                         config.dt_sigma_min,
                                         config.dlna_sigma_min)
+        # calculate c.c. adjoint source
+        fp_t, fq_t, misfit_p, misfit_q =\
+            cc_adj(s, cc_shift, cc_dlna, deltat,
+                   sigma_dt, sigma_dlna)
 
-        misfit_sum_p += 0.5 * (t_shift/sigma_dt) ** 2
-        misfit_sum_q += 0.5 * (cc_dlna/sigma_dlna) ** 2
+        # YY: All adjoint sources will need windowing taper again
+        window_taper(fp_t, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
+        window_taper(fq_t, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
 
-        dsdt = np.gradient(s, deltat)
-        nnorm = simps(y=dsdt*dsdt, dx=deltat)
-        fp[left_sample:right_sample] = dsdt[:] * t_shift / nnorm / sigma_dt**2
+        misfit_sum_p += misfit_p
+        misfit_sum_q += misfit_q
 
-        mnorm = simps(y=s*s, dx=deltat)
-        fq[left_sample:right_sample] =\
-            -1.0 * s[:] * cc_dlna / mnorm / sigma_dlna ** 2
+        fp[left_sample:right_sample] = fp_t[:]
+        fq[left_sample:right_sample] = fq_t[:]
 
     ret_val_p["misfit"] = misfit_sum_p
     ret_val_q["misfit"] = misfit_sum_q
