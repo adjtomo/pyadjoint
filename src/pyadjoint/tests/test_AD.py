@@ -23,7 +23,6 @@ def gaussian_obs_syn():
         gaussian signals for bench mark tests
     """
 
-    # make synthetic gaussian signals for benchmark test
     syn = Trace()
     obs = Trace()
     syn.stats.channel = 'BHZ'

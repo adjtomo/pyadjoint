@@ -32,7 +32,6 @@ def gaussian_obs_syn():
         gaussian signals for bench mark tests
     """
 
-    # make synthetic gaussian signals for benchmark test
     syn1 = Trace()
     obs1 = Trace()
     syn2 = Trace()
