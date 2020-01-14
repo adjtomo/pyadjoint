@@ -187,7 +187,7 @@ class AdjointSource(object):
         l = len(self.adjoint_source)
         specfem_adj_source = np.empty((l, 2))
         specfem_adj_source[:, 0] = np.linspace(0, (l - 1) * self.dt, l)
-        specfem_adj_source[:, 1] = time_offset
+        specfem_adj_source[:, 0] += time_offset
         specfem_adj_source[:, 1] = self.adjoint_source[::-1]
 
         tag = "%s_%s_%s" % (self.network, self.station, self.component)
