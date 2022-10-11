@@ -1,6 +1,8 @@
 Pyadjoint
 =========
 
-[![Build Status](https://travis-ci.org/krischer/pyadjoint.svg?branch=master)](https://travis-ci.org/krischer/pyadjoint) [![Coverage Status](https://img.shields.io/coveralls/krischer/pyadjoint.svg)](https://coveralls.io/r/krischer/pyadjoint)
+PyAdjoint is a Python tool for calculating a variety of adjoint sources for the full waveform inversion problem.  
 
-[Documentation](http://krischer.github.io/pyadjoint/)
+[Documentation](http://adjtomo.github.io/pyadjoint/) contains details on installation, usage and API.
+
+
