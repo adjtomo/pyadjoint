@@ -1,5 +1,4 @@
-#!/usr/bin/env pythonG
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
 Automated tests for all defined adjoint sources. Essentially just checks
 that they all work and do something.

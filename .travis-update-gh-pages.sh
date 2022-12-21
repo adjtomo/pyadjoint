@@ -14,7 +14,7 @@ if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
   # Go there, and overwrite everything with the freshly built contents.
   cd gh-pages
   rm -rf *
-  cp -Rf $TRAVIS_BUILD_DIR/doc/_build/html/* .
+  cp -Rf $TRAVIS_BUILD_DIR/docs/_build/html/* .
 
   # add, commit and push files
   git add -f .

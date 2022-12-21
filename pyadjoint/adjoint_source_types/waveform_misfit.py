@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
 """
 Simple waveform misfit and adjoint source.
 

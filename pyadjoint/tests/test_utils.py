@@ -1,5 +1,4 @@
-#!/usr/bin/env pythonG
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
 Tests for the utility functions.
 

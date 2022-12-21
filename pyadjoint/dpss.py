@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- encoding: utf8 -*-
+#!/usr/bin/env python3
 """
 # Original Author : Martin Luessi mluessi@nmr.mgh.harvard.edu (2012)
 # License : BSD 3-clause

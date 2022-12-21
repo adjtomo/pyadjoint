@@ -1,5 +1,4 @@
-#!/usr/bin/env pythonG
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
 Tests all Python files of the project with flake8. This ensure PEP8 conformance
 and some other sanity checks as well.
