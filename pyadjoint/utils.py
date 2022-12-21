@@ -15,6 +15,7 @@ import matplotlib.patches as patches
 import numpy as np
 import obspy
 import pkgutil
+import warnings
 from pyadjoint import PyadjointError, PyadjointWarning
 
 EXAMPLE_DATA_PDIFF = (800, 900)
@@ -68,6 +69,76 @@ def discover_adjoint_sources():
         )
 
     return adjoint_sources
+
+
+def sanity_check_waveforms(observed, synthetic):
+    """
+    Perform a number of basic sanity checks to assure the data is valid
+    in a certain sense.
+
+    It checks the types of both, the start time, sampling rate, number of
+    samples, ...
+
+    :param observed: The observed data.
+    :type observed: :class:`obspy.core.trace.Trace`
+    :param synthetic: The synthetic data.
+    :type synthetic: :class:`obspy.core.trace.Trace`
+
+    :raises: :class:`~pyadjoint.PyadjointError`
+    """
+    if not isinstance(observed, obspy.Trace):
+        # Also accept Stream objects.
+        if isinstance(observed, obspy.Stream) and \
+                len(observed) == 1:
+            observed = observed[0]
+        else:
+            raise PyadjointError(
+                "Observed data must be an ObsPy Trace object.")
+    if not isinstance(synthetic, obspy.Trace):
+        if isinstance(synthetic, obspy.Stream) and \
+                len(synthetic) == 1:
+            synthetic = synthetic[0]
+        else:
+            raise PyadjointError(
+                "Synthetic data must be an ObsPy Trace object.")
+
+    if observed.stats.npts != synthetic.stats.npts:
+        raise PyadjointError("Observed and synthetic data must have the same "
+                             "number of samples.")
+
+    sr1 = observed.stats.sampling_rate
+    sr2 = synthetic.stats.sampling_rate
+
+    if abs(sr1 - sr2) / sr1 >= 1E-5:
+        raise PyadjointError("Observed and synthetic data must have the same "
+                             "sampling rate.")
+
+    # Make sure data and synthetics start within half a sample interval.
+    if abs(observed.stats.starttime - synthetic.stats.starttime) > \
+            observed.stats.delta * 0.5:
+        raise PyadjointError("Observed and synthetic data must have the same "
+                             "starttime.")
+
+    ptp = sorted([observed.data.ptp(), synthetic.data.ptp()])
+    if ptp[1] / ptp[0] >= 5:
+        warnings.warn("The amplitude difference between data and "
+                      "synthetic is fairly large.", PyadjointWarning)
+
+    # Also check the components of the data to avoid silly mistakes of
+    # users.
+    if len(set([observed.stats.channel[-1].upper(),
+                synthetic.stats.channel[-1].upper()])) != 1:
+        warnings.warn("The orientation code of synthetic and observed "
+                      "data is not equal.")
+
+    observed = observed.copy()
+    synthetic = synthetic.copy()
+    observed.data = np.require(observed.data, dtype=np.float64,
+                               requirements=["C"])
+    synthetic.data = np.require(synthetic.data, dtype=np.float64,
+                                requirements=["C"])
+
+    return observed, synthetic
 
 
 def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
@@ -239,12 +310,10 @@ def generic_adjoint_source_plot(observed, synthetic, adjoint_source, misfit,
     :type adjoint_source: `numpy.ndarray`
     :param misfit: The associated misfit value.
     :float misfit: misfit value
-    :param left_window_border: Left border of the window to be tapered in
-        seconds since the first sample in the data arrays.
-    :type left_window_border: float
-    :param right_window_border: Right border of the window to be tapered in
-        seconds since the first sample in the data arrays.
-    :type right_window_border: float
+    :type window: list of tuples
+    :param window: [(left, right),...] representing left and right window
+        borders to be tapered in units of seconds since first sample in data
+        array
     :param adjoint_source_name: The name of the adjoint source.
     :type adjoint_source_name: str
     """
