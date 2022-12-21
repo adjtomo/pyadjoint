@@ -13,34 +13,29 @@ Configuration object for Pyadjoint.
 from pyadjoint.utils import discover_adjoint_sources
 
 
-class Config:
+def config(adjsrc_type, min_period, max_period, **kwargs):
     """
-    Generalized Pyadjoint Config object that can be used to define a single
-    entry point for configuration. See each of the indivdiual Config objects
-    for specific parameter descriptions
+    Defines two common parameters for all configuration objects and then
+    reassigns self to a sub Config class which dictates its own required
+    parameters
     """
-    # Defines available adjoint source types
+    adjsrc_type = adjsrc_type.lower()  # allow for case-insensitivity
+    adjsrc_types = discover_adjoint_sources().keys()
 
-    def __init__(self, adjsrc_type, min_period, max_period, **kwargs):
-        """
-        Defines two common parameters for all configuration objects and then
-        reassigns self to a sub Config class which dictates its own required
-        parameters
-        """
-        adjsrc_type = adjsrc_type.lower()  # allow for case-insensitivity
-        adjsrc_types = discover_adjoint_sources.keys()
+    assert(min_period < max_period), f"`min_period` must be < `max_period`"
 
-        assert(adjsrc_type in adjsrc_types), \
-            f"adjoint source type must be in {adjsrc_types}"
-
-        if adjsrc_type == "waveform_misfit":
-            self = ConfigWaveform(min_period, max_period, **kwargs)
-        elif adjsrc_type == "exponentiated_phase_misfit":
-            self = ConfigExponentiatedPhase(min_period, max_period, **kwargs)
-        elif adjsrc_type == "cc_traveltime_misfit":
-            self = ConfigCCTraveltime(min_period, max_period, **kwargs)
-        elif adjsrc_type == "multitaper_misfit":
-            self = ConfigMultitaper(min_period, max_period, **kwargs)
+    if adjsrc_type == "waveform_misfit":
+        cfg = ConfigWaveform(min_period, max_period, **kwargs)
+    elif adjsrc_type == "exponentiated_phase_misfit":
+        cfg = ConfigExponentiatedPhase(min_period, max_period, **kwargs)
+    elif adjsrc_type == "cc_traveltime_misfit":
+        cfg = ConfigCCTraveltime(min_period, max_period, **kwargs)
+    elif adjsrc_type == "multitaper_misfit":
+        cfg = ConfigMultitaper(min_period, max_period, **kwargs)
+    else:
+        raise NotImplementedError(f"adjoint source type must be in "
+                                  f"{adjsrc_types}")
+    return cfg
 
 
 class ConfigWaveform:
