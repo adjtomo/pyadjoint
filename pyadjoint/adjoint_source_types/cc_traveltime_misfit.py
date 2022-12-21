@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Cross correlation traveltime misfit.
+Cross correlation traveltime misfit and associated adjoint source.
 
 :copyright:
     adjtomo Dev Team (adjtomo@gmail.com), 2022
@@ -63,13 +63,8 @@ details, please see [Tromp2005]_ and [Bozdag2011]_.
 This particular implementation here uses
 `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
 to evaluate the definite integral.
-"""  # NOQA
+"""
 
-# Optional: document any additional parameters this particular adjoint sources
-# receives in addition to the ones passed to the central adjoint source
-# calculation function. Make sure to indicate the default values. This is a
-# bit redundant but the only way I could figure out to make it work with the
-#  rest of the architecture.
 ADDITIONAL_PARAMETERS = r"""
 **taper_percentage** (:class:`float`)
     Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
@@ -82,10 +77,30 @@ ADDITIONAL_PARAMETERS = r"""
 
 
 def calculate_adjoint_source(observed, synthetic, config, window,
-                             adjoint_src, figure):  # NOQA
+                             adjoint_src=True, window_stats=True, plot=False):
     """
-    Calculate the cross-correlation traveltime adjoint source
+    Calculate adjoint source for the cross-correlation traveltime misfit
+    measurement
+
+    :type observed: obspy.core.trace.Trace
+    :param observed: observed waveform to calculate adjoint source
+    :type synthetic:  obspy.core.trace.Trace
+    :param synthetic: synthetic waveform to calculate adjoint source
+    :type config: pyadjoint.config.ConfigWaveform
+    :param config: Config class with parameters to control processing
+    :type window: list of tuples
+    :param window: [(left, right),...] representing left and right window
+        borders to be tapered in units of seconds since first sample in data
+        array
+    :type adjoint_src: bool
+    :param adjoint_src: flag to calculate adjoint source, if False, will only
+        calculate misfit
+    :type plot: bool
+    :param plot: generate a figure after calculating adjoint source
     """
+    assert(config.__class__.__name__ == "ConfigCCTraveltime"), \
+        "Incorrect configuration class passed to CCTraveltime misfit"
+
     ret_val_p = {}
     ret_val_q = {}
 
@@ -98,9 +113,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     misfit_sum_p = 0.0
     misfit_sum_q = 0.0
 
-    # ===
-    # loop over time windows
-    # ===
+    # Loop over time windows and calculate misfit for each window range
     for wins in window:
         left_window_border = wins[0]
         right_window_border = wins[1]
@@ -128,9 +141,11 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         cc_dlna = 0.5 * np.log(sum(d[0:nlen] * d[0:nlen]) /
                                sum(s[0:nlen] * s[0:nlen]))
 
-        sigma_dt, sigma_dlna = cc_error(d, s, deltat, i_shift, cc_dlna,
-                                        config.dt_sigma_min,
-                                        config.dlna_sigma_min)
+        sigma_dt, sigma_dlna = cc_error(
+            d1=d, d2=s, deltat=deltat, cc_shift=i_shift, cc_dlna=cc_dlna,
+            dt_sigma_min=config.dt_sigma_min,
+            dlna_sigma_min=config.dlna_sigma_min
+        )
 
         misfit_sum_p += 0.5 * (t_shift / sigma_dt) ** 2
         misfit_sum_q += 0.5 * (cc_dlna / sigma_dlna) ** 2
@@ -151,7 +166,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         ret_val_q["adjoint_source"] = fq[::-1]
 
     if config.measure_type == "dt":
-        if figure:
+        if plot:
             generic_adjoint_source_plot(observed, synthetic,
                                         ret_val_p["adjoint_source"],
                                         ret_val_p["misfit"],
@@ -160,7 +175,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         return ret_val_p
 
     if config.measure_type == "am":
-        if figure:
+        if plot:
             generic_adjoint_source_plot(observed, synthetic,
                                         ret_val_q["adjoint_source"],
                                         ret_val_q["misfit"],
@@ -169,15 +184,63 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         return ret_val_q
 
 
+def subsample_xcorr_shift(d, s):
+    """
+    Calculate the correlation time shift around the maximum amplitude of the
+    synthetic trace `s` with subsample accuracy.
+
+    :type d: obspy.core.trace.Trace
+    :param d: observed waveform to calculate adjoint source
+    :type s:  obspy.core.trace.Trace
+    :param s: synthetic waveform to calculate adjoint source
+    """
+    # Estimate shift and use it as a guideline for the subsample accuracy shift.
+    time_shift = _xcorr_shift(d.data, s.data) * d.stats.delta
+
+    # Align on the maximum amplitude of the synthetics.
+    pick_time = s.stats.starttime + s.data.argmax() * s.stats.delta
+
+    # Will raise a warning if the trace ids don't match which we don't care
+    # about here.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        return xcorr_pick_correction(
+            pick_time, s, pick_time, d, 20.0 * time_shift,
+            20.0 * time_shift, 10.0 * time_shift)[0]
+
+
 def _xcorr_shift(d, s):
+    """
+    Determine the required time shift for peak cross-correlation of two arrays
+
+    :type d: np.array
+    :param d: observed time series array
+    :type s:  np.array
+    :param s: synthetic time series array
+    """
     cc = np.correlate(d, s, mode="full")
     time_shift = cc.argmax() - len(d) + 1
     return time_shift
 
 
-def cc_error(d1, d2, deltat, cc_shift, cc_dlna, sigma_dt_min, sigma_dlna_min):
+def cc_error(d1, d2, deltat, cc_shift, cc_dlna, dt_sigma_min, dlna_sigma_min):
     """
-    Estimate error for dt and dlna with uncorrelation assumption
+    Estimate error for `dt` and `dlna` with uncorrelation assumption. Used for
+    normalization of the traveltime measurement
+
+    :type d1: np.array
+    :param d1: time series array to calculate error for
+    :type d2: np.array
+    :param d2: time series array to calculate error for
+    :type cc_shift: int
+    :param cc_shift: total amount of cross correlation time shift
+    :type cc_dlna: float
+    :param cc_dlna: amplitude anomaly calculated for cross-correlation
+        measurement
+    :type dt_sigma_min: float
+    :param dt_sigma_min: minimum travel time error allowed
+    :type dlna_sigma_min: float
+    :param dlna_sigma_min: minimum amplitude error allowed
     """
     nlen_t = len(d1)
 
@@ -207,34 +270,14 @@ def cc_error(d1, d2, deltat, cc_shift, cc_dlna, sigma_dt_min, sigma_dlna_min):
     sigma_dt = np.sqrt(sigma_dt_top / sigma_dt_bot)
     sigma_dlna = np.sqrt(sigma_dlna_top / sigma_dlna_bot)
 
-    if sigma_dt < sigma_dt_min:
-        sigma_dt = sigma_dt_min
+    if sigma_dt < dt_sigma_min:
+        sigma_dt = dt_sigma_min
 
-    if sigma_dlna < sigma_dlna_min:
-        sigma_dlna = sigma_dlna_min
+    if sigma_dlna < dlna_sigma_min:
+        sigma_dlna = dlna_sigma_min
 
     return sigma_dt, sigma_dlna
 
 
-def subsample_xcorr_shift(d, s):
-    """
-    Calculate the correlation time shift around the maximum amplitude of the
-    synthetic trace with subsample accuracy.
-    :param s:
-    :param d:
-    """
-    # Estimate shift and use it as a guideline for the subsample accuracy
-    # shift.
-    time_shift = _xcorr_shift(d.data, s.data) * d.stats.delta
 
-    # Align on the maximum amplitude of the synthetics.
-    pick_time = s.stats.starttime + s.data.argmax() * s.stats.delta
-
-    # Will raise a warning if the trace ids don't match which we don't care
-    # about here.
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        return xcorr_pick_correction(
-            pick_time, s, pick_time, d, 20.0 * time_shift,
-            20.0 * time_shift, 10.0 * time_shift)[0]
 

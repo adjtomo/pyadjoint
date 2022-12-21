@@ -78,7 +78,8 @@ class AdjointSource:
             station = ""
 
         if self.adjoint_source is not None:
-            adj_src_status = f"available with {self.adjoint_source} samples"
+            adj_src_status = \
+                f"available with {len(self.adjoint_source)} samples"
         else:
             adj_src_status = "has not been calculated"
 
@@ -87,11 +88,11 @@ class AdjointSource:
         else:
             windows_status = "has no windows"
 
-        return (f"{self.adj_src_name} Adjoint Source for "
-                f"component {self.component}{station}\n"
-                f"\tMisfit: {self.misfit:.4g}\n"
-                f"\tAdjoint source {adj_src_status}"
-                f"\tWindows: {windows_status}"
+        return (f"'{self.adj_src_name}' Adjoint Source for "
+                f"channel {self.component}{station}\n"
+                f"\tmisfit: {self.misfit:.4g}\n"
+                f"\tadjoint_source: {adj_src_status}\n"
+                f"\twindows: {windows_status}"
                 )
 
     def write(self, filename, format, **kwargs):

@@ -2,7 +2,10 @@
 """
 Simple waveform misfit and adjoint source.
 
-This file will also serve as the template for generation of new adjoint sources.
+.. note::
+    This file serves as the template for generation of new adjoint sources.
+    Copy-paste file and adjust name, description and underlying calculation
+    function to generate new adjoint source.
 
 :authors:
     adjTomo Dev Team (adjtomo@gmail.com), 2022
