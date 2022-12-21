@@ -11,13 +11,13 @@ Central interfaces for ``Pyadjoint``, misfit measurement package.
 import numpy as np
 import obspy
 
+from pyadjoint.utils import discover_adjoint_sources
+
 
 class AdjointSource:
-    """Adjoint Source class to hold calculated adjoint sources"""
-    # Dictionary of available adjoint sources
-    # `key`==name, value==(function, verbose name, description)
-    _ad_srcs = {}
-
+    """
+    Adjoint Source class to hold calculated adjoint sources
+    """
     def __init__(self, adj_src_type, misfit, dt, min_period, max_period,
                  component, adjoint_source=None, network=None, station=None,
                  location=None, starttime=None):
@@ -50,11 +50,12 @@ class AdjointSource:
         :param starttime: starttime of adjoint source
         :type starttime: obspy.UTCDateTime
         """
-        if adj_src_type not in self._ad_srcs:
-            raise ValueError("Unknown adjoint source type '%s'." %
-                             adj_src_type)
+        adj_srcs = discover_adjoint_sources()
+        if adj_src_type not in adj_srcs.keys():
+            raise ValueError(f"Unknown adjoint source type {adj_src_type}")
+
         self.adj_src_type = adj_src_type
-        self.adj_src_name = self._ad_srcs[adj_src_type][1]
+        self.adj_src_name = adj_srcs[adj_src_type][1]
         self.misfit = misfit
         self.dt = dt
         self.min_period = min_period

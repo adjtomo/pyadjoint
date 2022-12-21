@@ -7,7 +7,7 @@ import warnings
 
 from pyadjoint import PyadjointError, PyadjointWarning
 from pyadjoint.adjoint_source import AdjointSource
-from pyadjoint.utils import sanity_check_waveforms
+from pyadjoint.utils import sanity_check_waveforms, discover_adjoint_sources
 
 
 def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
@@ -32,16 +32,11 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     :type synthetic: :class:`obspy.core.trace.Trace`
     :param config: :class:`pyadjoint.config.Config`
     :type config: configuration parameters that control measurement
-    :param min_period: The minimum period of the spectral content of the data.
-    :type min_period: float
-    :param max_period: The maximum period of the spectral content of the data.
-    :type max_period: float
     :type window: list of tuples
     :param window: [(left, right),...] representing left and right window
         borders to be tapered in units of seconds since first sample in data
         array
-    :param adjoint_src: Only calculate the misfit or also derive
-        the adjoint source.
+    :param adjoint_src: Derive the adjoint source in addition to misfit calc.
     :type adjoint_src: bool
     :param plot: Also produce a plot of the adjoint source. This will force
         the adjoint source to be calculated regardless of the value of
@@ -56,15 +51,15 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     # Get number of samples now as the adjoint source calculation function
     # are allowed to mess with the trace objects.
     npts = observed.stats.npts
+    adj_srcs = discover_adjoint_sources()
+    if adj_src_type not in adj_srcs.keys():
+        raise PyadjointError(f"Adjoint Source type '{adj_src_type}' is unknown."
+                             f" Available types: {sorted(adj_srcs.keys())}")
 
-    if adj_src_type not in AdjointSource._ad_srcs:
-        raise PyadjointError(
-            "Adjoint Source type '%s' is unknown. Available types: %s" % (
-                adj_src_type, ", ".join(
-                    sorted(AdjointSource._ad_srcs.keys()))))
+    # From here on out we use this generic function to describe adjoint source
+    fct = adj_srcs[adj_src_type][0]
 
-    fct = AdjointSource._ad_srcs[adj_src_type][0]
-
+    # Set up plotting generation
     if plot:
         # The plot kwargs overwrites the adjoint_src kwarg.
         adjoint_src = True
@@ -75,39 +70,36 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
             figure = plot
     else:
         figure = None
-    try:
-        ret_val = fct(observed=observed, synthetic=synthetic,
-                      config=config, window=window,
-                      adjoint_src=adjoint_src, figure=figure, **kwargs)
 
+    # Main processing function, calculate adjoint source here
+    try:
+        ret_val = fct(observed=observed, synthetic=synthetic, config=config,
+                      window=window, adjoint_src=adjoint_src, figure=figure,
+                      **kwargs)
+        # Generate figure from the adjoint source
         if plot and plot_filename:
             figure.savefig(plot_filename)
         elif plot is True:
             plt.show()
-
     finally:
-        # Assure the figure is closed. Otherwise matplotlib will leak
-        # memory. If the figure has been created outside of Pyadjoint,
-        # it will not be closed.
+        # Assure the figure is closed. Otherwise matplotlib will leak memory
         if plot is True:
             plt.close()
 
     # Get misfit and warn for a negative one.
     misfit = float(ret_val["misfit"])
     if misfit < 0.0:
-        warnings.warn("The misfit value is negative. Be cautious!",
-                      PyadjointWarning)
+        warnings.warn("Negative misfit value not expected", PyadjointWarning)
 
     if adjoint_src and "adjoint_source" not in ret_val:
         raise PyadjointError("The actual adjoint source was not calculated "
                              "by the underlying function although it was "
                              "requested.")
 
-    # Be very defensive. This assures future adjoint source types can be
-    # integrated smoothly.
+    # Be very defensive and check all the returned parts of the adjoint source.
+    # This assures future adjoint source types can be integrated smoothly.
     if adjoint_src:
         adjoint_source = ret_val["adjoint_source"]
-        # Raise if wrong type.
         if not isinstance(adjoint_source, np.ndarray) or \
                 adjoint_source.dtype != np.float64:
             raise PyadjointError("The adjoint source calculated by the "

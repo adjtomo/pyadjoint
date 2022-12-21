@@ -2,10 +2,11 @@
 """
 Simple waveform misfit and adjoint source.
 
-This file will also serve as an explanation of how to add new adjoint
-sources to Pyadjoint.
+This file will also serve as the template for generation of new adjoint sources.
 
-:copyright:
+:authors:
+    adjTomo Dev Team (adjtomo@gmail.com), 2022
+    Yanhua O. Yuan (yanhuay@princeton.edu), 2017
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
@@ -76,20 +77,39 @@ ADDITIONAL_PARAMETERS = r"""
 # left_window_border, right_window_border, adjoint_src, and figure as
 # parameters. Other optional keyword arguments are possible.
 def calculate_adjoint_source(observed, synthetic, config, window,
-                             adjoint_src, figure):  # NOQA
+                             adjoint_src=True, figure=False):
     """
-    Calculate adjoint source for wavefor misfit measurement
+    Calculate adjoint source for the waveform misfit measurement
+
+    :type observed: obspy.core.trace.Trace
+    :param observed: observed waveform to calculate adjoint source
+    :type synthetic:  obspy.core.trace.Trace
+    :param synthetic: synthetic waveform to calculate adjoint source
+    :type config: pyadjoint.config.ConfigWaveform
+    :param config: Config class with parameters to control processing
+    :type window: list of tuples
+    :param window: [(left, right),...] representing left and right window
+        borders to be tapered in units of seconds since first sample in data
+        array
+    :type adjoint_src: bool
+    :param adjoint_src: flag to calculate adjoint source, if False, will only
+        calculate misfit
+    :type figure: bool
+    :param figure: generate a figure after calculating adjoint source
     """
+    assert(config.__class__.__name__ == "ConfigWaveform"), \
+        "Incorrect configuration class passed to Waveform misfit"
+
+    # Dictionary of values to be used to fill out the adjoint source class
     ret_val = {}
 
+    # Initiate constants and empty return values to fill
     nlen_data = len(synthetic.data)
     deltat = synthetic.stats.delta
-
     adj = np.zeros(nlen_data)
-
     misfit_sum = 0.0
 
-    # loop over time windows
+    # Loop over time windows
     for wins in window:
         left_window_border = wins[0]
         right_window_border = wins[1]
@@ -105,18 +125,18 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         d[0: nlen] = observed.data[left_sample: right_sample]
         s[0: nlen] = synthetic.data[left_sample: right_sample]
 
-        # All adjoint sources will need some kind of windowing taper
-        # to get rid of kinks at two ends
+        # Adjoint sources will need some kind of windowing taper to remove kinks
         window_taper(d, taper_percentage=config.taper_percentage,
                      taper_type=config.taper_type)
         window_taper(s, taper_percentage=config.taper_percentage,
                      taper_type=config.taper_type)
-
         diff = s - d
+
         # Integrate with the composite Simpson's rule.
         diff_w = diff * -1.0
         window_taper(diff_w, taper_percentage=config.taper_percentage,
                      taper_type=config.taper_type)
+        
         # for some reason the 0.5 (see 2012 measure_adj mannual, P11) is
         # not in misfit definetion in measure_adj
         # misfit_sum += 0.5 * simps(y=diff_w**2, dx=deltat)
@@ -131,10 +151,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         ret_val["adjoint_source"] = adj[::-1]
 
     if figure:
-        # return NotImplemented
-        generic_adjoint_source_plot(observed, synthetic,
-                                    ret_val["adjoint_source"],
-                                    ret_val["misfit"],
-                                    window, VERBOSE_NAME)
+        generic_adjoint_source_plot(
+            observed, synthetic, ret_val["adjoint_source"], ret_val["misfit"],
+            window, VERBOSE_NAME)
 
     return ret_val
