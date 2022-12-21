@@ -1,28 +1,25 @@
 #!/usr/bin/env python3
 """
-Central interfaces for ``Pyadjoint``.
+Central interfaces for ``Pyadjoint``, misfit measurement package.
 
 :copyright:
+    adjTomo Dev Team (adjtomo@gmail.com), 2022
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import absolute_import, division, print_function
-
-import inspect
 import matplotlib.pylab as plt
 import numpy as np
 import obspy
-import os
-import pkgutil
 import warnings
 
-from . import PyadjointError, PyadjointWarning
+from pyadjoint import PyadjointError, PyadjointWarning
 
 
-class AdjointSource(object):
-    # Dictionary of available adjoint source. The key is the name, the value
-    # a tuple of function, verbose name, and description.
+class AdjointSource:
+    """Adjoint Source class to hold calculated adjoint sources"""
+    # Dictionary of available adjoint sources
+    # `key`==name, value==(function, verbose name, description)
     _ad_srcs = {}
 
     def __init__(self, adj_src_type, misfit, dt, min_period, max_period,
@@ -133,15 +130,14 @@ class AdjointSource(object):
             self._write(filename, format=format, **kwargs)
 
     def _write(self, buf, format, **kwargs):
+        """Logic function for choosing how to write adjoint source"""
         if format == "SPECFEM":
             self._write_specfem(buf=buf, time_offset=kwargs["time_offset"])
         else:
             raise NotImplementedError
 
     def _write_specfem(self, buf, time_offset):
-        """
-        Write the adjoint source for SPECFEM.
-        """
+        """Write the adjoint source for SPECFEM."""
         l = len(self.adjoint_source)
 
         to_write = np.empty((l, 2))
@@ -250,6 +246,8 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     :type observed: :class:`obspy.core.trace.Trace`
     :param synthetic: The synthetic data.
     :type synthetic: :class:`obspy.core.trace.Trace`
+    :param config: :class:`pyadjoint.config.Config`
+    :type config: configuration parameters that control measurement
     :param min_period: The minimum period of the spectral content of the data.
     :type min_period: float
     :param max_period: The maximum period of the spectral content of the data.
@@ -312,7 +310,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
         if plot is True:
             plt.close()
 
-    # Get misfit an warn for a negative one.
+    # Get misfit and warn for a negative one.
     misfit = float(ret_val["misfit"])
     if misfit < 0.0:
         warnings.warn("The misfit value is negative. Be cautious!",
@@ -434,51 +432,3 @@ def _sanity_checks(observed, synthetic):
     return observed, synthetic
 
 
-def _discover_adjoint_sources():
-    """
-    Discovers the available adjoint sources. This should work no matter if
-    pyadjoint is checked out from git, packaged as .egg or for any other
-    possibility.
-    """
-    from . import adjoint_source_types
-
-    AdjointSource._ad_srcs = {}
-
-    fct_name = "calculate_adjoint_source"
-    name_attr = "VERBOSE_NAME"
-    desc_attr = "DESCRIPTION"
-    add_attr = "ADDITIONAL_PARAMETERS"
-
-    path = os.path.join(
-        os.path.dirname(inspect.getfile(inspect.currentframe())),
-        "adjoint_source_types")
-    for importer, modname, _ in pkgutil.iter_modules(
-            [path], prefix=adjoint_source_types.__name__ + "."):
-        m = importer.find_module(modname).load_module(modname)
-        if not hasattr(m, fct_name):
-            continue
-        fct = getattr(m, fct_name)
-        if not callable(fct):
-            continue
-
-        name = modname.split('.')[-1]
-
-        if not hasattr(m, name_attr):
-            raise PyadjointError(
-                "Adjoint source '%s' does not have a variable named %s." %
-                (name, name_attr))
-
-        if not hasattr(m, desc_attr):
-            raise PyadjointError(
-                "Adjoint source '%s' does not have a variable named %s." %
-                (name, desc_attr))
-
-        # Add tuple of name, verbose name, and description.
-        AdjointSource._ad_srcs[name] = (
-            fct,
-            getattr(m, name_attr),
-            getattr(m, desc_attr),
-            getattr(m, add_attr) if hasattr(m, add_attr) else None)
-
-
-_discover_adjoint_sources()

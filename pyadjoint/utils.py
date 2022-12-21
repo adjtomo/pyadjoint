@@ -3,22 +3,71 @@
 Utility functions for Pyadjoint.
 
 :copyright:
+    adjTomo Dev Team (adjtomo@gmail.com), 2022
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import absolute_import, division, print_function
-
 import inspect
 import os
-
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
 import obspy
+import pkgutil
+from pyadjoint import PyadjointError, PyadjointWarning
 
 EXAMPLE_DATA_PDIFF = (800, 900)
 EXAMPLE_DATA_SDIFF = (1500, 1600)
+TAPER_COLLECTION = ('cos', 'cos_p10', 'hann', "hamming")
+
+
+def discover_adjoint_sources():
+    """
+    Discovers the available adjoint sources in the package. This should work
+    regardless of whether Pyadjoint is checked out from git, packaged as .egg
+    etc.
+    """
+    from pyadjoint import adjoint_source_types
+
+    adjoint_sources = {}
+
+    fct_name = "calculate_adjoint_source"
+    name_attr = "VERBOSE_NAME"
+    desc_attr = "DESCRIPTION"
+    add_attr = "ADDITIONAL_PARAMETERS"
+
+    path = os.path.join(
+        os.path.dirname(inspect.getfile(inspect.currentframe())),
+        "adjoint_source_types")
+    for importer, modname, _ in pkgutil.iter_modules(
+            [path], prefix=adjoint_source_types.__name__ + "."):
+        m = importer.find_module(modname).load_module(modname)
+        if not hasattr(m, fct_name):
+            continue
+        fct = getattr(m, fct_name)
+        if not callable(fct):
+            continue
+
+        name = modname.split('.')[-1]
+
+        if not hasattr(m, name_attr):
+            raise PyadjointError(
+                "Adjoint source '%s' does not have a variable named %s." %
+                (name, name_attr))
+
+        if not hasattr(m, desc_attr):
+            raise PyadjointError(
+                "Adjoint source '%s' does not have a variable named %s." %
+                (name, desc_attr))
+
+        # Add tuple of name, verbose name, and description.
+        adjoint_sources[name] = (
+            fct, getattr(m, name_attr), getattr(m, desc_attr),
+            getattr(m, add_attr) if hasattr(m, add_attr) else None
+        )
+
+    return adjoint_sources
 
 
 def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
@@ -45,7 +94,6 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
 
     Any additional keyword arguments are passed to the
     :meth:`obspy.core.trace.Trace.taper` method.
-
 
     .. rubric:: Example
 
@@ -82,35 +130,26 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
 
 def window_taper(signal, taper_percentage, taper_type):
     """
-    window taper function.
+    Window taper function to taper a time series with various taper functions
 
     :param signal: time series
     :type signal: ndarray(float)
-
     :param taper_percentage: total percentage of taper in decimal
     :type taper_percentage: float
-
-    return : tapered input ndarray
-
-    taper_type:
-    1, cos
-    2, cos_p10
-    3, hann
-    4, hamming
-
-    To do:
-    with options of more tapers
+    :param taper_type: select available taper type, options are:
+        cos, cos_p10, hann, hamming
+    :type taper_type: str
+    :return: tapered `signal` array
+    :rtype: ndarray(float)
     """
-    taper_collection = ('cos', 'cos_p10', 'hann', "hamming")
-
-    if taper_type not in taper_collection:
-        raise ValueError("Window taper not supported")
-
+    # Check user inputs
+    if taper_type not in TAPER_COLLECTION:
+        raise ValueError(f"Window taper not supported, must be in "
+                         f"{TAPER_COLLECTION}")
     if taper_percentage < 0 or taper_percentage > 1:
-        raise ValueError("Wrong taper percentage")
+        raise ValueError("taper percentage must be 0 < % < 1")
 
     npts = len(signal)
-
     if taper_percentage == 0.0 or taper_percentage == 1.0:
         frac = int(npts*taper_percentage / 2.0)
     else:
@@ -118,36 +157,33 @@ def window_taper(signal, taper_percentage, taper_type):
 
     idx1 = frac
     idx2 = npts - frac
-
-    if taper_type == 'hann':
+    if taper_type == "hann":
         signal[:idx1] *=\
             (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(0, frac) /
                                 (2 * frac - 1)))
         signal[idx2:] *=\
             (0.5 - 0.5 * np.cos(2.0 * np.pi * np.arange(frac, 2 * frac) /
                                 (2 * frac - 1)))
-
-    if taper_type == 'hamming':
+    elif taper_type == "hamming":
         signal[:idx1] *=\
             (0.54 - 0.46 * np.cos(2.0 * np.pi * np.arange(0, frac) /
                                   (2 * frac - 1)))
         signal[idx2:] *=\
             (0.54 - 0.46 * np.cos(2.0 * np.pi * np.arange(frac, 2 * frac) /
                                   (2 * frac - 1)))
-
-    if taper_type == 'cos':
+    elif taper_type == "cos":
         power = 1.
         signal[:idx1] *= np.cos(np.pi * np.arange(0, frac) /
                                 (2 * frac - 1) - np.pi / 2.0) ** power
         signal[idx2:] *= np.cos(np.pi * np.arange(frac, 2 * frac) /
                                 (2 * frac - 1) - np.pi / 2.0) ** power
-
-    if taper_type == 'cos_p10':
+    elif taper_type == "cos_p10":
         power = 10.
         signal[:idx1] *= 1. - np.cos(np.pi * np.arange(0, frac) /
                                      (2 * frac - 1)) ** power
         signal[idx2:] *= 1. - np.cos(np.pi * np.arange(frac, 2 * frac) /
                                      (2 * frac - 1)) ** power
+
     return signal
 
 
@@ -155,7 +191,7 @@ def get_example_data():
     """
     Helper function returning example data for Pyadjoint.
 
-    The returned data is fully preprocessed and ready to be used with Pyflex.
+    The returned data is fully preprocessed and ready to be used with Pyadjoint.
 
     :returns: Tuple of observed and synthetic streams
     :rtype: tuple of :class:`obspy.core.stream.Stream` objects

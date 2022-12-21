@@ -10,13 +10,10 @@ sources to Pyadjoint.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 from scipy.integrate import simps
 
-from ..utils import generic_adjoint_source_plot
-from ..utils import window_taper
+from pyadjoint.utils import generic_adjoint_source_plot, window_taper
 
 
 # This is the verbose and pretty name of the adjoint source defined in this
@@ -80,7 +77,9 @@ ADDITIONAL_PARAMETERS = r"""
 # parameters. Other optional keyword arguments are possible.
 def calculate_adjoint_source(observed, synthetic, config, window,
                              adjoint_src, figure):  # NOQA
-
+    """
+    Calculate adjoint source for wavefor misfit measurement
+    """
     ret_val = {}
 
     nlen_data = len(synthetic.data)

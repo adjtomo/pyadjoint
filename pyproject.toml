@@ -23,6 +23,6 @@ dev = ["pytest", "flake8", "nose"]
 
 [project.urls]
 homepage = "https://github.com/adjtomo/"
-documentation = "https://adjtomo.github.io/pyadjoint""
+documentation = "https://adjtomo.github.io/pyadjoint"
 repository = "https://github.com/adjtomo/pyadjoint"
 

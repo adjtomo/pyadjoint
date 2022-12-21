@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
 :copyright:
+    adjTomo Dev Team (adjtomo@gmail.com), 2022
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import absolute_import, division, print_function
-
 import logging
+
+__version__ = "0.1.0"
 
 
 class PyadjointError(Exception):
@@ -24,9 +25,6 @@ class PyadjointWarning(UserWarning):
     Base class for all Pyadjoint warnings.
     """
     pass
-
-
-__version__ = "0.0.1a"
 
 
 # setup the logger

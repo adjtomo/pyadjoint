@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 """
-# Original Author : Martin Luessi mluessi@nmr.mgh.harvard.edu (2012)
-# License : BSD 3-clause
+Compute Discrete Prolate Spheroidal Sequences (DPSS), used for multitaper
+measurements.
 
-# Largely copied from the mne-python package so credit goes to them.
-https://github.com/mne-tools/mne-python/blob/master/mne/time_frequency/
-multitaper.py
+:copyright:
+    adjTomo Dev Team (adjtomo@gmail.com), 2022
+    Lion Krischer (krischer@geophysik.uni-muenchen.de), 2016
+    Martin Luessi (mluessi@nmr.mgh.harvard.edu), 2012
+License : BSD 3-clause
+
+.. note::
+    Largely copied from the mne-python package so credit goes to them.
+    https://github.com/mne-tools/mne-python/blob/master/mne/time_frequency/\
+    multitaper.py
 """
-from __future__ import absolute_import, division, print_function
-
 import warnings
-
 import numpy as np
 from scipy import fftpack, linalg, interpolate
 
@@ -92,7 +96,6 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
 
     e: ndarray
       The converged eigenvector
-
     """
     eig_diag = d - w
     if x0 is None:
@@ -155,7 +158,6 @@ def dpss_windows(n, half_nbw, k_max, low_bias=True, interp_from=None,
         specifies the kind of interpolation as a string ('linear', 'nearest',
         'zero', 'slinear', 'quadratic, 'cubic') or as an integer specifying the
         order of the spline interpolator to use.
-
 
     Returns
     -------

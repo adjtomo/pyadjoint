@@ -9,16 +9,12 @@ Multitaper based phase and amplitude misfit and adjoint source.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 from scipy.integrate import simps
 
-from .. import logger
-# from . import PyadjointError, PyadjointWarning
-from ..utils import generic_adjoint_source_plot
-from ..utils import window_taper
-from ..dpss import dpss_windows
+from pyadjoint import logger
+from pyadjoint.dpss import dpss_windows
+from pyadjoint.utils import generic_adjoint_source_plot, window_taper
 
 
 # This is the verbose and pretty name of the adjoint source defined in this
