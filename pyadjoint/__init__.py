@@ -43,4 +43,4 @@ logger.addHandler(ch)
 
 # Main objects and functions available at the top level.
 from .adjoint_source import AdjointSource, calculate_adjoint_source  # NOQA
-from .config import config  # NOQA
+from .config import get_config  # NOQA

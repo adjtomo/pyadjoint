@@ -23,28 +23,18 @@ def tridisolve(d, e, b, overwrite_b=True):
     """
     Symmetric tridiagonal system solver, from Golub and Van Loan pg 157
 
-    Note: Copied from NiTime
+    .. note::
+        This function was copied from NiTime
 
-    Parameters
-    ----------
-
-    d : ndarray
-      main diagonal stored in d[:]
-    e : ndarray
-      superdiagonal stored in e[:-1]
-    b : ndarray
-      RHS vector
-
-    Returns
-    -------
-
-    x : ndarray
-      Solution to Ax = b (if overwrite_b is False). Otherwise solution is
-      stored in previous RHS vector b
-      :param b:
-      :param e:
-      :param d:
-      :param overwrite_b:
+    :type d: ndarray
+    :param d: main diagonal stored in d[:]
+    :type e: ndarray
+    :param e: superdiagonal stored in e[:-1]
+    :type b: ndarray
+    :param b: RHS vector
+    :rtype x : ndarray
+    :return: Solution to Ax = b (if overwrite_b is False). Otherwise solution is
+        stored in previous RHS vector b
     """
     n = len(b)
     # work vectors
@@ -75,27 +65,21 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
     Perform an inverse iteration to find the eigenvector corresponding
     to the given eigenvalue in a symmetric tridiagonal system.
 
-    Note: Copied from NiTime
+    .. note::
+        This function was copied from NiTime
 
-    Parameters
-    ----------
-
-    d : ndarray
-      main diagonal of the tridiagonal system
-    e : ndarray
-      offdiagonal stored in e[:-1]
-    w : float
-      eigenvalue of the eigenvector
-    x0 : ndarray
-      initial point to start the iteration
-    rtol : float
-      tolerance for the norm of the difference of iterates
-
-    Returns
-    -------
-
-    e: ndarray
-      The converged eigenvector
+    :type d: ndarray
+    :param d: main diagonal stored in d[:]
+    :type e: ndarray
+    :param e: off diagonal stored in e[:-1]
+    :type w: float
+    :param w: eigenvalue of the eigenvector
+    :type x0: ndarray
+    :param x0: initial point to start the iteration
+    :type rtol : float
+    :param rtol: tolerance for the norm of the difference of iterates
+    :rtype: ndarray
+    :return: The converged eigenvector
     """
     eig_diag = d - w
     if x0 is None:
@@ -117,14 +101,10 @@ def sum_squared(x):
     """
     Compute norm of an array
 
-    Parameters
-    ----------
-    x : array
-        Data whose norm must be found
-    Returns
-    -------
-    value : float
-        Sum of squares of the input array X
+    :type x: array
+    :param x: Data whose norm must be found
+    :rtype: float
+    :return: Sum of squares of the input array X
     """
     x_flat = x.ravel(order='F' if np.isfortran(x) else 'C')
     return np.dot(x_flat, x_flat)
@@ -136,42 +116,38 @@ def dpss_windows(n, half_nbw, k_max, low_bias=True, interp_from=None,
     Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
     for a given frequency-spacing multiple NW and sequence length N.
 
-    Note: Copied from NiTime
+    .. note::
+        Tridiagonal form of DPSS calculation from:
 
-    Parameters
-    ----------
-    n : int
-        Sequence length
-    half_nbw : float, unitless
-        Standardized half bandwidth corresponding to 2 * half_bw = BW*f0
-        = BW*N/dt but with dt taken as 1
-    k_max : int
-        Number of DPSS windows to return is Kmax (orders 0 through Kmax-1)
-    low_bias : Bool
-        Keep only tapers with eigenvalues > 0.9
-    interp_from : int (optional)
-        The dpss can be calculated using interpolation from a set of dpss
-        with the same NW and Kmax, but shorter N. This is the length of this
-        shorter set of dpss windows.
-    interp_kind : str (optional)
-        This input variable is passed to scipy.interpolate.interp1d and
-        specifies the kind of interpolation as a string ('linear', 'nearest',
-        'zero', 'slinear', 'quadratic, 'cubic') or as an integer specifying the
-        order of the spline interpolator to use.
+        Slepian, D. Prolate spheroidal wave functions, Fourier analysis, and
+        uncertainty V: The discrete case. Bell System Technical Journal,
+        Volume 57 (1978), 1371430
 
-    Returns
-    -------
-    v, e : tuple,
-        v is an array of DPSS windows shaped (Kmax, N)
+    .. note::
+        This function was copied from NiTime
+
+    :type n: int
+    :param n: Sequence length
+    :type half_nbw: float
+    :param half_nbw: unitless standardized half bandwidth corresponding to
+        2 * half_bw = BW*f0 = BW*N/dt but with dt taken as 1
+    :type k_max: int
+    :param k_max: Number of DPSS windows to return is Kmax
+        (orders 0 through Kmax-1)
+    :type low_bias: Bool
+    :param low_bias: Keep only tapers with eigenvalues > 0.9
+    :type interp_from: int (optional)
+    :param interp_from: The dpss can be calculated using interpolation from a
+        set of dpss with the same NW and Kmax, but shorter N. This is the
+        length of this shorter set of dpss windows.
+    :type interp_kind: str (optional)
+    :param interp_kind: This input variable is passed to
+        scipy.interpolate.interp1d and specifies the kind of interpolation as
+        a string ('linear', 'nearest', 'zero', 'slinear', 'quadratic, 'cubic')
+        or as an integer specifying the order of the spline interpolator to use.
+    :rtype: tuple
+    :return: (v, e), v is an array of DPSS windows shaped (Kmax, N),
         e are the eigenvalues
-
-    Notes
-    -----
-    Tridiagonal form of DPSS calculation from:
-
-    Slepian, D. Prolate spheroidal wave functions, Fourier analysis, and
-    uncertainty V: The discrete case. Bell System Technical Journal,
-    Volume 57 (1978), 1371430
     """
     k_max = int(k_max)
     w_bin = float(half_nbw) / n

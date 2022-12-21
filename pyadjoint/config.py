@@ -13,7 +13,7 @@ Configuration object for Pyadjoint.
 from pyadjoint.utils import discover_adjoint_sources
 
 
-def config(adjsrc_type, min_period, max_period, **kwargs):
+def get_config(adjsrc_type, min_period, max_period, **kwargs):
     """
     Defines two common parameters for all configuration objects and then
     reassigns self to a sub Config class which dictates its own required
