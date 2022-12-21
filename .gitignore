@@ -50,6 +50,7 @@ coverage.xml
 .hypothesis/
 .pytest_cache/
 cover/
+pyadjoint/tests/**png
 
 # Translations
 *.mo

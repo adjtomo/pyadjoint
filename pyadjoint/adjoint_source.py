@@ -19,8 +19,8 @@ class AdjointSource:
     Adjoint Source class to hold calculated adjoint sources
     """
     def __init__(self, adj_src_type, misfit, dt, min_period, max_period,
-                 component, adjoint_source=None, network=None, station=None,
-                 location=None, starttime=None):
+                 component, adjoint_source=None, windows=None,
+                 network=None, station=None, location=None, starttime=None):
         """
         Class representing an already calculated adjoint source.
 
@@ -41,6 +41,9 @@ class AdjointSource:
         :type component: str
         :param adjoint_source: The actual adjoint source.
         :type adjoint_source: :class:`numpy.ndarray`
+        :type windows: list of dict
+        :param windows: measurement windows used to generate the adjoint
+            source, each carrying information about the misfit of the window
         :param network: The network code of the station.
         :type network: str
         :param station: The station code of the station.
@@ -66,23 +69,30 @@ class AdjointSource:
         self.location = location
         self.starttime = starttime
         self.adjoint_source = adjoint_source
+        self.windows = windows
 
     def __str__(self):
         if self.network and self.station:
-            station = " at station %s.%s" % (self.network, self.station)
+            station = f" at station {self.network}.{self.station}"
         else:
             station = ""
 
         if self.adjoint_source is not None:
-            adj_src_status = "available with %i samples" % (len(
-                self.adjoint_source))
+            adj_src_status = f"available with {self.adjoint_source} samples"
         else:
             adj_src_status = "has not been calculated"
+
+        if self.windows is not None:
+            windows_status = f"generated with {len(self.windows)} windows"
+        else:
+            windows_status = "has no windows"
 
         return (f"{self.adj_src_name} Adjoint Source for "
                 f"component {self.component}{station}\n"
                 f"\tMisfit: {self.misfit:.4g}\n"
-                f"\tAdjoint source {adj_src_status}")
+                f"\tAdjoint source {adj_src_status}"
+                f"\tWindows: {windows_status}"
+                )
 
     def write(self, filename, format, **kwargs):
         """

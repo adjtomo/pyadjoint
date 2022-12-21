@@ -11,8 +11,8 @@ from pyadjoint.utils import sanity_check_waveforms, discover_adjoint_sources
 
 
 def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
-                             window, adjoint_src=True, plot=False,
-                             plot_filename=None, **kwargs):
+                             window, adjoint_src=True, window_stats=True,
+                             plot=False, plot_filename=None, **kwargs):
     """
     Central function of Pyadjoint used to calculate adjoint sources and misfit.
 
@@ -38,6 +38,8 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
         array
     :param adjoint_src: Derive the adjoint source in addition to misfit calc.
     :type adjoint_src: bool
+    :param window_stats: Return stats (misfit, measurement type) for each window
+        provided to the adjoint source calculation.
     :param plot: Also produce a plot of the adjoint source. This will force
         the adjoint source to be calculated regardless of the value of
         ``adjoint_src``.
@@ -74,8 +76,8 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     # Main processing function, calculate adjoint source here
     try:
         ret_val = fct(observed=observed, synthetic=synthetic, config=config,
-                      window=window, adjoint_src=adjoint_src, figure=figure,
-                      **kwargs)
+                      window=window, adjoint_src=adjoint_src,
+                      window_stats=window_stats, plot=figure, **kwargs)
         # Generate figure from the adjoint source
         if plot and plot_filename:
             figure.savefig(plot_filename)
@@ -124,14 +126,19 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     else:
         adjoint_source = None
 
-    return AdjointSource(adj_src_type, misfit=misfit,
-                         adjoint_source=adjoint_source,
-                         dt=observed.stats.delta,
-                         min_period=config.min_period,
-                         max_period=config.max_period,
-                         network=observed.stats.network,
-                         station=observed.stats.station,
-                         component=observed.stats.channel,
-                         location=observed.stats.location,
-                         starttime=observed.stats.starttime)
+    if window_stats:
+        windows = ret_val["window_stats"]
+    else:
+        windows = None
+
+    adjsrc = AdjointSource(
+        adj_src_type, misfit=misfit, dt=observed.stats.delta,
+        adjoint_source=adjoint_source, windows=windows,
+        min_period=config.min_period, max_period=config.max_period,
+        network=observed.stats.network, station=observed.stats.station,
+        component=observed.stats.channel, location=observed.stats.location,
+        starttime=observed.stats.starttime
+    )
+
+    return adjsrc
 

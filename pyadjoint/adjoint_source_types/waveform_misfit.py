@@ -77,7 +77,7 @@ ADDITIONAL_PARAMETERS = r"""
 # left_window_border, right_window_border, adjoint_src, and figure as
 # parameters. Other optional keyword arguments are possible.
 def calculate_adjoint_source(observed, synthetic, config, window,
-                             adjoint_src=True, window_stats=True, figure=False):
+                             adjoint_src=True, window_stats=True, plot=False):
     """
     Calculate adjoint source for the waveform misfit measurement
 
@@ -94,15 +94,15 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     :type adjoint_src: bool
     :param adjoint_src: flag to calculate adjoint source, if False, will only
         calculate misfit
-    :type figure: bool
-    :param figure: generate a figure after calculating adjoint source
+    :type plot: bool
+    :param plot: generate a figure after calculating adjoint source
     """
     assert(config.__class__.__name__ == "ConfigWaveform"), \
         "Incorrect configuration class passed to Waveform misfit"
 
     # Dictionary of values to be used to fill out the adjoint source class
     ret_val = {}
-    
+
     # List of windows and some measurement values for each
     win_stats = []
 
@@ -150,7 +150,6 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         win_stats.append(
             {"left_window_border": left_window_border,
              "right_window_border": right_window_border,
-             "misfit_type": "waveform_misfit",
              "misfit": misfit_win,
              "difference": np.mean(diff)}
         )
@@ -166,7 +165,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         ret_val["adjoint_source"] = adj[::-1]
 
     # Generate a figure if requested to
-    if figure:
+    if plot:
         generic_adjoint_source_plot(
             observed, synthetic, ret_val["adjoint_source"], ret_val["misfit"],
             window, VERBOSE_NAME)
