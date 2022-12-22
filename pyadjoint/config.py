@@ -10,7 +10,7 @@ Configuration object for Pyadjoint.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from pyadjoint.utils import discover_adjoint_sources
+from pyadjoint import discover_adjoint_sources
 
 
 def get_config(adjsrc_type, min_period, max_period, **kwargs):
@@ -128,10 +128,10 @@ class ConfigMultitaper:
     """Multitaper misfit function required parameters"""
     def __init__(self, min_period, max_period, lnpt=15,
                  transfunc_waterlevel=1.0E-10, water_threshold=0.02,
-                 ipower_costaper=10, min_cycle_in_window=0.5, taper_type='hann',
+                 ipower_costaper=10, min_cycle_in_window=0.5, taper_type="hann",
                  taper_percentage=0.3, mt_nw=4.0, num_taper=5, dt_fac=2.0,
                  phase_step=1.5, err_fac=2.5, dt_max_scale=3.5,
-                 measure_type='dt', dt_sigma_min=1.0, dlna_sigma_min=0.5,
+                 measure_type="dt", dt_sigma_min=1.0, dlna_sigma_min=0.5,
                  use_cc_error=True, use_mt_error=False):
         """
         :param min_period: Minimum period of the filtered input data in seconds.
@@ -157,11 +157,16 @@ class ConfigMultitaper:
         :param dlna_sigma_min: minimum amplitude error allowed
         :type dlna_sigma_min: float
 
-        :param lnpt: power index to determin the time lenght use in FFT (2^lnpt)
+        :param lnpt: power index to determine the time length use in FFT
+            (2^lnpt)
         :type lnpt: int
         :param transfunc_waterlevel: Water level on the transfer function
             between data and synthetic.
         :type transfunc_waterlevel: float
+        :param water_threshold: the triggering value to stop the search. If
+            the spectra is larger than 10*water_threshold it will trigger the
+            search again, works like the heating thermostat.
+        :type water_threshold: float
         :param ipower_costaper: order of cosine taper, higher the value,
             steeper the shoulders.
         :type ipower_costaper: int

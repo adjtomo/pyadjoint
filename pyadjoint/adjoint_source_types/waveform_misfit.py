@@ -17,7 +17,8 @@ Simple waveform misfit and adjoint source.
 import numpy as np
 from scipy.integrate import simps
 
-from pyadjoint.utils import generic_adjoint_source_plot, window_taper
+from pyadjoint import plot_adjoint_source
+from pyadjoint.utils.signal import window_taper
 
 
 # This is the verbose and pretty name of the adjoint source defined in this
@@ -97,6 +98,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     :type adjoint_src: bool
     :param adjoint_src: flag to calculate adjoint source, if False, will only
         calculate misfit
+    :type windows_stats: bool
+    :param window_stats: flag to return stats for individual misfit windows used
+        to generate the adjoint source
     :type plot: bool
     :param plot: generate a figure after calculating adjoint source
     """
@@ -167,8 +171,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
     # Generate a figure if requested to
     if plot:
-        generic_adjoint_source_plot(
-            observed, synthetic, ret_val["adjoint_source"], ret_val["misfit"],
-            window, VERBOSE_NAME)
+        plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
+                            ret_val["misfit"], window, VERBOSE_NAME)
 
     return ret_val

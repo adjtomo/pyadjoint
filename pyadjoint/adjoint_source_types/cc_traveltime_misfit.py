@@ -2,7 +2,7 @@
 """
 Cross correlation traveltime misfit and associated adjoint source.
 
-:copyright:
+:authors:
     adjtomo Dev Team (adjtomo@gmail.com), 2022
     Youyi Ruan (youyir@princeton.edu) 2016
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
@@ -12,8 +12,9 @@ Cross correlation traveltime misfit and associated adjoint source.
 import numpy as np
 from scipy.integrate import simps
 
-from pyadjoint.utils import (window_taper, generic_adjoint_source_plot,
-                             xcorr_shift, cc_error)
+from pyadjoint import plot_adjoint_source
+from pyadjoint.utils.signal import window_taper
+from pyadjoint.utils.cctm import xcorr_shift, cc_error
 
 
 VERBOSE_NAME = "Cross Correlation Traveltime Misfit"
@@ -94,6 +95,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     :type adjoint_src: bool
     :param adjoint_src: flag to calculate adjoint source, if False, will only
         calculate misfit
+    :type windows_stats: bool
+    :param window_stats: flag to return stats for individual misfit windows used
+        to generate the adjoint source
     :type plot: bool
     :param plot: generate a figure after calculating adjoint source
     """
@@ -172,17 +176,17 @@ def calculate_adjoint_source(observed, synthetic, config, window,
             -1.0 * s[:] * cc_dlna / mnorm / sigma_dlna ** 2
 
         # Store some information for each window
-        win_stats_q.append(
+        win_stats_p.append(
             {"left": left_window_border, "right": right_window_border,
              "measurement_type": config.measure_type,
-             "dlna": cc_dlna,  "misfit_dlna": misfit_q,
-             "sigma_dlna": sigma_dlna,
+             "tshift": t_shift,  "misfit_dt": misfit_p, "sigma_dt": sigma_dt,
              }
         )
         win_stats_q.append(
             {"left": left_window_border, "right": right_window_border,
              "measurement_type": config.measure_type,
-             "tshift": t_shift,  "misfit_dt": misfit_p, "sigma_dt": sigma_dt,
+             "dlna": cc_dlna,  "misfit_dlna": misfit_q,
+             "sigma_dlna": sigma_dlna,
              }
         )
 
@@ -203,9 +207,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         ret_val = ret_val_q
 
     if plot:
-        generic_adjoint_source_plot(
-            observed, synthetic, ret_val["adjoint_source"], ret_val["misfit"],
-            window, VERBOSE_NAME
-        )
+        plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
+                            ret_val["misfit"], window, VERBOSE_NAME)
 
     return ret_val

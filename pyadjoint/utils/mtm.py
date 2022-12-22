@@ -1,22 +1,60 @@
 #!/usr/bin/env python3
 """
-Compute Discrete Prolate Spheroidal Sequences (DPSS), used for multitaper
-measurements.
+Utility functions for calculating multitaper measurements (MTM).
 
 :copyright:
     adjTomo Dev Team (adjtomo@gmail.com), 2022
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2016
     Martin Luessi (mluessi@nmr.mgh.harvard.edu), 2012
 License : BSD 3-clause
-
-.. note::
-    Largely copied from the mne-python package so credit goes to them.
-    https://github.com/mne-tools/mne-python/blob/master/mne/time_frequency/\
-    multitaper.py
 """
 import warnings
 import numpy as np
 from scipy import fftpack, linalg, interpolate
+
+from pyadjoint import logger
+
+
+def process_cycle_skipping(phi_w, nfreq_max, nfreq_min, wvec, phase_step=1.5):
+    """
+    Check for cycle skipping by looking at the smoothness of phi
+
+    :type phi_w: np.array
+    :param phi_w: phase anomaly from transfer functions
+    :type nfreq_min: int
+    :param nfreq_min: minimum frequency for suitable MTM measurement
+    :type nfreq_max: int
+    :param nfreq_max: maximum frequency for suitable MTM measurement
+    :type phase_step: float
+    :param phase_step: maximum step for cycle skip correction (?)
+    :type wvec: np.array
+    :param wvec: angular frequency array generated from Discrete Fourier
+        Transform sample frequencies
+    """
+    for iw in range(nfreq_min + 1, nfreq_max - 1):
+        smth0 = abs(phi_w[iw + 1] + phi_w[iw - 1] - 2.0 * phi_w[iw])
+        smth1 = \
+            abs((phi_w[iw + 1] + 2 * np.pi) + phi_w[iw - 1] - 2.0 * phi_w[iw])
+        smth2 = \
+            abs((phi_w[iw + 1] - 2 * np.pi) + phi_w[iw - 1] - 2.0 * phi_w[iw])
+
+        phase_diff = phi_w[iw] - phi_w[iw + 1]
+
+        if abs(phase_diff) > phase_step:
+
+            temp_period = 2.0 * np.pi / wvec[iw]
+
+            if smth1 < smth0 and smth1 < smth2:
+                logger.warning(f"2pi phase shift at {iw} T={temp_period} "
+                               f"diff={phase_diff}")
+                phi_w[iw + 1:nfreq_max] = phi_w[iw + 1:nfreq_max] + 2 * np.pi
+
+            if smth2 < smth0 and smth2 < smth1:
+                logger.warning(f"-2pi phase shift at {iw} T={temp_period} "
+                               f"diff={phase_diff}")
+                phi_w[iw + 1:nfreq_max] = phi_w[iw + 1:nfreq_max] - 2 * np.pi
+
+    return phi_w
 
 
 def tridisolve(d, e, b, overwrite_b=True):
@@ -24,7 +62,9 @@ def tridisolve(d, e, b, overwrite_b=True):
     Symmetric tridiagonal system solver, from Golub and Van Loan pg 157
 
     .. note::
-        This function was copied from NiTime
+        Copied from the mne-python package so credit goes to them.
+        https://github.com/mne-tools/mne-python/blob/master/mne/time_frequency/\
+        multitaper.py
 
     :type d: ndarray
     :param d: main diagonal stored in d[:]
@@ -66,7 +106,9 @@ def tridi_inverse_iteration(d, e, w, x0=None, rtol=1e-8):
     to the given eigenvalue in a symmetric tridiagonal system.
 
     .. note::
-        This function was copied from NiTime
+        Copied from the mne-python package so credit goes to them.
+        https://github.com/mne-tools/mne-python/blob/master/mne/time_frequency/\
+        multitaper.py
 
     :type d: ndarray
     :param d: main diagonal stored in d[:]

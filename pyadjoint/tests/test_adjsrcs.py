@@ -35,11 +35,9 @@ def test_waveform_misfit(example_data, example_window):
         window=example_window, adjoint_src=True, plot=True,
         plot_filename="waveform_misfit.png"
     )
-    pytest.set_trace()
     assert adjsrc.adjoint_source.any()
     assert adjsrc.misfit >= 0.0
     assert len(adjsrc.windows) == 1
-
     assert isinstance(adjsrc.adjoint_source, np.ndarray)
 
 
@@ -58,7 +56,7 @@ def test_cc_traveltime_misfit(example_data, example_window):
 
     assert adjsrc.adjoint_source.any()
     assert adjsrc.misfit >= 0.0
-
+    assert len(adjsrc.windows) == 1
     assert isinstance(adjsrc.adjoint_source, np.ndarray)
 
 

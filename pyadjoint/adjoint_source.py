@@ -11,7 +11,7 @@ Central interfaces for ``Pyadjoint``, misfit measurement package.
 import numpy as np
 import obspy
 
-from pyadjoint.utils import discover_adjoint_sources
+from pyadjoint import discover_adjoint_sources
 
 
 class AdjointSource:
