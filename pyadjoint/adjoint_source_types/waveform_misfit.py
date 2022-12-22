@@ -115,7 +115,7 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     adj = np.zeros(nlen_data)
     misfit_sum = 0.0
 
-    # Loop over time windows
+    # Loop over time windows and calculate misfit for each window range
     for wins in window:
         left_window_border = wins[0]
         right_window_border = wins[1]
@@ -151,10 +151,8 @@ def calculate_adjoint_source(observed, synthetic, config, window,
         # Include some information about each window's total misfit,
         # since its already calculated
         win_stats.append(
-            {"left_window_border": left_window_border,
-             "right_window_border": right_window_border,
-             "misfit": misfit_win,
-             "difference": np.mean(diff)}
+            {"left": left_window_border, "right": right_window_border,
+             "misfit": misfit_win, "difference": np.mean(diff)}
         )
 
         # Overwrite the adjoint source where the window is located
