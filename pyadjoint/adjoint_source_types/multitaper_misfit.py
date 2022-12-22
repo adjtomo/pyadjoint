@@ -70,8 +70,8 @@ in which :math:`h_k(t)` is one (the :math:`k`th) of multi-tapers.
 class MultitaperMisfit:
     """
     A class to house the machinery of the multitaper misfit calculation. This is
-    used to reduce the amount of unnecessary parameter passing between
-    functions
+    done with a class rather than a function to reduce the amount of unnecessary
+    parameter passing between functions.
     """
     def __init__(self, observed, synthetic, config, windows):
         """
@@ -81,7 +81,7 @@ class MultitaperMisfit:
         :param observed: observed waveform to calculate adjoint source
         :type synthetic:  obspy.core.trace.Trace
         :param synthetic: synthetic waveform to calculate adjoint source
-        :type config: pyadjoint.config.ConfigCCTraveltime
+        :type config: pyadjoint.config.Multitaper
         :param config: Config class with parameters to control processing
         :type windows: list of tuples
         :param windows: [(left, right),...] representing left and right window
@@ -129,6 +129,7 @@ class MultitaperMisfit:
             misfit_q = 0.
 
             # Calculate cross correlation time shift, amplitude anomaly, errors
+            # 'd' and 's' are windowed data and synthetic waves, respectively
             d, s, cc_tshift, cc_dlna, sigma_dt_cc, sigma_dlna_cc = \
                 calculate_cc_shift(observed=self.observed,
                                    syntehtic=self.synthetic,
@@ -141,16 +142,31 @@ class MultitaperMisfit:
                 # Check length of the time shift w.r.t time step
                 is_mtm = abs(cc_tshift) <= self.dt
                 if is_mtm is False:
-                    logger.info(f"Reject MTM: CC time shift less than time "
-                                f"domain sample length {self.dt}")
+                    logger.info(f"reject MTM: time shift {cc_tshift} <= "
+                                f"dt ({self.dt})")
                     break
 
-                # Shift and scale observed data to match synthetics, make sure
-                # time shift doesn't hit time series' bounds
+                # Check for sufficient number of wavelengths in window
+                is_mtm = bool(
+                    self.config.min_cycle_in_window * self.config.min_period >
+                    self.tlen_data
+                )
+                if is_mtm is False:
+                    logger.info("reject MTM: too few cycles within time window")
+                    logger.debug(f"min_period: {self.config.min_period:6.0f} "
+                                 f"window length: {self.tlen_data:6.0f}")
+                    break
+
+                # Shift and scale observed data 'd' to match synthetics, make
+                # sure the time shift doesn't go passed time series' bounds
                 d, is_mtm = self.prepare_data_for_mtm(d=d, tshift=cc_tshift,
                                                       dlna=cc_dlna,
                                                       window=window)
                 if is_mtm is False:
+                    logger.info(f"reject MTM: adjusted CC shift: {cc_tshift} is"
+                                f"out of bounds of time series")
+                    logger.debug(f"win = [{left_sample * self.dt}, "
+                                 f"{right_sample * self.t}]")
                     break
 
                 # Determine FFT information related to frequency bands
@@ -161,14 +177,11 @@ class MultitaperMisfit:
                 # dw = wvec[1] - wvec[0]  # TODO: check to see if dw is not used
                 logger.debug("delta_f (frequency sampling) = {df}")
 
-                # Check for sufficient number of wavelengths in window
-                is_mtm = self.check_sufficient_number_of_wavelengths()
-                if is_mtm is False:
-                    break
-
                 # Check for sufficient frequency range given taper bandwith
                 nfreq_min, nfreq_max, is_mtm = self.calculate_freq_limits(df)
                 if is_mtm is False:
+                    logger.info("reject MTM: frequency range narrower than "
+                                "half taper bandwith")
                     break
 
                 # Determine taper bandwith in frequency domain
@@ -178,7 +191,7 @@ class MultitaperMisfit:
                 )
                 is_mtm = np.isfinite(eigens).all()
                 if is_mtm is False:
-                    logger.warning("Reject MTM, error constructing DPSS tapers")
+                    logger.warning("reject MTM: error constructing DPSS tapers")
                     logger.debug(f"eigenvalues: {eigens}")
                     break
 
@@ -238,7 +251,7 @@ class MultitaperMisfit:
                 )
                 break
             # If at some point MTM broke out of the loop, this code block will
-            # execute and calculate a CC adjoint source and misfit
+            # execute and calculate a CC adjoint source and misfit instead
             if is_mtm is False:
                 logger.info("calculating misfit and adjoint source with CCTM")
                 misfit_p, misfit_q, fp_t, fq_t = \
@@ -258,7 +271,7 @@ class MultitaperMisfit:
                      }
                 )
 
-            # Taper adjoint sources for the given window
+            # Taper windowed adjoint source
             window_taper(fp_t[0:nlen_w],
                          taper_percentage=self.config.taper_percentage,
                          taper_type=self.config.taper_type)
@@ -751,8 +764,6 @@ class MultitaperMisfit:
         chosen_bandwidth = (nfreq_max - nfreq_min) * df
 
         if chosen_bandwidth < half_taper_bandwidth:
-            logger.info("Rejecting MTM for frequency range narrower than "
-                        "half taper bandwith")
             logger.debug(f"chosen bandwidth ({chosen_bandwidth}) < "
                          f"half taper bandwidth ({half_taper_bandwidth})")
             nfreq_min = None
@@ -787,10 +798,6 @@ class MultitaperMisfit:
         # If the shifted time window is now out of bounds of the time series
         # we will not be able to use MTM
         else:
-            logger.info(f"Reject MTM: adjusted CC shift: {tshift} is"
-                        f"out of bounds of time series")
-            logger.debug(f"win = [{left_sample * self.dt}, "
-                         f"{right_sample * self.t}]")
             is_mtm = False
 
         return d, is_mtm
@@ -841,25 +848,6 @@ class MultitaperMisfit:
                              "allowable time shift")
                 is_mtm = False
 
-        return is_mtm
-
-    def check_sufficient_number_of_wavelengths(self):
-        """
-        Reject MTM if a wave of `min_period` contains a number of cycles less
-        than `min_cycle_in_window` in the selected window. If so switch to
-        CC method. In this case frequency limits are not needed.
-
-        .. note::
-            Formerly part of `frequency_limit` broken off as a separate func.
-        """
-        if (self.config.min_cycle_in_window * self.config.min_period) > \
-                self.tlen_data:
-            logger.debug(f"min_period: {self.config.min_period:6.0f} "
-                         f"window length: {self.tlen_data:6.0f}")
-            logger.info("rejecting MTM for too few cycles within time window")
-            is_mtm = False
-        else:
-            is_mtm = True
         return is_mtm
 
     @staticmethod

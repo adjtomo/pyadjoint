@@ -11,7 +11,7 @@ Utility functions for Pyadjoint.
 import numpy as np
 import obspy
 import warnings
-from pyadjoint import PyadjointError, PyadjointWarning
+from pyadjoint import PyadjointError, PyadjointWarning, logger
 
 
 EXAMPLE_DATA_PDIFF = (800, 900)
@@ -146,7 +146,7 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
         tr = obspy.read()[0]
         tr.plot()
 
-    >>> from pyadjoint.utils import taper_window
+    >>> from pyadjoint.utils.signal import taper_window
     >>> taper_window(tr, 4, 11, taper_percentage=0.10, taper_type="hann")
     >>> tr.plot()
 
