@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
 Utility functions for calculating multitaper measurements (MTM).
+Mainly contains functions for calculating Discrete Prolate Spheroidal Sequences
+(DPSS)
 
 :copyright:
     adjTomo Dev Team (adjtomo@gmail.com), 2022
@@ -8,53 +10,10 @@ Utility functions for calculating multitaper measurements (MTM).
     Martin Luessi (mluessi@nmr.mgh.harvard.edu), 2012
 License : BSD 3-clause
 """
-import warnings
 import numpy as np
 from scipy import fftpack, linalg, interpolate
 
 from pyadjoint import logger
-
-
-def process_cycle_skipping(phi_w, nfreq_max, nfreq_min, wvec, phase_step=1.5):
-    """
-    Check for cycle skipping by looking at the smoothness of phi
-
-    :type phi_w: np.array
-    :param phi_w: phase anomaly from transfer functions
-    :type nfreq_min: int
-    :param nfreq_min: minimum frequency for suitable MTM measurement
-    :type nfreq_max: int
-    :param nfreq_max: maximum frequency for suitable MTM measurement
-    :type phase_step: float
-    :param phase_step: maximum step for cycle skip correction (?)
-    :type wvec: np.array
-    :param wvec: angular frequency array generated from Discrete Fourier
-        Transform sample frequencies
-    """
-    for iw in range(nfreq_min + 1, nfreq_max - 1):
-        smth0 = abs(phi_w[iw + 1] + phi_w[iw - 1] - 2.0 * phi_w[iw])
-        smth1 = \
-            abs((phi_w[iw + 1] + 2 * np.pi) + phi_w[iw - 1] - 2.0 * phi_w[iw])
-        smth2 = \
-            abs((phi_w[iw + 1] - 2 * np.pi) + phi_w[iw - 1] - 2.0 * phi_w[iw])
-
-        phase_diff = phi_w[iw] - phi_w[iw + 1]
-
-        if abs(phase_diff) > phase_step:
-
-            temp_period = 2.0 * np.pi / wvec[iw]
-
-            if smth1 < smth0 and smth1 < smth2:
-                logger.warning(f"2pi phase shift at {iw} T={temp_period} "
-                               f"diff={phase_diff}")
-                phi_w[iw + 1:nfreq_max] = phi_w[iw + 1:nfreq_max] + 2 * np.pi
-
-            if smth2 < smth0 and smth2 < smth1:
-                logger.warning(f"-2pi phase shift at {iw} T={temp_period} "
-                               f"diff={phase_diff}")
-                phi_w[iw + 1:nfreq_max] = phi_w[iw + 1:nfreq_max] - 2 * np.pi
-
-    return phi_w
 
 
 def tridisolve(d, e, b, overwrite_b=True):
@@ -157,6 +116,7 @@ def dpss_windows(n, half_nbw, k_max, low_bias=True, interp_from=None,
     """
     Returns the Discrete Prolate Spheroidal Sequences of orders [0,Kmax-1]
     for a given frequency-spacing multiple NW and sequence length N.
+    Rayleigh bin parameter typical values of half_nbw/nw are 2.5,3,3.5,4.
 
     .. note::
         Tridiagonal form of DPSS calculation from:
@@ -199,10 +159,9 @@ def dpss_windows(n, half_nbw, k_max, low_bias=True, interp_from=None,
     # (interp_from) and then interpolate to the larger size (N)
     if interp_from is not None:
         if interp_from > n:
-            e_s = 'In dpss_windows, interp_from is: %s ' % interp_from
-            e_s += 'and N is: %s. ' % n
-            e_s += 'Please enter interp_from smaller than N.'
-            raise ValueError(e_s)
+            raise ValueError(f"In dpss_windows, interp_from is: {interp_from} "
+                             f"and N is: {n}. Please enter interp_from smaller "
+                             f"than N.")
         dpss = []
         d, e = dpss_windows(interp_from, half_nbw, k_max, low_bias=False)
         for this_d in d:
@@ -285,8 +244,8 @@ def dpss_windows(n, half_nbw, k_max, low_bias=True, interp_from=None,
     if low_bias:
         idx = (eigvals > 0.9)
         if not idx.any():
-            warnings.warn('Could not properly use low_bias, '
-                          'keeping lowest-bias taper')
+            logger.warning("Could not properly use low_bias, keeping "
+                           "lowest-bias taper")
             idx = [np.argmax(eigvals)]
         dpss, eigvals = dpss[idx], eigvals[idx]
     assert len(dpss) > 0  # should never happen

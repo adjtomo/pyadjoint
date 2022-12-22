@@ -8,9 +8,6 @@ Utility functions for Pyadjoint.
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-import inspect
-import os
-
 import numpy as np
 import obspy
 import warnings
@@ -32,7 +29,9 @@ def get_window_info(window, dt):
     :param window: (left sample, right sample) borders of window in sample
     :type dt: float
     :param dt: delta T, time step of time series
-    :return:
+    :rtype: tuple (float, float, int)
+    :return: (left border in sample, right border in sample, length of window
+        in sample)
     """
     nlen = int(np.floor((window[0] - window[1]) / dt)) + 1  # unit: sample
     left_sample = int(np.floor(window[0] / dt))
@@ -171,8 +170,7 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
 def window_taper(signal, taper_percentage, taper_type):
     """
     Window taper function to taper a time series with various taper functions.
-    Affects arrays in place but also returns the array. Both will edit the
-    array.
+    Affect arrays in place but also returns the array. Both will edit the array.
 
     :param signal: time series
     :type signal: ndarray(float)
@@ -227,6 +225,48 @@ def window_taper(signal, taper_percentage, taper_type):
                                      (2 * frac - 1)) ** power
 
     return signal
+
+
+def process_cycle_skipping(phi_w, nfreq_max, nfreq_min, wvec, phase_step=1.5):
+    """
+    Check for cycle skipping by looking at the smoothness of phi
+
+    :type phi_w: np.array
+    :param phi_w: phase anomaly from transfer functions
+    :type nfreq_min: int
+    :param nfreq_min: minimum frequency for suitable MTM measurement
+    :type nfreq_max: int
+    :param nfreq_max: maximum frequency for suitable MTM measurement
+    :type phase_step: float
+    :param phase_step: maximum step for cycle skip correction (?)
+    :type wvec: np.array
+    :param wvec: angular frequency array generated from Discrete Fourier
+        Transform sample frequencies
+    """
+    for iw in range(nfreq_min + 1, nfreq_max - 1):
+        smth0 = abs(phi_w[iw + 1] + phi_w[iw - 1] - 2.0 * phi_w[iw])
+        smth1 = \
+            abs((phi_w[iw + 1] + 2 * np.pi) + phi_w[iw - 1] - 2.0 * phi_w[iw])
+        smth2 = \
+            abs((phi_w[iw + 1] - 2 * np.pi) + phi_w[iw - 1] - 2.0 * phi_w[iw])
+
+        phase_diff = phi_w[iw] - phi_w[iw + 1]
+
+        if abs(phase_diff) > phase_step:
+
+            temp_period = 2.0 * np.pi / wvec[iw]
+
+            if smth1 < smth0 and smth1 < smth2:
+                logger.warning(f"2pi phase shift at {iw} T={temp_period} "
+                               f"diff={phase_diff}")
+                phi_w[iw + 1:nfreq_max] = phi_w[iw + 1:nfreq_max] + 2 * np.pi
+
+            if smth2 < smth0 and smth2 < smth1:
+                logger.warning(f"-2pi phase shift at {iw} T={temp_period} "
+                               f"diff={phase_diff}")
+                phi_w[iw + 1:nfreq_max] = phi_w[iw + 1:nfreq_max] - 2 * np.pi
+
+    return phi_w
 
 
 

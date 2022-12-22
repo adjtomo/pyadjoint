@@ -107,8 +107,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     ret_val_q = {}
 
     # List of windows and some measurement values for each
-    win_stats_p = []
-    win_stats_q = []
+    win_stats = []
 
     # Initiate constants and empty return values to fill
     nlen_data = len(synthetic.data)
@@ -150,16 +149,11 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         fq[left_sample:right_sample] = fq_win[:]
 
         # Store some information for each window
-        win_stats_p.append(
+        win_stats.append(
             {"left": left_sample * dt, "right": right_sample * dt,
-             "measurement_type": config.measure_type,
-             "tshift": tshift,  "misfit_dt": misfit_p, "sigma_dt": sigma_dt,
-             }
-        )
-        win_stats_q.append(
-            {"left": left_sample * dt, "right":  right_sample * dt,
-             "measurement_type": config.measure_type,
-             "dlna": dlna,  "misfit_dlna": misfit_q, "sigma_dlna": sigma_dlna,
+             "measurement_type": config.measure_type, "tshift": tshift,
+             "misfit_dt": misfit_p, "sigma_dt": sigma_dt, "dlna": dlna,
+             "misfit_dlna": misfit_q, "sigma_dlna": sigma_dlna,
              }
         )
 
@@ -172,8 +166,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         ret_val_p["adjoint_source"] = fp[::-1]
         ret_val_q["adjoint_source"] = fq[::-1]
     if window_stats is True:
-        ret_val_p["window_stats"] = win_stats_p
-        ret_val_q["window_stats"] = win_stats_q
+        ret_val_p["window_stats"] = win_stats
+        ret_val_q["window_stats"] = win_stats
 
     if config.measure_type == "dt":
         ret_val = ret_val_p

@@ -11,7 +11,7 @@ Configuration object for Pyadjoint.
     (http://www.gnu.org/copyleft/gpl.html)
 """
 from pyadjoint import discover_adjoint_sources
-
+from pyadjoint.utils.signal import TAPER_COLLECTION
 
 def get_config(adjsrc_type, min_period, max_period, **kwargs):
     """
@@ -35,6 +35,14 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
     else:
         raise NotImplementedError(f"adjoint source type must be in "
                                   f"{adjsrc_types}")
+
+    # Perform some parameter checks
+    if "measure_type" in cfg:
+        assert(cfg.measure_type in ["dt", "am"]), \
+            "`measure_type` must be 'dt' or 'am'"
+    assert(cfg.taper_type in TAPER_COLLECTION), \
+        f"`taper_type` must be in {TAPER_COLLECTION}"
+
     return cfg
 
 
@@ -173,7 +181,7 @@ class ConfigMultitaper:
         :param min_cycle_in_window:  Minimum cycle of a wave in time window to
             determin the maximum period can be reliably measured.
         :type min_cycle_in_window: int
-        :param mt_nw: bin width of multitapers (nw*df is the the half
+        :param mt_nw: bin width of multitapers (nw*df is the half
             bandwidth of multitapers in frequency domain,
             typical values are 2.5, 3., 3.5, 4.0)
         :type mt_nw: float
@@ -211,4 +219,5 @@ class ConfigMultitaper:
         self.dt_fac = dt_fac
         self.err_fac = err_fac
         self.dt_max_scale = dt_max_scale
+
 

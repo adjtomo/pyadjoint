@@ -7,7 +7,7 @@ import warnings
 from obspy.signal.cross_correlation import xcorr_pick_correction
 from scipy.integrate import simps
 from pyadjoint import logger
-from pyadjoint.utils.signal import window_taper, get_window
+from pyadjoint.utils.signal import window_taper, get_window_info
 
 
 def calculate_cc_shift(observed, synthetic, window=None, taper_percentage=0.3,
@@ -27,7 +27,8 @@ def calculate_cc_shift(observed, synthetic, window=None, taper_percentage=0.3,
     :type synthetic:  obspy.core.trace.Trace
     :param synthetic: synthetic waveform to calculate adjoint source
     :type window: tuple or list
-    :param window: (left, right) representing left and right window borders
+    :param window: (left, right) representing left and right window borders.
+        If not given, will calculate on the entire time series
     :type taper_percentage: float
     :param taper_percentage: Percentage of a time window needs to be
     tapered at two ends, to remove the non-zero values for adjoint
@@ -51,7 +52,7 @@ def calculate_cc_shift(observed, synthetic, window=None, taper_percentage=0.3,
     if not window:
         window = [0, len(synthetic.data) * dt]
 
-    left_sample, right_sample, nlen_w = get_window(window, dt)
+    left_sample, right_sample, nlen_w = get_window_info(window, dt)
 
     # Pre-allocate arrays for memory efficiency
     d = np.zeros(nlen_w)
