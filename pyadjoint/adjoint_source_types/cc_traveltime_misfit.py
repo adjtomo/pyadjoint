@@ -10,11 +10,10 @@ Cross correlation traveltime misfit and associated adjoint source.
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
 import numpy as np
-from scipy.integrate import simps
 
 from pyadjoint import plot_adjoint_source
-from pyadjoint.utils.signal import window_taper
-from pyadjoint.utils.cctm import xcorr_shift, cc_error
+from pyadjoint.utils.signal import get_window_info, window_taper
+from pyadjoint.utils.cctm import calculate_cc_shift, calculate_cc_adjsrc
 
 
 VERBOSE_NAME = "Cross Correlation Traveltime Misfit"
@@ -76,7 +75,7 @@ ADDITIONAL_PARAMETERS = r"""
 """
 
 
-def calculate_adjoint_source(observed, synthetic, config, window,
+def calculate_adjoint_source(observed, synthetic, config, windows,
                              adjoint_src=True, window_stats=True, plot=False):
     """
     Calculate adjoint source for the cross-correlation traveltime misfit
@@ -88,14 +87,13 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     :param synthetic: synthetic waveform to calculate adjoint source
     :type config: pyadjoint.config.ConfigCCTraveltime
     :param config: Config class with parameters to control processing
-    :type window: list of tuples
-    :param window: [(left, right),...] representing left and right window
-        borders to be tapered in units of seconds since first sample in data
-        array
+    :type windows: list of tuples
+    :param windows: [(left, right),...] representing left and right window
+        borders to be used to calculate misfit and adjoint sources
     :type adjoint_src: bool
     :param adjoint_src: flag to calculate adjoint source, if False, will only
         calculate misfit
-    :type windows_stats: bool
+    :type window_stats: bool
     :param window_stats: flag to return stats for individual misfit windows used
         to generate the adjoint source
     :type plot: bool
@@ -114,8 +112,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
 
     # Initiate constants and empty return values to fill
     nlen_data = len(synthetic.data)
-    deltat = synthetic.stats.delta
+    dt = synthetic.stats.delta
 
+    # Initiate empty arrays for memory efficiency
     fp = np.zeros(nlen_data)
     fq = np.zeros(nlen_data)
 
@@ -123,77 +122,52 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     misfit_sum_q = 0.0
 
     # Loop over time windows and calculate misfit for each window range
-    for wins in window:
-        left_window_border = wins[0]
-        right_window_border = wins[1]
+    for window in windows:
+        left_sample, right_sample, nlen_w = get_window_info(window, dt)
 
-        left_sample = int(np.floor(left_window_border / deltat)) + 1
-        nlen = int(np.floor((right_window_border -
-                             left_window_border) / deltat)) + 1
-        right_sample = left_sample + nlen
+        # Calculate cross correlation time shift, amplitude anomaly and errors
+        # Config passed as **kwargs to control constants required by function
+        d, s, tshift, dlna, sigma_dt, sigma_dlna = \
+            calculate_cc_shift(observed=observed, syntehtic=synthetic,
+                               window=window, **vars(config)
+                               )
+        # Calculate misfit and adjoint source for the given window
+        misfit_p, misfit_q, fp_win, fq_win = \
+            calculate_cc_adjsrc(s=s, tshift=tshift, dlna=dlna, dt=dt,
+                                **vars(config)
+                                )
 
-        d = np.zeros(nlen)
-        s = np.zeros(nlen)
-
-        d[0:nlen] = observed.data[left_sample:right_sample]
-        s[0:nlen] = synthetic.data[left_sample:right_sample]
-
-        # All adjoint sources will need some kind of windowing taper
-        window_taper(d, taper_percentage=config.taper_percentage,
-                     taper_type=config.taper_type)
-        window_taper(s, taper_percentage=config.taper_percentage,
-                     taper_type=config.taper_type)
-
-        i_shift = xcorr_shift(d, s)
-        t_shift = i_shift * deltat
-
-        cc_dlna = 0.5 * np.log(sum(d[0:nlen] * d[0:nlen]) /
-                               sum(s[0:nlen] * s[0:nlen]))
-
-        # Determine if a calculated error value should be used for normalization
-        if config.use_cc_error:
-            sigma_dt, sigma_dlna = cc_error(
-                d1=d, d2=s, deltat=deltat, cc_shift=i_shift, cc_dlna=cc_dlna,
-                dt_sigma_min=config.dt_sigma_min,
-                dlna_sigma_min=config.dlna_sigma_min
-            )
-        else:
-            sigma_dt, sigma_dlna = 1., 1.
-
-        # Calculate the misfit for both time shift and amplitude anomaly
-        misfit_p = 0.5 * (t_shift / sigma_dt) ** 2
-        misfit_q = 0.5 * (cc_dlna / sigma_dlna) ** 2
+        # Sum misfit into the overall waveform misfit
         misfit_sum_p += misfit_p
         misfit_sum_q += misfit_q
 
-        # Calculate adjoint sources for both time shift and amplitude anomaly
-        dsdt = np.gradient(s, deltat)
-        nnorm = simps(y=dsdt * dsdt, dx=deltat)
-        fp[left_sample:right_sample] = dsdt[:] * t_shift / nnorm / sigma_dt ** 2
-
-        mnorm = simps(y=s * s, dx=deltat)
-        fq[left_sample:right_sample] = \
-            -1.0 * s[:] * cc_dlna / mnorm / sigma_dlna ** 2
+        # Add windowed adjoint source to the full adjoint source waveform
+        window_taper(fp_win, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
+        window_taper(fq_win, taper_percentage=config.taper_percentage,
+                     taper_type=config.taper_type)
+        fp[left_sample:right_sample] = fp_win[:]
+        fq[left_sample:right_sample] = fq_win[:]
 
         # Store some information for each window
         win_stats_p.append(
-            {"left": left_window_border, "right": right_window_border,
+            {"left": left_sample * dt, "right": right_sample * dt,
              "measurement_type": config.measure_type,
-             "tshift": t_shift,  "misfit_dt": misfit_p, "sigma_dt": sigma_dt,
+             "tshift": tshift,  "misfit_dt": misfit_p, "sigma_dt": sigma_dt,
              }
         )
         win_stats_q.append(
-            {"left": left_window_border, "right": right_window_border,
+            {"left": left_sample * dt, "right":  right_sample * dt,
              "measurement_type": config.measure_type,
-             "dlna": cc_dlna,  "misfit_dlna": misfit_q,
-             "sigma_dlna": sigma_dlna,
+             "dlna": dlna,  "misfit_dlna": misfit_q, "sigma_dlna": sigma_dlna,
              }
         )
 
-    # Keep track of both misfit values
+    # Keep track of both misfit values but only returning one of them
     ret_val_p["misfit"] = misfit_sum_p
     ret_val_q["misfit"] = misfit_sum_q
 
+    # Time reverse adjoint sources w.r.t synthetic waveforms
     if adjoint_src is True:
         ret_val_p["adjoint_source"] = fp[::-1]
         ret_val_q["adjoint_source"] = fq[::-1]

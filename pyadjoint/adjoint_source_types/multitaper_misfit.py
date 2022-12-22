@@ -69,8 +69,7 @@ in which :math:`h_k(t)` is one (the :math:`k`th) of multi-tapers.
 class MultitaperMisfit:
     """
     A class to house the machinery of the multitaper misfit calculation. This is
-    used to avoid passing parameters in and out of functions which done
-    previously
+    used to avoid unnecessary parameter passing between functions.
     """
     def __init__(self, observed, synthetic, config, window,
                  adjoint_src=True, window_stats=True, plot=False):
@@ -97,7 +96,7 @@ class MultitaperMisfit:
         # Empty variables to be used for the return
         self.ret_val_p = {}
         self.ret_val_q = {}
-        self.window_stats = []
+        self.windows = []
 
     def calculate_adjoint_source(self):
         """
@@ -111,75 +110,85 @@ class MultitaperMisfit:
 
         # Loop over time windows and calculate misfit for each window range
         for wins in self.window:
-            left_window_border = wins[0]
-            right_window_border = wins[1]
+            # Length of window in samples
+            nlen_w = int(np.floor((wins[0] - wins[1]) / self.deltat)) + 1
 
-            # `d` and `s` represent the windowed data and synthetics
-            d, s, cc_tshift, cc_dlna, sigma_dt_cc, sigma_dlna_cc, \
-                is_mtm, nlen_w= self.calculate_cctm_misfit(left_window_border,
-                                                           right_window_border
-                                                           )
+            # First we calculate the CC traveltime misfit and associated error
+            d, s, cc_tshift, cc_dlna, sigma_dt_cc, sigma_dlna_cc, is_mtm =\
+                self.calculate_cctm_misfit(wins)
 
-            # Determine frequency bands for FFT
+            # Nexts we determine FFT information related to frequency bands
             freq = np.fft.fftfreq(n=self.nlen_f, d=self.observed.stats.delta)
-            df = freq[1] - freq[0]
+            df = freq[1] - freq[0]  # delta_f: frequency step
             wvec = freq * 2 * np.pi  # omega vector: angular frequency
-            logger.debug("delta_f (frequency sampling): %f " % df)
-            # dw = wvec[1] - wvec[0]  # TODO: check again see if dw is not used.
+            # dw = wvec[1] - wvec[0]  # TODO: check again see if dw is not used
+            nfreq_min = int(1.0 / (self.config.max_period * df))  # default fmin
+            nfreq_max = int(1.0 / (self.config.min_period * df))  # default fmax
+            logger.debug("delta_f (frequency sampling) = {df}")
 
             # Perform a series of checks to see if MTM is valid for the data
-            if is_mtm:
-                # CHECK 1:
-                # Check window if okay for MTM measurements. If so, find min/max
-                # frequency limit for calculations
-                nfreq_min, nfreq_max, is_mtm = self.frequency_limit(df)
-                if is_mtm:
-                    # CHECK 2:
-                    # Set the Rayleigh bin parameter (determine taper bandwith
-                    # in frequency domain): NW (typical values are 2.5,3,3.5,4).
-                    # Generate discrete prolate slepian sequences
-                    tapert, eigens = dpss_windows(n=nlen_w,
-                                                  half_nbw=self.config.mt_nw,
-                                                  k_max=self.config.num_taper,
-                                                  low_bias=False)
-                    if np.isfinite(eigens).all():
-                        tapers = tapert.T * np.sqrt(nlen_w)
-                        # CHECK 3:
-                        # Check if tapers are properly generated. In rare cases
-                        # (e.g., [nw=2.5, nlen=61] or [nw=4.0, nlen=15]) certain
-                        # eigenvalues can not be found and associated eigen
-                        # taper will be NaN
-                        phi_mtm, abs_mtm, dtau_mtm, dlna_mtm = self.mt_measure(
-                            d=d, s=s, tapers=tapers, nfreq_min=nfreq_min,
-                            nfreq_max=nfreq_max, cc_tshift=cc_tshift,
-                            cc_dlna=cc_dlna
-                        )
+            # This will only loop once, but allows us to break if a check fail
+            if is_mtm is True:
+                # Check for sufficient number of wavelengths in window
+                if not self.check_sufficient_number_of_wavelengths():
+                    is_mtm = False
+                    break
+                # Check for sufficient frequency range given taper bandwith
+                _nfreq_min, _nfreq_max, is_mtm = self.calculate_freq_limits(df)
+                if not is_mtm:
+                    break
+                # Replace default min and max frequency bins with calculated
+                nfreq_min, nfreq_max = _nfreq_min, _nfreq_max
 
-                        # Calculate multi-taper error estimation
-                        if self.config.use_mt_error:
-                            sigma_phi_mt, sigma_abs_mt, sigma_dtau_mt, \
-                                sigma_dlna_mt = self.mt_error(
-                                    d=d, s=s, tapers=tapers, wvec=wvec,
-                                    nfreq_min=nfreq_min, nfreq_max=nfreq_max,
-                                    cc_tshift=cc_tshift, cc_dlna=cc_dlna,
-                                    phi_mtm=phi_mtm, abs_mtm=abs_mtm,
-                                    dtau_mtm=dtau_mtm, dlna_mtm=dlna_mtm
-                            )
+                # Determine taper bandwith in frequency domain (set the
+                # Rayleigh bin parameter), typical values NW are 2.5,3,3.5,4.
+                # Generate discrete prolate slepian sequences (DPSS)
+                tapert, eigens = dpss_windows(
+                    n=nlen_w, half_nbw=self.config.mt_nw,
+                    k_max=self.config.num_taper, low_bias=False
+                )
+                if not np.isfinite(eigens).all():
+                    logger.warning("Reject MTM, error constructing DPSS tapers")
+                    logger.debug(f"eigenvalues: {eigens}")
+                    is_mtm = False
+                    break
+                # Check if tapers are properly generated. In rare cases
+                # (e.g., [nw=2.5, nlen=61] or [nw=4.0, nlen=15]) certain
+                # eigenvalues can not be found and associated eigentaper is NaN
+                tapers = tapert.T * np.sqrt(nlen_w)
+                phi_mtm, abs_mtm, dtau_mtm, dlna_mtm = self.mt_measure(
+                    d=d, s=s, tapers=tapers, nfreq_min=nfreq_min,
+                    nfreq_max=nfreq_max, cc_tshift=cc_tshift,
+                    cc_dlna=cc_dlna
+                )
 
-                        # Check one last time if the multitaper measurement
-                        # results fail a selection criteria
-                        is_mtm = self.mt_measure_select(
-                            nfreq_min=nfreq_min, nfreq_max=nfreq_max, df=df,
-                            cc_tshift=cc_tshift, dtau_w=dtau_mtm,
-                        )
-                    else:
-                        logger.warning("Error constructing dpss tapers will "
-                                       "fall back to CC")
-                        logger.debug(f"eigenvalues: {eigens}")
-                        is_mtm = False
+                # Calculate multi-taper error estimation if requested
+                if self.config.use_mt_error:
+                    sigma_phi_mt, sigma_abs_mt, sigma_dtau_mt, \
+                        sigma_dlna_mt = self.mt_error(
+                            d=d, s=s, tapers=tapers, wvec=wvec,
+                            nfreq_min=nfreq_min, nfreq_max=nfreq_max,
+                            cc_tshift=cc_tshift, cc_dlna=cc_dlna,
+                            phi_mtm=phi_mtm, abs_mtm=abs_mtm,
+                            dtau_mtm=dtau_mtm, dlna_mtm=dlna_mtm)
+                else:
+                    sigma_dtau_mt = np.zeros(self.nlen_f)
+                    sigma_dlna_mt = np.zeros(self.nlen_f)
+
+                # Check one last time if the multitaper measurement results
+                # fail a selection criteria
+                is_mtm = self.check_mtm_time_shift_acceptability(
+                    nfreq_min=nfreq_min, nfreq_max=nfreq_max,
+                    cc_tshift=cc_tshift, dtau_mtm=dtau_mtm,
+                    sigma_dtau_mt=sigma_dtau_mt
+                    )
+                # Only run one loop. Windows that gets all the way here will use
+                # MTM measurements for the misfit calculation
+                break
 
             # Determine if MTM or CC will be used to calculate misfit/adjsrc
             if is_mtm:
+                logger.info("calculating misfit and adjoint source with MTM")
                 fp_t, fq_t, misfit_p, misfit_q = self.mt_adj(
                     d=d, s=s, tapers=tapers,  nfreq_min=nfreq_min,
                     nfreq_max=nfreq_max, df=df, dtau_mtm=dtau_mtm,
@@ -188,7 +197,7 @@ class MultitaperMisfit:
                     err_dlna_mt=sigma_dlna_mt
                 )
 
-                self.windows_stats.append(
+                self.windows.append(
                     {"dt": np.mean(dtau_mtm[nfreq_min:nfreq_max]),
                      "dlna": np.mean(dlna_mtm[nfreq_min:nfreq_max]),
                      "misfit_dt": misfit_p,
@@ -198,89 +207,86 @@ class MultitaperMisfit:
                      }
                 )
             else:
-                # calculate c.c. adjoint source
+                logger.info("calculating misfit and adjoint source with CCTM")
                 fp_t, fq_t, misfit_p, misfit_q = \
                     cc_adj(s, cc_shift, cc_dlna, deltat, sigma_dt_cc,
                            sigma_dlna_cc)
-                measure_wins["type"] = "cc"
-                cc_dt = cc_shift * deltat
-                measure_wins["dt"] = cc_dt
-                measure_wins["misfit_dt"] = 0.5 * (cc_dt / sigma_dt_cc) ** 2
 
-                measure_wins["dlna"] = cc_dlna
-                measure_wins["misfit_dlna"] = 0.5 * (
-                            cc_dlna / sigma_dlna_cc) ** 2
+                self.windows.append(
+                    {"dt": cc_tshift,
+                     "dlna": cc_dlna,
+                     "misfit_dt": 0.5 * (cc_dt / sigma_dt_cc) ** 2,
+                     "misfit_dlna": 0.5 * (cc_dlna / sigma_dlna_cc) ** 2,
+                     "sigma_dt": sigma_dt_cc,
+                     "sigma_dlna": sigma_dlna_cc,
+                     }
+                )
 
-                measure_wins["sigma_dt"] = sigma_dt_cc
-                measure_wins["sigma_dlna"] = sigma_dlna_cc
-
-
-            # Taper signals following the SAC taper command
+            # Taper adjoint sources for a given window
             window_taper(fp_t[0:nlen], taper_percentage=config.taper_percentage,
                          taper_type=config.taper_type)
             window_taper(fq_t[0:nlen], taper_percentage=config.taper_percentage,
                          taper_type=config.taper_type)
 
-            # return to original location before windowing
-            # initialization
+            # Place windowed adjoint source within the correct time location
+            # w.r.t the entire synthetic seismogram
             fp_wind = np.zeros(len(synthetic.data))
             fq_wind = np.zeros(len(synthetic.data))
-
             fp_wind[left_sample: right_sample] = fp_t[0:nlen]
             fq_wind[left_sample: right_sample] = fq_t[0:nlen]
 
+            # Add the windowed adjoint source to the full adjoint source
             fp += fp_wind
             fq += fq_wind
 
+            # Increment total misfit value by misfit of windows
             misfit_sum_p += misfit_p
             misfit_sum_q += misfit_q
 
-            measurement.append(measure_wins)
-
-        ret_val_p["misfit"] = misfit_sum_p
-        ret_val_q["misfit"] = misfit_sum_q
+        self.ret_val_p["misfit"] = misfit_sum_p
+        self.ret_val_q["misfit"] = misfit_sum_q
 
         # output all measurement results regardless the type indicated
-        ret_val_p["measurement"] = measurement
-        ret_val_q["measurement"] = measurement
+        if self.window_stats:
+            self.ret_val_p["window_stats"] = self.window_stats
+            self.ret_val_q["window_stats"] = self.window_stats
 
-        if adjoint_src:
-            # Reverse in time and reverse the actual values.
-            ret_val_p["adjoint_source"] = fp[::-1]
-            ret_val_q["adjoint_source"] = fq[::-1]
+        # Reverse adjoint source in time w.r.t synthetics
+        if self.adjoint_src:
+            self.ret_val_p["adjoint_source"] = fp[::-1]
+            self.ret_val_q["adjoint_source"] = fq[::-1]
 
-        if config.measure_type == "dt":
-            if figure:
-                generic_adjoint_source_plot(observed, synthetic,
-                                            ret_val_p["adjoint_source"],
-                                            ret_val_p["misfit"],
-                                            window, VERBOSE_NAME)
+        if self.config.measure_type == "dt":
+            ret_val = self.ret_val_p
+        elif self.config.measure_type == "am":
+            ret_val = self.ret_val_q
 
-            return ret_val_p
+        if self.plot:
+            plot_adjoint_source(self.observed, self.synthetic,
+                                ret_val["adjoint_source"], ret_val["misfit"],
+                                self.window, VERBOSE_NAME
+                                )
+        return ret_val
 
-        if config.measure_type == "am":
-            if figure:
-                generic_adjoint_source_plot(observed, synthetic,
-                                            ret_val_q["adjoint_source"],
-                                            ret_val_q["misfit"],
-                                            window, VERBOSE_NAME)
-
-            return ret_val_q
-
-    def calculate_cctm_misfit(self, left_window_border, right_window_border):
+    def calculate_cctm_misfit(self, window):
         """
-        Calculate cross-correlation traveltime misfit for a given window
+        Calculate cross-correlation traveltime misfit for a given window.
+        This is very similar to the CCTM adjoint source/misfit calculation, but
+        includes some additional checks for adequacy of proceeding with MTM.
         """
-        # pre-processing of the observed and synthetic
-        left_sample = int(np.floor(left_window_border / self.deltat))
-        # Length of the window in samples
+        left_window_border = window[0]
+        right_window_border = window[1]
+
+        # Length of the window in unit samples
         nlen_w = int(np.floor((right_window_border - left_window_border) /
-                            self.deltat)) + 1
+                              self.deltat)) + 1
+
+        left_sample = int(np.floor(left_window_border / self.deltat))
         right_sample = left_sample + nlen_w
 
+        # Pre-allocate arrays for memory efficiency
         d = np.zeros(nlen_w)
         s = np.zeros(nlen_w)
-
         d[0: nlen_w] = self.observed.data[left_sample: right_sample]
         s[0: nlen_w] = self.synthetic.data[left_sample: right_sample]
 
@@ -296,42 +302,53 @@ class MultitaperMisfit:
         cc_tshift = cc_shift * self.deltat
         cc_dlna = 0.5 * np.log(sum(d ** 2) / sum(s ** 2))
 
-        # Uncertainty estimate based on cross-correlations
+        # Uncertainty estimate based on cross-correlations to be used for norm.
         if self.config.use_cc_error:
             sigma_dt_cc, sigma_dlna_cc = cc_error(
                 d1=d, d2=s, deltat=self.deltat, cc_shift=cc_shift,
                 cc_dlna=cc_dlna, dt_sigma_min=self.config.dt_sigma_min,
                 dlna_sigma_min=self.config.dlna_sigma_min
             )
-
-            logger.debug("cc_dt  : %f +/- %f" % (cc_tshift, sigma_dt_cc))
-            logger.debug("cc_dlna: %f +/- %f" % (cc_dlna, sigma_dlna_cc))
+            logger.debug("calculated CC error: "
+                         f"cc_dt = {cc_tshift} +/- {sigma_dt_cc} s; "
+                         f"cc_dlna = {cc_dlna} +/- {sigma_dlna_cc}"
+                         )
         else:
             sigma_dt_cc = 1.0
             sigma_dlna_cc = 1.0
 
-        # Re-window observed to align observed with synthetic for multitaper
-        # measurement:
-        left_sample_d = max(left_sample + cc_shift, 0)
-        right_sample_d = min(right_sample + cc_shift, self.nlen_data)
-        nlen_d = right_sample_d - left_sample_d
-
-        if nlen_d == nlen_w:
-            # No need to correct cc_dlna in multitaper measurements
-            d[0:nlen_w] = self.observed.data[left_sample_d:right_sample_d]
-            d *= np.exp(-cc_dlna)
-            window_taper(d, taper_percentage=self.config.taper_percentage,
-                         taper_type=self.config.taper_type)
-            is_mtm = True
-        else:
-            # when the shifted window is out of bound
-            logger.warning(f"win = [{left_window_border}, "
-                           f"{right_window_border}]")
-            logger.warning(f"CC shift: {cc_tshift}, out of bounds.")
+        # Check if the CC time shift is smaller than sampling rate
+        # Note: This was originally located in `mt_measure_select` which
+        # happened after all other checks, but makes more sense here.
+        if abs(cc_tshift) <= self.deltat:
+            logger.info(f"Reject MTM: CC time shift less than time domain "
+                        f"sample length {self.deltat}")
             is_mtm = False
+        else:
+            # Re-window observed data to center on the optimal time shift, and
+            # scale by amplitude anomaly to get best matching waveforms for MTM
+            left_sample_d = max(left_sample + cc_shift, 0)
+            right_sample_d = min(right_sample + cc_shift, self.nlen_data)
+            nlen_d = right_sample_d - left_sample_d
 
-        return (d, s, cc_tshift, cc_dlna, sigma_dt_cc, sigma_dlna_cc,
-                is_mtm, nlen_w)
+            if nlen_d == nlen_w:
+                # TODO: No need to correct `cc_dlna` in multitaper measurements?
+                d[0:nlen_w] = self.observed.data[left_sample_d:right_sample_d]
+                d *= np.exp(-cc_dlna)
+                window_taper(d, taper_percentage=self.config.taper_percentage,
+                             taper_type=self.config.taper_type)
+                is_mtm = True
+
+            # If the shifted time window is now out of bounds of the time series
+            # we will not be able to use MTM
+            else:
+                logger.info(f"Reject MTM: adjusted CC shift: {cc_tshift} is"
+                            f"out of bounds of time series")
+                logger.debug(f"win = [{left_window_border}, "
+                             f"{right_window_border}]")
+                is_mtm = False
+
+        return d, s, cc_tshift, cc_dlna, sigma_dt_cc, sigma_dlna_cc, is_mtm
 
     def mt_adj(self, d, s, tapers, nfreq_min, nfreq_max, df, dtau_mtm, dlna_mtm,
                err_dt_cc, err_dlna_cc, err_dtau_mt, err_dlna_mt):
@@ -505,6 +522,12 @@ class MultitaperMisfit:
         :param cc_tshift: cross correlation time shift
         :type cc_dlna: float
         :param cc_dlna: amplitude anomaly from cross correlation
+        :rtype: tuple of np.array
+        :return: (phi_w, abs_w, dtau_w, dlna_w);
+            (frequency dependent phase anomaly,
+            phase dependent amplitude anomaly,
+            phase dependent cross-correlation time shift,
+            phase dependent cross-correlation amplitude anomaly)
         """
         # Initialize some constants for convenience
         nlen_t = len(d)
@@ -575,10 +598,15 @@ class MultitaperMisfit:
 
         return phi_w, abs_w, dtau_w, dlna_w
 
-    def mt_measure_select(self, nfreq_min, nfreq_max, df, cc_tshift, dtau_w):
+    def check_mtm_time_shift_acceptability(self, nfreq_min, nfreq_max,
+                                           cc_tshift, dtau_mtm, sigma_dtau_mt):
         """
-        Check mtm measurement see if the measurements are good to keep,
-        otherwise use CC measurement instead
+        Check MTM time shift measurements to see if they are within allowable
+        bounds set by the config. If any of the phases used in MTM do not
+        meet criteria, we will fall back to CC measurement.
+
+        .. note::
+            formerly `mt_measure_select`, renamed for clarity
 
         :type nfreq_max: int
         :param nfreq_max: maximum in frequency domain
@@ -586,36 +614,32 @@ class MultitaperMisfit:
         :param nfreq_min: minimum in frequency domain
         :type cc_tshift: float
         :param cc_tshift: c.c. time shift
-        :type dtau_w: float
-        :param dtau_w: time dependent travel time measurements from mtm
-        :type df: float
-        :param df: frequency domain sampling length
+        :type dtau_mtm: np.array
+        :param dtau_mtm: time dependent travel time measurements from mtm
+        :type sigma_dtau_mt: np.array
+        :param sigma_dtau_mt: error of multitaper measurement
+        :rtype: bool
+        :return: flag for whether any of the MTM phases failed check
         """
         # True unless set False
         is_mtm = True
 
-        # Check if the CC measurements is too small
-        if abs(cc_tshift) <= self.deltat:
-            logger.debug(f"CC time shift less than time domain sample length "
-                         f"{self.deltat}")
-            is_mtm = False
-
         # If any MTM measurements is out of the resonable range, switch to CC
         for j in range(nfreq_min, nfreq_max):
             # dt larger than 1/dt_fac of the wave period
-            if np.abs(dtau_w[j]) > 1. / (self.config.dt_fac * j * df):
-                logger.info("MTM dt measurements is too large")
+            if np.abs(dtau_mtm[j]) > 1. / (self.config.dt_fac * j * df):
+                logger.info("reject MTM: `dt` measurements is too large")
                 is_mtm = False
 
             # Error larger than 1/err_fac of wave period
-            if self.config.err_dt[j] > 1. / (self.config.err_fac * j * df):
-                logger.debug("MTM dt error is too large")
+            if sigma_dtau_mt[j] > 1. / (self.config.err_fac * j * df):
+                logger.debug("reject MTM: `dt` error is too large")
                 is_mtm = False
 
-            # dt larger than the maximum time shift allowed
-            if np.abs(dtau_w[j]) > self.config.dt_max_scale * abs(cc_tshift):
-                logger.debug("MTM dt is larger than the maximum allowable time "
-                             "shift")
+            # dt larger than the maximum allowable time shift
+            if np.abs(dtau_mtm[j]) > self.config.dt_max_scale * abs(cc_tshift):
+                logger.debug("reject MTM: dt is larger than the maximum "
+                             "allowable time shift")
                 is_mtm = False
 
         return is_mtm
@@ -734,7 +758,26 @@ class MultitaperMisfit:
 
         return err_phi, err_abs, err_dtau, err_dlna
 
-    def frequency_limit(self, df):
+    def check_sufficient_number_of_wavelengths(self):
+        """
+        Reject MTM if a wave of `min_period` contains a number of cycles less
+        than `min_cycle_in_window` in the selected window. If so switch to
+        CC method. In this case frequency limits are not needed.
+
+        .. note::
+            Formerly part of `frequency_limit` broken off as a separate func.
+        """
+        if (self.config.min_cycle_in_window * self.config.min_period) > \
+                self.tlen_data:
+            logger.debug(f"min_period: {self.config.min_period:6.0f} "
+                         f"window length: {self.tlen_data:6.0f}")
+            logger.info("rejecting MTM for too few cycles within time window")
+            is_mtm = False
+        else:
+            is_mtm = True
+        return is_mtm
+
+    def calculate_freq_limits(self, df):
         """
         Determine if a given window is suitable for multitaper measurements.
         If so, finds the maximum frequency range for the measurement using a
@@ -744,26 +787,18 @@ class MultitaperMisfit:
         find the maximum frequency point for measurement using the spectrum of
         tapered synthetics.
 
+        .. note::
+            formerly `frequency_limit`. renamed to be more descriptive. also
+            split off earlier cycle check from this function into
+            `check_sufficient_number_of_wavelengths`
+
         :type df: float
         :param df: step length of frequency bins for FFT
         :rtype: tuple
         :return (float, float, bool);
             (minimumum frequency, maximum frequency, continue with MTM?)
         """
-        ifreq_min = int(1.0 / (self.config.max_period * df))
-        ifreq_max = int(1.0 / (self.config.min_period * df))
-
-        # reject MTM if a wave of `min_period` contains a number of cycles less
-        # than `min_cycle_in_window` in the selected window. If so switch to
-        # CC method. In this case frequency limits are not needed.
-        if (self.config.min_cycle_in_window * self.config.min_period) > \
-                self.tlen_data:
-            logger.debug(f"min_period: {self.config.min_period:6.0f} "
-                         f"window length: {self.tlen_data:6.0f}")
-            logger.debug("MTM: rejecting for too few cycles within time window")
-            return ifreq_min, ifreq_max, False
-
-        # If not rejected, calculate the frequency limits based on FFT of syn
+        # Calculate the frequency limits based on FFT of synthetics
         fnum = int(self.nlen_f / 2 + 1)
         s_spectra = np.fft.fft(self.synthetic.data, self.nlen_f) * self.deltat
 
@@ -772,62 +807,60 @@ class MultitaperMisfit:
         i_ampmax = np.argmax(abs(s_spectra[0: fnum]))
 
         # Scale the maximum amplitude by some constant water level
-        self.config.water_threshold *= ampmax
+        scaled_wl = self.config.water_threshold * ampmax
 
-        # ==================== GET MAXIMUM FREQUENCY LIMIT =====================
+        # Get the maximum frequency limit by searching valid frequencies
         nfreq_max = fnum - 1
         is_search = True
         for iw in range(0, fnum):
             if iw > i_ampmax:
-                nfreq_max, is_search = \
-                    self.search_frequency_limit(
+                nfreq_max, is_search = self._search_frequency_limit(
                         is_search=is_search, index=iw, nfreq_limit=nfreq_max,
-                        spectra=s_spectra,
-                        water_threshold=self.config.water_threshold
-                    )
-        # Don't go beyond the Nyquist frequency
+                        spectra=s_spectra, water_threshold=scaled_wl
+                )
+        # Make sure `nfreq_max` does not go beyond the Nyquist frequency
         nfreq_max = min(nfreq_max,
                         int(1.0 / (2 * self.deltat) / df) - 1, ifreq_max
                         )
 
-        # ==================== GET MINIMUM FREQUENCY LIMIT =====================
+        # Get the minimum frequency limit by searchjing valid frequencies
         nfreq_min = 0
         is_search = True
         for iw in range(fnum - 1, 0, -1):
             if iw < i_ampmax:
-                nfreq_min, is_search = \
-                    self.search_frequency_limit(
+                nfreq_min, is_search = self._search_frequency_limit(
                         is_search=is_search, index=iw, nfreq_limit=nfreq_min,
-                        spectra=s_spectra,
-                        water_threshold=self.config.water_threshold
-                                                )
+                        spectra=s_spectra, water_threshold=scaled_wl
+                )
 
-        # Assume there are at least N cycles within the window
+        # Limit `nfreq_min` by assuming at least N cycles within the window
         nfreq_min = max(
             nfreq_min,
             int(self.config.min_cycle_in_window / self.tlen_data / df) - 1,
             ifreq_min
         )
-        # ======================================================================
+
         # Reject mtm if the chosen frequency band is narrower than quarter of
         # the multi-taper bandwidth
         half_taper_bandwidth = self.config.mt_nw / (4.0 * self.tlen_data)
         chosen_bandwidth = (nfreq_max - nfreq_min) * df
 
         if chosen_bandwidth < half_taper_bandwidth:
-            logger.debug(f"chosen bandwidth: {chosen_bandwidth} < "
-                         f"half taper bandwidth: {half_taper_bandwidth}")
-            logger.debug(
-                "MTM: rejecting for frequency range narrower than half "
-                "taper bandwith")
+            logger.info("Rejecting MTM for frequency range narrower than "
+                        "half taper bandwith")
+            logger.debug(f"chosen bandwidth ({chosen_bandwidth}) < "
+                         f"half taper bandwidth ({half_taper_bandwidth})")
+            nfreq_min = None
+            nfreq_max = None
+            is_mtm = False
+        else:
+            is_mtm = True
 
-            return ifreq_min, ifreq_max, False
-
-        return nfreq_min, nfreq_max, True
+        return nfreq_min, nfreq_max, is_mtm
 
     @staticmethod
-    def search_frequency_limit(is_search, index, nfreq_limit, spectra,
-                               water_threshold, c=10):
+    def _search_frequency_limit(is_search, index, nfreq_limit, spectra,
+                                water_threshold, c=10):
         """
         Search valid frequency range of spectra. If the spectra larger than
         10 * `water_threshold` it will trigger the search again, works like the
@@ -842,7 +875,8 @@ class MultitaperMisfit:
         :type spectra: int
         :param spectra: spectra of signal
         :type water_threshold: float
-        :param water_threshold the triggering value to stop the search
+        :param water_threshold: optional triggering value to stop the search,
+            if not given, defaults to Config value
         :type c: int
         :param c: constant scaling factor for water threshold.
         """

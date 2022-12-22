@@ -22,13 +22,32 @@ EXAMPLE_DATA_SDIFF = (1500, 1600)
 TAPER_COLLECTION = ('cos', 'cos_p10', 'hann', "hamming")
 
 
+def get_window_info(window, dt):
+    """
+    Convenience function to get window start and end times, and start and end
+    samples. Repeated a lot throughout package so useful to keep it defined
+    in one place.
+
+    :type window: tuple, list
+    :param window: (left sample, right sample) borders of window in sample
+    :type dt: float
+    :param dt: delta T, time step of time series
+    :return:
+    """
+    nlen = int(np.floor((window[0] - window[1]) / dt)) + 1  # unit: sample
+    left_sample = int(np.floor(window[0] / dt))
+    right_sample = left_sample + nlen
+
+    return left_sample, right_sample, nlen
+
+
 def sanity_check_waveforms(observed, synthetic):
     """
     Perform a number of basic sanity checks to assure the data is valid
     in a certain sense.
 
     It checks the types of both, the start time, sampling rate, number of
-    samples, ...
+    samples, etc.
 
     :param observed: The observed data.
     :type observed: :class:`obspy.core.trace.Trace`
@@ -151,7 +170,9 @@ def taper_window(trace, left_border_in_seconds, right_border_in_seconds,
 
 def window_taper(signal, taper_percentage, taper_type):
     """
-    Window taper function to taper a time series with various taper functions
+    Window taper function to taper a time series with various taper functions.
+    Affects arrays in place but also returns the array. Both will edit the
+    array.
 
     :param signal: time series
     :type signal: ndarray(float)
