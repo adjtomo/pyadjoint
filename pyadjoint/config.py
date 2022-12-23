@@ -13,6 +13,7 @@ Configuration object for Pyadjoint.
 from pyadjoint import discover_adjoint_sources
 from pyadjoint.utils.signal import TAPER_COLLECTION
 
+
 def get_config(adjsrc_type, min_period, max_period, **kwargs):
     """
     Defines two common parameters for all configuration objects and then
@@ -37,7 +38,7 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
                                   f"{adjsrc_types}")
 
     # Perform some parameter checks
-    if "measure_type" in cfg:
+    if "measure_type" in vars(cfg):
         assert(cfg.measure_type in ["dt", "am"]), \
             "`measure_type` must be 'dt' or 'am'"
     assert(cfg.taper_type in TAPER_COLLECTION), \

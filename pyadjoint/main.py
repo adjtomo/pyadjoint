@@ -8,64 +8,15 @@ import matplotlib.patches as patches
 import numpy as np
 import os
 import obspy
-import pkgutil
 import warnings
 
-from pyadjoint import PyadjointError, PyadjointWarning
+from pyadjoint import PyadjointError, PyadjointWarning, discover_adjoint_sources
 from pyadjoint.adjoint_source import AdjointSource
 from pyadjoint.utils.signal import sanity_check_waveforms
 
 
-def discover_adjoint_sources():
-    """
-    Discovers the available adjoint sources in the package. This should work
-    regardless of whether Pyadjoint is checked out from git, packaged as .egg
-    etc.
-    """
-    from pyadjoint import adjoint_source_types
-
-    adjoint_sources = {}
-
-    fct_name = "calculate_adjoint_source"
-    name_attr = "VERBOSE_NAME"
-    desc_attr = "DESCRIPTION"
-    add_attr = "ADDITIONAL_PARAMETERS"
-
-    path = os.path.join(
-        os.path.dirname(inspect.getfile(inspect.currentframe())),
-        "adjoint_source_types")
-    for importer, modname, _ in pkgutil.iter_modules(
-            [path], prefix=adjoint_source_types.__name__ + "."):
-        m = importer.find_module(modname).load_module(modname)
-        if not hasattr(m, fct_name):
-            continue
-        fct = getattr(m, fct_name)
-        if not callable(fct):
-            continue
-
-        name = modname.split('.')[-1]
-
-        if not hasattr(m, name_attr):
-            raise PyadjointError(
-                "Adjoint source '%s' does not have a variable named %s." %
-                (name, name_attr))
-
-        if not hasattr(m, desc_attr):
-            raise PyadjointError(
-                "Adjoint source '%s' does not have a variable named %s." %
-                (name, desc_attr))
-
-        # Add tuple of name, verbose name, and description.
-        adjoint_sources[name] = (
-            fct, getattr(m, name_attr), getattr(m, desc_attr),
-            getattr(m, add_attr) if hasattr(m, add_attr) else None
-        )
-
-    return adjoint_sources
-
-
 def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
-                             window, adjoint_src=True, window_stats=True,
+                             windows, adjoint_src=True, window_stats=True,
                              plot=False, plot_filename=None, **kwargs):
     """
     Central function of Pyadjoint used to calculate adjoint sources and misfit.
@@ -86,8 +37,8 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     :type synthetic: :class:`obspy.core.trace.Trace`
     :param config: :class:`pyadjoint.config.Config`
     :type config: configuration parameters that control measurement
-    :type window: list of tuples
-    :param window: [(left, right),...] representing left and right window
+    :type windows: list of tuples
+    :param windows: [(left, right),...] representing left and right window
         borders to be tapered in units of seconds since first sample in data
         array
     :param adjoint_src: Derive the adjoint source in addition to misfit calc.
@@ -130,7 +81,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     # Main processing function, calculate adjoint source here
     try:
         ret_val = fct(observed=observed, synthetic=synthetic, config=config,
-                      window=window, adjoint_src=adjoint_src,
+                      windows=windows, adjoint_src=adjoint_src,
                       window_stats=window_stats, plot=figure, **kwargs)
         # Generate figure from the adjoint source
         if plot and plot_filename:
@@ -197,7 +148,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     return adjsrc
 
 
-def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, window,
+def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, windows,
                         adjoint_source_name):
     """
     Generic plotting function for adjoint sources and data.
@@ -214,8 +165,8 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, window,
     :type adjoint_source: `numpy.ndarray`
     :param misfit: The associated misfit value.
     :float misfit: misfit value
-    :type window: list of tuples
-    :param window: [(left, right),...] representing left and right window
+    :type windows: list of tuples
+    :param windows: [(left, right),...] representing left and right window
         borders to be tapered in units of seconds since first sample in data
         array
     :param adjoint_source_name: The name of the adjoint source.
@@ -225,9 +176,9 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, window,
     left_window_border = 60000.
     right_window_border = 0.
 
-    for wins in window:
-        left_window_border = min(left_window_border, wins[0])
-        right_window_border = max(right_window_border, wins[1])
+    for window in windows:
+        left_window_border = min(left_window_border, window[0])
+        right_window_border = max(right_window_border, window[1])
 
     buf = (right_window_border - left_window_border) * 0.3
     left_window_border -= buf
@@ -240,9 +191,9 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, window,
              lw=2)
     plt.plot(synthetic.times(), synthetic.data, color="#bb474f",
              label="Synthetic", lw=2)
-    for wins in window:
-        re = patches.Rectangle((wins[0], plt.ylim()[0]),
-                               wins[1] - wins[0],
+    for window in windows:
+        re = patches.Rectangle((window[0], plt.ylim()[0]),
+                               window[1] - window[0],
                                plt.ylim()[1] - plt.ylim()[0],
                                color="blue", alpha=0.1)
         plt.gca().add_patch(re)
@@ -250,7 +201,11 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, window,
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
     plt.xlim(left_window_border, right_window_border)
-    ylim = max([max(np.abs(observed)), max(np.abs(synthetic))])
+
+    # Determine min and max amplitudes within the time window
+    obs_win = observed.data[int(left_window_border):int(right_window_border)]
+    syn_win = synthetic.data[int(left_window_border):int(right_window_border)]
+    ylim = max([max(np.abs(obs_win)), max(np.abs(syn_win))])
     plt.ylim(-ylim, ylim)
 
     plt.subplot(212)
@@ -258,6 +213,7 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, window,
              label="Adjoint Source")
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
+
     # No time reversal for comparison with data
     # plt.xlim(x_range - right_window_border, x_range - left_window_border)
     # plt.xlabel("Time in seconds since first sample")

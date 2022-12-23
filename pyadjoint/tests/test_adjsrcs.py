@@ -4,8 +4,9 @@ Test generalized adjoint source generation for each type
 import pytest
 import numpy as np
 from pyadjoint import calculate_adjoint_source, get_config
-from pyadjoint.utils import get_example_data
+from pyadjoint import get_example_data
 
+path = "/Users/chow/Work/pyadjoint/new_images"  # deleteme
 
 @pytest.fixture
 def example_data():
@@ -32,8 +33,8 @@ def test_waveform_misfit(example_data, example_window):
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         adj_src_type="waveform_misfit", observed=obs, synthetic=syn, config=cfg,
-        window=example_window, adjoint_src=True, plot=True,
-        plot_filename="waveform_misfit.png"
+        windows=example_window, adjoint_src=True, plot=True,
+        plot_filename=f"{path}/waveform_misfit.png"
     )
     assert adjsrc.adjoint_source.any()
     assert adjsrc.misfit >= 0.0
@@ -50,8 +51,8 @@ def test_cc_traveltime_misfit(example_data, example_window):
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         adj_src_type="cc_traveltime_misfit", observed=obs, synthetic=syn,
-        config=cfg, window=example_window, adjoint_src=True, plot=True,
-        plot_filename="cc_traveltime_misfit.png"
+        config=cfg, windows=example_window, adjoint_src=True, plot=True,
+        plot_filename=f"{path}/cc_traveltime_misfit.png"
     )
 
     assert adjsrc.adjoint_source.any()
@@ -69,8 +70,8 @@ def test_multitaper_misfit(example_data, example_window):
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         adj_src_type="multitaper_misfit", observed=obs, synthetic=syn,
-        config=cfg, window=example_window, adjoint_src=True, plot=True,
-        plot_filename="multitaper_misfit.png"
+        config=cfg, windows=example_window, adjoint_src=True, plot=True,
+        plot_filename=f"{path}/multitaper_misfit.png"
     )
 
     assert adjsrc.adjoint_source.any()

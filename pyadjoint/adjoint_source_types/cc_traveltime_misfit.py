@@ -127,12 +127,13 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         # Calculate cross correlation time shift, amplitude anomaly and errors
         # Config passed as **kwargs to control constants required by function
         d, s, tshift, dlna, sigma_dt, sigma_dlna = \
-            calculate_cc_shift(observed=observed, syntehtic=synthetic,
+            calculate_cc_shift(observed=observed, synthetic=synthetic,
                                window=window, **vars(config)
                                )
         # Calculate misfit and adjoint source for the given window
         misfit_p, misfit_q, fp_win, fq_win = \
             calculate_cc_adjsrc(s=s, tshift=tshift, dlna=dlna, dt=dt,
+                                sigma_dt=sigma_dt, sigma_dlna=sigma_dlna,
                                 **vars(config)
                                 )
 
@@ -169,6 +170,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         ret_val_p["window_stats"] = win_stats
         ret_val_q["window_stats"] = win_stats
 
+
     if config.measure_type == "dt":
         ret_val = ret_val_p
     elif config.measure_type == "am":
@@ -176,6 +178,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
     if plot:
         plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
-                            ret_val["misfit"], window, VERBOSE_NAME)
+                            ret_val["misfit"], windows, VERBOSE_NAME)
 
     return ret_val

@@ -58,7 +58,7 @@ def calculate_cc_shift(observed, synthetic, window=None, taper_percentage=0.3,
     d = np.zeros(nlen_w)
     s = np.zeros(nlen_w)
 
-    # d and s represent the windowd data and synthetic arrays, respectively
+    # d and s represent the windowed data and synthetic arrays, respectively
     d[0: nlen_w] = observed.data[left_sample: right_sample]
     s[0: nlen_w] = synthetic.data[left_sample: right_sample]
 
@@ -129,7 +129,9 @@ def calculate_cc_adjsrc(s, tshift, dlna, dt, sigma_dt=1., sigma_dlna=0.5,
     # Calculate adjoint sources for both time shift and amplitude anomaly
     dsdt = np.gradient(s, dt)
     nnorm = simps(y=dsdt * dsdt, dx=dt)
-    fp[0:n] = -1.0 * dsdt[0:n] * tshift / nnorm / sigma_dt ** 2
+    # note: Princeton ver. of code has a -1 on `fp`  because they have a '-' on 
+    #   `nnorm`. Current format follows original Krischer code implementation
+    fp[0:n] = dsdt[0:n] * tshift / nnorm / sigma_dt ** 2
 
     mnorm = simps(y=s * s, dx=dt)
     fq[0:n] = -1.0 * s[0:n] * dlna / mnorm / sigma_dlna ** 2
@@ -150,7 +152,7 @@ def calculate_cc_error(d, s, dt, cc_shift, dlna, dt_sigma_min=1.0,
     :type dt: float
     :param dt: delta t, time sampling rate
     :type cc_shift: int
-    :param cc_shift: total amount of cross correlation time shift
+    :param cc_shift: total amount of cross correlation time shift in samples
     :type dlna: float
     :param dlna: amplitude anomaly calculated for cross-correlation measurement
     :type dt_sigma_min: float
@@ -159,12 +161,12 @@ def calculate_cc_error(d, s, dt, cc_shift, dlna, dt_sigma_min=1.0,
     :param dlna_sigma_min: minimum amplitude error allowed
     """
     # Correct d by shifting cc_shift and scaling dlna
-    nlen_t = len(d)
+    nlen_t = int(len(d))
     s_cc_dt = np.zeros(nlen_t)
     s_cc_dtdlna = np.zeros(nlen_t)
 
     for index in range(0, nlen_t):
-        index_shift = index - cc_shift
+        index_shift = index - int(cc_shift)
 
         if 0 <= index_shift < nlen_t:
             # corrected by c.c. shift

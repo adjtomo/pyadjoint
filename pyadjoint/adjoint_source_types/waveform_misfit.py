@@ -80,7 +80,7 @@ ADDITIONAL_PARAMETERS = r"""
 # function. It must take observed, synthetic, min_period, max_period,
 # left_window_border, right_window_border, adjoint_src, and figure as
 # parameters. Other optional keyword arguments are possible.
-def calculate_adjoint_source(observed, synthetic, config, window,
+def calculate_adjoint_source(observed, synthetic, config, windows,
                              adjoint_src=True, window_stats=True, plot=False):
     """
     Calculate adjoint source for the waveform misfit measurement
@@ -120,9 +120,9 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     misfit_sum = 0.0
 
     # Loop over time windows and calculate misfit for each window range
-    for wins in window:
-        left_window_border = wins[0]
-        right_window_border = wins[1]
+    for window in windows:
+        left_window_border = window[0]
+        right_window_border = window[1]
 
         left_sample = int(np.floor(left_window_border / deltat)) + 1
         nlen = int(np.floor((right_window_border - left_window_border) /
@@ -172,6 +172,6 @@ def calculate_adjoint_source(observed, synthetic, config, window,
     # Generate a figure if requested to
     if plot:
         plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
-                            ret_val["misfit"], window, VERBOSE_NAME)
+                            ret_val["misfit"], windows, VERBOSE_NAME)
 
     return ret_val

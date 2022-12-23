@@ -33,7 +33,9 @@ def get_window_info(window, dt):
     :return: (left border in sample, right border in sample, length of window
         in sample)
     """
-    nlen = int(np.floor((window[0] - window[1]) / dt)) + 1  # unit: sample
+    assert(window[1] >= window[0]), f"`window` is reversed in time"
+
+    nlen = int(np.floor((window[1] - window[0]) / dt)) + 1  # unit: sample
     left_sample = int(np.floor(window[0] / dt))
     right_sample = left_sample + nlen
 
