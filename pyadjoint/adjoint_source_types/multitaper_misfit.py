@@ -132,7 +132,7 @@ class MultitaperMisfit:
             # 'd' and 's' are windowed data and synthetic waves, respectively
             d, s, cc_tshift, cc_dlna, sigma_dt_cc, sigma_dlna_cc = \
                 calculate_cc_shift(observed=self.observed,
-                                   syntehtic=self.synthetic,
+                                   synthetic=self.synthetic,
                                    window=window, **vars(self.config)
                                    )
 
@@ -148,13 +148,13 @@ class MultitaperMisfit:
 
                 # Check for sufficient number of wavelengths in window
                 is_mtm = bool(
-                    self.config.min_cycle_in_window * self.config.min_period >
-                    self.tlen_data
+                    self.config.min_cycle_in_window * self.config.min_period <
+                    nlen_w
                 )
                 if is_mtm is False:
                     logger.info("reject MTM: too few cycles within time window")
-                    logger.debug(f"min_period: {self.config.min_period:6.0f} "
-                                 f"window length: {self.tlen_data:6.0f}")
+                    logger.debug(f"min_period: {self.config.min_period:.2f}s; "
+                                 f"window length: {self.nlen_w:.2f}s")
                     break
 
                 # Shift and scale observed data 'd' to match synthetics, make
@@ -912,9 +912,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
     # Use the MTM class to generate misfit and adjoint sources
     mtm = MultitaperMisfit(observed=observed, synthetic=synthetic,
-                           config=config, windows=windows,
-                           adjoint_src=adjoint_src, window_stats=window_stats,
-                           plot=plot)
+                           config=config, windows=windows)
     misfit_sum_p, misfit_sum_q, fp, fq, stats = mtm.calculate_adjoint_source()
 
     # Append information on the misfit for phase and amplitude
