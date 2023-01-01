@@ -134,12 +134,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     adj = np.zeros(nlen_data)
     misfit_sum = 0.0
 
-    # Check to see if we're doing double difference
     if double_difference:
-        for check in [observed_dd, synthetic_dd, windows_dd]:
-            assert(check is not None), (
-                f"`double_difference` requires `observed_dd`, `synthetic_dd`, "
-                f"and `windows_dd`")
         adj_dd = np.zeros(nlen_data)
 
     # Loop over time windows and calculate misfit for each window range
@@ -225,7 +220,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
                             ret_val["misfit"], windows, VERBOSE_NAME)
         if double_difference:
             plot_adjoint_source(observed_dd, synthetic_dd,
-                                ret_val["adjoint_source_dd"], windows_dd,
-                                VERBOSE_NAME)
+                                ret_val["adjoint_source_dd"], ret_val["misfit"],
+                                windows_dd, VERBOSE_NAME)
 
     return ret_val

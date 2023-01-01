@@ -20,6 +20,16 @@ def example_data():
 
 
 @pytest.fixture
+def example_dd_data():
+    """Return example data to be used to test adjoint sources"""
+    obs, syn = get_example_data()
+    obs = obs.select(component="R")[0]
+    syn = syn.select(component="R")[0]
+
+    return obs, syn
+
+
+@pytest.fixture
 def example_window():
     """Defines an example window where misfit can be quantified"""
     return [[2076., 2418.0]]
@@ -37,6 +47,28 @@ def test_waveform_misfit(example_data, example_window):
         windows=example_window, adjoint_src=True, plot=True,
         plot_filename=f"{path}/waveform_misfit.png"
     )
+    assert adjsrc.adjoint_source.any()
+    assert adjsrc.misfit >= 0.0
+    assert len(adjsrc.windows) == 1
+    assert isinstance(adjsrc.adjoint_source, np.ndarray)
+
+
+def test_waveform_dd_misfit(example_data, example_dd_data, example_window):
+    """
+    Test the waveform misfit function
+    """
+    obs, syn = example_data
+    obs_dd, syn_dd = example_dd_data
+    cfg = get_config(adjsrc_type="waveform_misfit", min_period=30.,
+                     max_period=75.)
+    adjsrc = calculate_adjoint_source(
+        adj_src_type="waveform_misfit", observed=obs, synthetic=syn, config=cfg,
+        windows=example_window, adjoint_src=True, plot=True,
+        plot_filename=f"{path}/waveform_dd_misfit.png", double_difference=True,
+        observed_dd=obs_dd, synthetic_dd=syn_dd, windows_dd=example_window
+    )
+
+    import pdb;pdb.set_trace()
     assert adjsrc.adjoint_source.any()
     assert adjsrc.misfit >= 0.0
     assert len(adjsrc.windows) == 1
