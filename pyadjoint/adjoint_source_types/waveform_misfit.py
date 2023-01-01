@@ -81,7 +81,7 @@ ADDITIONAL_PARAMETERS = r"""
 # left_window_border, right_window_border, adjoint_src, and figure as
 # parameters. Other optional keyword arguments are possible.
 def calculate_adjoint_source(observed, synthetic, config, windows,
-                             adjoint_src=True, window_stats=True, plot=False,
+                             adjoint_src=True, window_stats=True,
                              double_difference=False, observed_dd=None,
                              synthetic_dd=None, windows_dd=None):
     """
@@ -103,8 +103,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :type window_stats: bool
     :param window_stats: flag to return stats for individual misfit windows used
         to generate the adjoint source
-    :type plot: bool
-    :param plot: generate a figure after calculating adjoint source
     :type double_difference: bool
     :param double_difference: flag to turn on double difference waveform
         misfit measurement. Requires `observed_dd`, `synthetic_dd`, `windows_dd`
@@ -163,8 +161,9 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
             d_dd = np.zeros(nlen)
             s_dd = np.zeros(nlen)
 
-            d_dd[0: nlen_dd] = observed.data[left_sample_dd: right_sample_dd]
-            s_dd[0: nlen_dd] = synthetic.data[left_sample_dd: right_sample_dd]
+            d_dd[0: nlen_dd] = observed_dd.data[left_sample_dd: right_sample_dd]
+            s_dd[0: nlen_dd] = synthetic_dd.data[left_sample_dd: 
+                                                 right_sample_dd]
 
             # Taper DD measurements
             window_taper(d_dd, taper_percentage=config.taper_percentage,
@@ -214,10 +213,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         if double_difference:
             ret_val["adjoint_source_dd"] = adj_dd[::-1]
 
-    # Generate a figure if requested to
-    if plot:
-        plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
-                            ret_val["misfit"], windows, VERBOSE_NAME)
         if double_difference:
             plot_adjoint_source(observed_dd, synthetic_dd,
                                 ret_val["adjoint_source_dd"], ret_val["misfit"],

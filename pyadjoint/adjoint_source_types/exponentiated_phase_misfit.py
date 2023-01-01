@@ -31,7 +31,7 @@ ADDITIONAL_PARAMETERS = r"""
 
 
 def calculate_adjoint_source(observed, synthetic, config, windows,
-                             adjoint_src=True, window_stats=True, plot=False):
+                             adjoint_src=True, window_stats=True):
     """
     Calculate adjoint source for the exponentiated phase misfit.
 
@@ -50,8 +50,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :type window_stats: bool
     :param window_stats: flag to return stats for individual misfit windows used
         to generate the adjoint source
-    :type plot: bool
-    :param plot: generate a figure after calculating adjoint source
     """
     assert(config.__class__.__name__ == "ConfigExponentiatedPhase"), \
         "Incorrect configuration class passed to CCTraveltime misfit"
@@ -146,9 +144,5 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     # Time reverse adjoint sources w.r.t synthetic waveforms
     if adjoint_src is True:
         ret_val["adjoint_source"] = f[::-1]
-
-    if plot:
-        plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
-                            ret_val["misfit"], windows, VERBOSE_NAME)
 
     return ret_val

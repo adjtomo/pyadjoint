@@ -885,7 +885,7 @@ class MultitaperMisfit:
 
 
 def calculate_adjoint_source(observed, synthetic, config, windows,
-                             adjoint_src=True, window_stats=True, plot=False):
+                             adjoint_src=True, window_stats=True):
     """
     Convenience wrapper function for MTM class to match the expected format
     of Pyadjoint. Contains the logic for what to return to User.
@@ -905,8 +905,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :type window_stats: bool
     :param window_stats: flag to return stats for individual misfit windows used
         to generate the adjoint source
-    :type plot: bool
-    :param plot: generate a figure after calculating adjoint source
     """
     ret_val_p = {}
     ret_val_q = {}
@@ -934,10 +932,5 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         ret_val = ret_val_p
     elif config.measure_type == "am":
         ret_val = ret_val_q
-
-    if plot:
-        plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
-                            ret_val["misfit"], windows, VERBOSE_NAME
-                            )
 
     return ret_val

@@ -1,5 +1,8 @@
 """
 Main processing scripts to calculate adjoint sources based on two waveforms
+
+TODO
+    - Move plotting routine into main function here
 """
 
 import inspect
@@ -79,6 +82,11 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
         observed_dd, synthetic_dd = sanity_check_waveforms(observed_dd, 
                                                            synthetic_dd)
 
+    # Require adjoint source to be saved if we're plotting
+    if plot:
+        assert(plot_filename is not None), f"`plot` requires `plot_filename`"
+        adjoint_src = True
+
     # Get number of samples now as the adjoint source calculation function
     # are allowed to mess with the trace objects.
     npts = observed.stats.npts
@@ -90,32 +98,35 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     # From here on out we use this generic function to describe adjoint source
     fct = adj_srcs[adj_src_type][0]
 
-    # Set up plotting generation
+    # Main processing function, calculate adjoint source here
+    ret_val = fct(observed=observed, synthetic=synthetic, config=config,
+                  windows=windows, adjoint_src=adjoint_src,
+                  window_stats=window_stats, plot=plot,
+                  double_difference=double_difference,
+                  observed_dd=observed_dd, synthetic_dd=synthetic_dd,
+                  windows_dd=windows_dd, **kwargs)
+    # Generate figure from the adjoint source
     if plot:
-        # The plot kwargs overwrites the adjoint_src kwarg.
-        adjoint_src = True
         if plot is True:
             figure = plt.figure(figsize=(12, 6))
+        # Assume plot that is not bool is a preexisting figure instance
         else:
-            # Assume plot is a preexisting figure instance
             figure = plot
-    else:
-        figure = None
+        # Plot the adjoint source, window and waveforms
+        plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
+                            ret_val["misfit"], windows, adj_src_type)
+        figure.savefig(plot_filename)
+        # Plot the double-difference figure if requested
+        if double_difference:
+            plot_adjoint_source(observed_dd, synthetic_dd,
+                                ret_val["adjoint_source_dd"],
+                                ret_val["misfit"], windows_dd,
+                                f"{adj_src_type}_dd")
+            fid, ext = os.path.splitext(plot_filename)
+            figure.savefig(f"{fid}_dd{ext}")
 
-    # Main processing function, calculate adjoint source here
-    try:
-        ret_val = fct(observed=observed, synthetic=synthetic, config=config,
-                      windows=windows, adjoint_src=adjoint_src,
-                      window_stats=window_stats, plot=figure, **kwargs)
-        # Generate figure from the adjoint source
-        if plot and plot_filename:
-            figure.savefig(plot_filename)
-        elif plot is True:
-            plt.show()
-    finally:
-        # Assure the figure is closed. Otherwise matplotlib will leak memory
-        if plot is True:
-            plt.close()
+        plt.show()
+        plt.close("all")
 
     # Get misfit and warn for a negative one.
     misfit = float(ret_val["misfit"])
@@ -213,7 +224,7 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, windows,
     :param adjoint_source: The adjoint source.
     :type adjoint_source: `numpy.ndarray`
     :param misfit: The associated misfit value.
-    :float misfit: misfit value
+    :type misfit: float
     :type windows: list of tuples
     :param windows: [(left, right),...] representing left and right window
         borders to be tapered in units of seconds since first sample in data
@@ -264,8 +275,6 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, windows,
     plt.legend(fancybox=True, framealpha=0.5)
 
     # No time reversal for comparison with data
-    # plt.xlim(x_range - right_window_border, x_range - left_window_border)
-    # plt.xlabel("Time in seconds since first sample")
     plt.xlim(left_window_border, right_window_border)
     plt.xlabel("Time (seconds)")
     ylim = max(map(abs, plt.ylim()))
