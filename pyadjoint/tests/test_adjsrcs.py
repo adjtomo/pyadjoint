@@ -8,6 +8,7 @@ from pyadjoint import get_example_data
 
 path = "/Users/chow/Work/pyadjoint/new_images"  # deleteme
 
+
 @pytest.fixture
 def example_data():
     """Return example data to be used to test adjoint sources"""
@@ -65,9 +66,13 @@ def test_multitaper_misfit(example_data, example_window):
     """
     Test the waveform misfit function
     """
+    from pyadjoint import logger
+    logger.setLevel("DEBUG")
     obs, syn = example_data
     cfg = get_config(adjsrc_type="multitaper_misfit", min_period=30.,
-                     max_period=75.)
+                     max_period=75., min_cycle_in_window=3., 
+                     use_cc_error=False)
+
     adjsrc = calculate_adjoint_source(
         adj_src_type="multitaper_misfit", observed=obs, synthetic=syn,
         config=cfg, windows=example_window, adjoint_src=True, plot=True,

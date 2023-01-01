@@ -138,7 +138,7 @@ class MultitaperMisfit:
 
             # Perform a series of checks to see if MTM is valid for the data
             # This will only loop once, but allows us to break if a check fail
-            if is_mtm is True:
+            while is_mtm is True:
                 # Check length of the time shift w.r.t time step
                 is_mtm = abs(cc_tshift) <= self.dt
                 if is_mtm is False:
@@ -201,7 +201,7 @@ class MultitaperMisfit:
                 tapers = tapert.T * np.sqrt(nlen_w)
                 phi_mtm, abs_mtm, dtau_mtm, dlna_mtm = \
                     self.calculate_multitaper(
-                        d=d, s=s, tapers=tapers, nfreq_min=nfreq_min,
+                        d=d, s=s, tapers=tapers, wvec=wvec, nfreq_min=nfreq_min,
                         nfreq_max=nfreq_max, cc_tshift=cc_tshift,
                         cc_dlna=cc_dlna
                     )
@@ -239,7 +239,7 @@ class MultitaperMisfit:
                 )
                 win_stats.append(
                     {"left": left_sample * self.dt,
-                     "right": left_sample * self.dt,
+                     "right": right_sample * self.dt,
                      "measurement_type": self.config.measure_type,
                      "misfit_dt": misfit_p,
                      "misfit_dlna": misfit_q,
@@ -260,7 +260,7 @@ class MultitaperMisfit:
                                         sigma_dlna=sigma_dlna_cc)
                 win_stats.append(
                     {"left": left_sample * self.dt,
-                     "right": left_sample * self.dt,
+                     "right": right_sample * self.dt,
                      "measurement_type": self.config.measure_type,
                      "misfit_dt": misfit_p,
                      "misfit_dlna": misfit_q,
@@ -344,14 +344,14 @@ class MultitaperMisfit:
 
         # Normalization factor, factor 2 is needed for integration -inf to inf
         ffac = 2.0 * df * np.sum(w_taper[nfreq_min: nfreq_max])
-        logger.debug(f"Frequency bound (idx): [{nfreq_min} {nfreq_max - 1}] "
-                     f"(Hz) [{df * (nfreq_min - 1)} {df * nfreq_max}]"
+        logger.debug(f"frequency bound (idx): [{nfreq_min}, {nfreq_max - 1}] "
+                     f"(Hz) [{df * (nfreq_min - 1)}, {df * nfreq_max}]"
                      )
-        logger.debug(f"Frequency domain taper normalization coeff: {ffac}")
-        logger.debug(f"Frequency domain sampling length df =  {df}")
+        logger.debug(f"frequency domain taper normalization coeff: {ffac}")
+        logger.debug(f"frequency domain sampling length df={df}")
         if ffac <= 0.0:
             logger.warning("frequency band too narrow:")
-            logger.warning(f"fmin={nfreq_min} fmax={nfreq_max} ffac={ffac}")
+            logger.warning(f"fmin={nfreq_min}, fmax={nfreq_max}, ffac={ffac}")
 
         wp_w = w_taper / ffac
         wq_w = w_taper / ffac
@@ -782,9 +782,10 @@ class MultitaperMisfit:
         :return:
         """
         left_sample, right_sample, nlen_w = get_window_info(window, self.dt)
+        ishift = int(tshift / self.dt)  # time shift in samples
 
-        left_sample_d = max(left_sample + tshift, 0)
-        right_sample_d = min(right_sample + tshift, self.nlen_data)
+        left_sample_d = max(left_sample + ishift, 0)
+        right_sample_d = min(right_sample + ishift, self.nlen_data)
         nlen_d = right_sample_d - left_sample_d
 
         if nlen_d == nlen_w:

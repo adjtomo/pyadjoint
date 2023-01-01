@@ -79,9 +79,9 @@ def calculate_cc_shift(observed, synthetic, window=None, taper_percentage=0.3,
                                                   dt_sigma_min=dt_sigma_min,
                                                   dlna_sigma_min=dlna_sigma_min
                                                   )
-        logger.debug("calculated CC error: "
-                     f"dt = {tshift} +/- {sigma_dt} s; "
-                     f"dlna = {dlna} +/- {sigma_dlna}"
+        logger.debug("CC error: "
+                     f"dt={tshift:.2f}+/-{sigma_dt:.2f}s; "
+                     f"dlna = {dlna:.3f}+/-{sigma_dlna:.3f}"
                      )
     else:
         sigma_dt = 1.0
