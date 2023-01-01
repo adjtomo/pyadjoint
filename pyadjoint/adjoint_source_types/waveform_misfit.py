@@ -18,7 +18,7 @@ import numpy as np
 from scipy.integrate import simps
 
 from pyadjoint import plot_adjoint_source
-from pyadjoint.utils.signal import window_taper
+from pyadjoint.utils.signal import get_window_info, window_taper
 
 
 # This is the verbose and pretty name of the adjoint source defined in this
@@ -81,7 +81,9 @@ ADDITIONAL_PARAMETERS = r"""
 # left_window_border, right_window_border, adjoint_src, and figure as
 # parameters. Other optional keyword arguments are possible.
 def calculate_adjoint_source(observed, synthetic, config, windows,
-                             adjoint_src=True, window_stats=True, plot=False):
+                             adjoint_src=True, window_stats=True, plot=False,
+                             double_difference=False, observed_dd=None,
+                             synthetic_dd=None, windows_dd=None):
     """
     Calculate adjoint source for the waveform misfit measurement
 
@@ -91,18 +93,31 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :param synthetic: synthetic waveform to calculate adjoint source
     :type config: pyadjoint.config.ConfigWaveform
     :param config: Config class with parameters to control processing
-    :type window: list of tuples
-    :param window: [(left, right),...] representing left and right window
+    :type windows: list of tuples
+    :param windows: [(left, right),...] representing left and right window
         borders to be tapered in units of seconds since first sample in data
         array
     :type adjoint_src: bool
     :param adjoint_src: flag to calculate adjoint source, if False, will only
         calculate misfit
-    :type windows_stats: bool
+    :type window_stats: bool
     :param window_stats: flag to return stats for individual misfit windows used
         to generate the adjoint source
     :type plot: bool
     :param plot: generate a figure after calculating adjoint source
+    :type double_difference: bool
+    :param double_difference: flag to turn on double difference waveform
+        misfit measurement. Requires `observed_dd`, `synthetic_dd`, `windows_dd`
+    :type observed_dd: obspy.core.trace.Trace
+    :param observed_dd: second observed waveform to calculate double difference
+        adjoint source
+    :type synthetic_dd:  obspy.core.trace.Trace
+    :param synthetic_dd: second synthetic waveform to calculate double
+        difference adjoint source
+    :type windows_dd: list of tuples
+    :param windows_dd: [(left, right),...] representing left and right window
+        borders to be tapered in units of seconds since first sample in data
+        array. Used to window `observed_dd` and `synthetic_dd`
     """
     assert(config.__class__.__name__ == "ConfigWaveform"), \
         "Incorrect configuration class passed to Waveform misfit"
@@ -115,19 +130,21 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
     # Initiate constants and empty return values to fill
     nlen_data = len(synthetic.data)
-    deltat = synthetic.stats.delta
+    dt = synthetic.stats.delta
     adj = np.zeros(nlen_data)
     misfit_sum = 0.0
 
-    # Loop over time windows and calculate misfit for each window range
-    for window in windows:
-        left_window_border = window[0]
-        right_window_border = window[1]
+    # Check to see if we're doing double difference
+    if double_difference:
+        for check in [observed_dd, synthetic_dd, windows_dd]:
+            assert(check is not None), (
+                f"`double_difference` requires `observed_dd`, `synthetic_dd`, "
+                f"and `windows_dd`")
+        adj_dd = np.zeros(nlen_data)
 
-        left_sample = int(np.floor(left_window_border / deltat)) + 1
-        nlen = int(np.floor((right_window_border - left_window_border) /
-                            deltat)) + 1
-        right_sample = left_sample + nlen
+    # Loop over time windows and calculate misfit for each window range
+    for i, window in enumerate(windows):
+        left_sample, right_sample, nlen = get_window_info(window, dt)
 
         d = np.zeros(nlen)
         s = np.zeros(nlen)
@@ -141,10 +158,32 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
                      taper_type=config.taper_type)
         window_taper(s, taper_percentage=config.taper_percentage,
                      taper_type=config.taper_type)
-        diff = s - d
+
+        # Prepare double difference waveforms if requested.
+        # Repeat the steps above for second set of waveforms
+        if double_difference:
+            left_sample_dd, right_sample_dd, nlen_dd = \
+                get_window_info(windows_dd[i], dt)
+
+            d_dd = np.zeros(nlen)
+            s_dd = np.zeros(nlen)
+
+            d_dd[0: nlen_dd] = observed.data[left_sample_dd: right_sample_dd]
+            s_dd[0: nlen_dd] = synthetic.data[left_sample_dd: right_sample_dd]
+
+            # Taper DD measurements
+            window_taper(d_dd, taper_percentage=config.taper_percentage,
+                         taper_type=config.taper_type)
+            window_taper(s_dd, taper_percentage=config.taper_percentage,
+                         taper_type=config.taper_type)
+
+            # Diff the two sets of waveforms
+            diff = (s - s_dd) - (d - d_dd)
+        else:
+            diff = s - d
 
         # Integrate with the composite Simpson's rule.
-        misfit_win = 0.5 * simps(y=diff**2, dx=deltat)
+        misfit_win = 0.5 * simps(y=diff**2, dx=dt)
         misfit_sum += misfit_win
 
         # Taper again for smooth connection of windows adjoint source
@@ -154,13 +193,22 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
         # Include some information about each window's total misfit,
         # since its already calculated
-        win_stats.append(
-            {"left": left_window_border, "right": right_window_border,
-             "misfit": misfit_win, "difference": np.mean(diff)}
-        )
-
-        # Overwrite the adjoint source where the window is located
-        adj[left_sample: right_sample] = diff[0:nlen]
+        if double_difference:
+            win_stats.append(
+                {"type": "waveform_dd", "left": left_sample * dt,
+                 "right": right_sample * dt, "left_dd": left_sample_dd * dt,
+                 "right_dd": right_sample_dd, "misfit": misfit_win,
+                 "difference": np.mean(diff)}
+            )
+            adj[left_sample:right_sample] = diff[0:nlen]
+            adj_dd[left_sample_dd: right_sample_dd] = -1 * diff[0:nlen_dd]
+        else:
+            win_stats.append(
+                {"type": "waveform", "left": left_sample * dt,
+                 "right": right_sample * dt, "misfit": misfit_win,
+                 "difference": np.mean(diff)}
+            )
+            adj[left_sample: right_sample] = diff[0:nlen]
 
     # Determine the amount of information to return relative to the misfit calc.
     ret_val["misfit"] = misfit_sum
@@ -168,10 +216,16 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         ret_val["window_stats"] = win_stats
     if adjoint_src is True:
         ret_val["adjoint_source"] = adj[::-1]
+        if double_difference:
+            ret_val["adjoint_source_dd"] = adj_dd[::-1]
 
     # Generate a figure if requested to
     if plot:
         plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
                             ret_val["misfit"], windows, VERBOSE_NAME)
+        if double_difference:
+            plot_adjoint_source(observed_dd, synthetic_dd,
+                                ret_val["adjoint_source_dd"], windows_dd,
+                                VERBOSE_NAME)
 
     return ret_val
