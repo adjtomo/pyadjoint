@@ -19,7 +19,7 @@ from scipy import signal
 from scipy.integrate import simps
 
 from pyadjoint import plot_adjoint_source
-from pyadjoint.utils.signal import window_taper
+from pyadjoint.utils.signal import get_window_info, window_taper
 
 VERBOSE_NAME = "Exponentiated Phase Misfit"
 
@@ -53,7 +53,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :type plot: bool
     :param plot: generate a figure after calculating adjoint source
     """
-    assert(config.__class__.__name__ == "ExponentiatedPhase"), \
+    assert(config.__class__.__name__ == "ConfigExponentiatedPhase"), \
         "Incorrect configuration class passed to CCTraveltime misfit"
 
     # Dictionary of return values related to exponentiated phase
@@ -104,8 +104,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         diff_imag = hilbt_d/env_d_wtr - hilbt_s/env_s_wtr
 
         # Integrate with the composite Simpson's rule.
-        misfit_real = 0.5 * simps(y=diff_real**2, dx=deltat)
-        misfit_imag = 0.5 * simps(y=diff_imag**2, dx=deltat)
+        misfit_real = 0.5 * simps(y=diff_real**2, dx=dt)
+        misfit_imag = 0.5 * simps(y=diff_imag**2, dx=dt)
 
         misfit_sum += misfit_real + misfit_imag
 
@@ -141,13 +141,13 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     ret_val["misfit"] = misfit_sum
 
     if window_stats:
-        ret_val["measurement"] = measurement
+        ret_val["window_stats"] = win_stats
 
     # Time reverse adjoint sources w.r.t synthetic waveforms
     if adjoint_src is True:
         ret_val["adjoint_source"] = f[::-1]
 
-    if figure:
+    if plot:
         plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
                             ret_val["misfit"], windows, VERBOSE_NAME)
 

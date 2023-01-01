@@ -170,7 +170,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         ret_val_p["window_stats"] = win_stats
         ret_val_q["window_stats"] = win_stats
 
-
     if config.measure_type == "dt":
         ret_val = ret_val_p
     elif config.measure_type == "am":

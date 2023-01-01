@@ -66,8 +66,6 @@ def test_multitaper_misfit(example_data, example_window):
     """
     Test the waveform misfit function
     """
-    from pyadjoint import logger
-    logger.setLevel("DEBUG")
     obs, syn = example_data
     cfg = get_config(adjsrc_type="multitaper_misfit", min_period=30.,
                      max_period=75., min_cycle_in_window=3., 
@@ -77,6 +75,26 @@ def test_multitaper_misfit(example_data, example_window):
         adj_src_type="multitaper_misfit", observed=obs, synthetic=syn,
         config=cfg, windows=example_window, adjoint_src=True, plot=True,
         plot_filename=f"{path}/multitaper_misfit.png"
+    )
+
+    assert adjsrc.adjoint_source.any()
+    assert adjsrc.misfit >= 0.0
+
+    assert isinstance(adjsrc.adjoint_source, np.ndarray)
+
+
+def test_exponentiated_phase_misfit(example_data, example_window):
+    """
+    Test the waveform misfit function
+    """
+    obs, syn = example_data
+    cfg = get_config(adjsrc_type="exponentiated_phase_misfit", min_period=30.,
+                     max_period=75.)
+
+    adjsrc = calculate_adjoint_source(
+        adj_src_type="exponentiated_phase_misfit", observed=obs, synthetic=syn,
+        config=cfg, windows=example_window, adjoint_src=True, plot=True,
+        plot_filename=f"{path}/exponentiated_phase_misfit.png"
     )
 
     assert adjsrc.adjoint_source.any()
