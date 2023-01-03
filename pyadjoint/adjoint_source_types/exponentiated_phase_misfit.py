@@ -31,7 +31,7 @@ ADDITIONAL_PARAMETERS = r"""
 
 
 def calculate_adjoint_source(observed, synthetic, config, windows,
-                             adjoint_src=True, window_stats=True):
+                             adjoint_src=True, window_stats=True, **kwargs):
     """
     Calculate adjoint source for the exponentiated phase misfit.
 
@@ -52,7 +52,13 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         to generate the adjoint source
     """
     assert(config.__class__.__name__ == "ConfigExponentiatedPhase"), \
-        "Incorrect configuration class passed to CCTraveltime misfit"
+        "Incorrect configuration class passed to Exponentiated Phase misfit"
+
+    if kwargs.get("double_difference", False) is True:
+        raise NotImplementedError(
+            "Exponentiated phase misfit does not have double difference "
+            "capabilities"
+        )
 
     # Dictionary of return values related to exponentiated phase
     ret_val = {}

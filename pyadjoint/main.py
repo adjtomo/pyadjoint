@@ -1,8 +1,5 @@
 """
 Main processing scripts to calculate adjoint sources based on two waveforms
-
-TODO
-    - Move plotting routine into main function here
 """
 
 import inspect
@@ -19,10 +16,9 @@ from pyadjoint.utils.signal import sanity_check_waveforms
 
 
 def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
-                             windows, adjoint_src=True, window_stats=True,
-                             plot=False, plot_filename=None, 
-                             double_difference=False, observed_dd=None,
-                             synthetic_dd=None, windows_dd=None, **kwargs):
+                             windows, plot=False, plot_filename=None,
+                             choice=None, observed_2=None,
+                             synthetic_2=None, windows_2=None, **kwargs):
     """
     Central function of Pyadjoint used to calculate adjoint sources and misfit.
 
@@ -46,10 +42,6 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     :param windows: [(left, right),...] representing left and right window
         borders to be tapered in units of seconds since first sample in data
         array
-    :param adjoint_src: Derive the adjoint source in addition to misfit calc.
-    :type adjoint_src: bool
-    :param window_stats: Return stats (misfit, measurement type) for each window
-        provided to the adjoint source calculation.
     :param plot: Also produce a plot of the adjoint source. This will force
         the adjoint source to be calculated regardless of the value of
         ``adjoint_src``.
@@ -57,30 +49,33 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     :param plot_filename: If given, the plot of the adjoint source will be
         saved there. Only used if ``plot`` is ``True``.
     :type plot_filename: str
-        :type double_difference: bool
-    :param double_difference: flag to turn on double difference waveform
-        misfit measurement. Requires `observed_dd`, `synthetic_dd`, `windows_dd`
-    :type observed_dd: obspy.core.trace.Trace
-    :param observed_dd: second observed waveform to calculate double difference
-        adjoint source
-    :type synthetic_dd:  obspy.core.trace.Trace
-    :param synthetic_dd: second synthetic waveform to calculate double
-        difference adjoint source
-    :type windows_dd: list of tuples
-    :param windows_dd: [(left, right),...] representing left and right window
+    :type choice: str
+    :param choice: Flag to turn on station pair calculations. Requires
+        `observed_2`, `synthetic_2`, `windows_2`. Available:
+        - 'double_difference': Double difference waveform misfit from
+            Yuan et al. 2016
+        - 'convolved': Waveform convolution misfit from Choi & Alkhalifah (2011)
+    :type observed_2: obspy.core.trace.Trace
+    :param observed_2: second observed waveform to calculate adjoint sources
+        from station pairs
+    :type synthetic_2:  obspy.core.trace.Trace
+    :param synthetic_2: second synthetic waveform to calculate adjoint sources
+        from station pairs
+    :type windows_2: list of tuples
+    :param windows_2: [(left, right),...] representing left and right window
         borders to be tapered in units of seconds since first sample in data
-        array. Used to window `observed_dd` and `synthetic_dd`
+        array. Used to window `observed_2` and `synthetic_2`
     """
     observed, synthetic = sanity_check_waveforms(observed, synthetic)
 
     # Check to see if we're doing double difference
-    if double_difference:
-        for check in [observed_dd, synthetic_dd, windows_dd]:
+    if choice is not None:
+        for check in [observed_2, synthetic_2, windows_2]:
             assert(check is not None), (
-                f"`double_difference` requires `observed_dd`, `synthetic_dd`, "
-                f"and `windows_dd`")
-        observed_dd, synthetic_dd = sanity_check_waveforms(observed_dd, 
-                                                           synthetic_dd)
+                f"setting `choice` requires `observed_2`, `synthetic_2`, "
+                f"and `windows_2`")
+        observed_2, synthetic_2 = sanity_check_waveforms(observed_2,
+                                                         synthetic_2)
 
     # Require adjoint source to be saved if we're plotting
     if plot:
@@ -100,33 +95,31 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
 
     # Main processing function, calculate adjoint source here
     ret_val = fct(observed=observed, synthetic=synthetic, config=config,
-                  windows=windows, adjoint_src=adjoint_src,
-                  window_stats=window_stats, plot=plot,
-                  double_difference=double_difference,
-                  observed_dd=observed_dd, synthetic_dd=synthetic_dd,
-                  windows_dd=windows_dd, **kwargs)
+                  windows=windows, choice=choice, observed_2=observed_2,
+                  synthetic_2=synthetic_2, windows_2=windows_2, **kwargs)
+
     # Generate figure from the adjoint source
     if plot:
-        if plot is True:
-            figure = plt.figure(figsize=(12, 6))
-        # Assume plot that is not bool is a preexisting figure instance
-        else:
-            figure = plot
+        figure = plt.figure(figsize=(12, 6))
+
         # Plot the adjoint source, window and waveforms
         plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
                             ret_val["misfit"], windows, adj_src_type)
         figure.savefig(plot_filename)
-        # Plot the double-difference figure if requested
-        if double_difference:
-            plot_adjoint_source(observed_dd, synthetic_dd,
-                                ret_val["adjoint_source_dd"],
-                                ret_val["misfit"], windows_dd,
-                                f"{adj_src_type}_dd")
-            fid, ext = os.path.splitext(plot_filename)
-            figure.savefig(f"{fid}_dd{ext}")
-
         plt.show()
         plt.close("all")
+
+        # Plot the double-difference figure if requested
+        if choice == "double_difference":
+            figure = plt.figure(figsize=(12, 6))
+            plot_adjoint_source(observed_2, synthetic_2,
+                                ret_val["adjoint_source_2"],
+                                ret_val["misfit"], windows_2,
+                                f"{adj_src_type}_2")
+            fid, ext = os.path.splitext(plot_filename)
+            figure.savefig(f"{fid}_2{ext}")
+            plt.show()
+            plt.close("all")
 
     # Get misfit and warn for a negative one.
     misfit = float(ret_val["misfit"])
@@ -137,73 +130,64 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
         raise PyadjointError("The actual adjoint source was not calculated "
                              "by the underlying function although it was "
                              "requested.")
-    if adjoint_src and double_difference and "adjoint_source_dd" not in ret_val:
-        raise PyadjointError("The double difference adjoint source was not "
-                             "calculated by the underlying function "
-                             "although it was requested.")
+    if adjoint_src and choice == "double_difference":
+        try:
+            assert("adjoint_source_2" in ret_val)
+        except AssertionError:
+            raise PyadjointError("The double difference adjoint source was not "
+                                 "calculated by the underlying function "
+                                 "although it was requested.")
 
     # Be very defensive and check all the returned parts of the adjoint source.
     # This assures future adjoint source types can be integrated smoothly.
-    if adjoint_src:
-        adjoint_sources = [ret_val["adjoint_source"]]
-        # Allow checking double difference adjoint source if present
-        if double_difference:
-            adjoint_sources.append(ret_val["adjoint_source_dd"])
-        else:
-            adjoint_sources.append(None)
+    adjoint_sources = [ret_val["adjoint_source"]]
+    # Allow checking double difference adjoint source if present
+    if "adjoint_source_2" in ret_val:
+        adjoint_sources.append(ret_val["adjoint_source_2"])
 
-        for adjoint_source in adjoint_sources:
-            if not isinstance(adjoint_source, np.ndarray) or \
-                    adjoint_source.dtype != np.float64:
-                raise PyadjointError("The adjoint source calculated by the "
-                                     "underlying function is no numpy array "
-                                     "with a `float64` dtype.")
-            if len(adjoint_source.shape) != 1:
-                raise PyadjointError(
-                    "The underlying function returned at adjoint source with "
-                    f"shape {adjoint_source.shape}. It must return a "
-                    "one-dimensional array.")
-            if len(adjoint_source) != npts:
-                raise PyadjointError(
-                    f"The underlying function returned an adjoint source with "
-                    f"{len(adjoint_source)} samples. It must return a function "
-                    f"with {npts} samples which is the sample count of the "
-                    f"input data.")
-            # Make sure the data returned has no infs or NaNs.
-            if not np.isfinite(adjoint_source).all():
-                raise PyadjointError(
-                    "The underlying function returned an adjoint source with "
-                    "either NaNs or Inf values. This must not be.")
-        adjoint_source, adjoint_source_dd = adjoint_sources
-    else:
-        adjoint_source = None
-        adjoint_source_dd = None
-
-    if window_stats:
-        windows = ret_val["window_stats"]
-    else:
-        windows = None
+    for adjoint_source in adjoint_sources:
+        if not isinstance(adjoint_source, np.ndarray) or \
+                adjoint_source.dtype != np.float64:
+            raise PyadjointError("The adjoint source calculated by the "
+                                 "underlying function is no numpy array "
+                                 "with a `float64` dtype.")
+        if len(adjoint_source.shape) != 1:
+            raise PyadjointError(
+                "The underlying function returned at adjoint source with "
+                f"shape {adjoint_source.shape}. It must return a "
+                "one-dimensional array.")
+        if len(adjoint_source) != npts:
+            raise PyadjointError(
+                f"The underlying function returned an adjoint source with "
+                f"{len(adjoint_source)} samples. It must return a function "
+                f"with {npts} samples which is the sample count of the "
+                f"input data.")
+        # Make sure the data returned has no infs or NaNs.
+        if not np.isfinite(adjoint_source).all():
+            raise PyadjointError(
+                "The underlying function returned an adjoint source with "
+                "either NaNs or Inf values. This must not be.")
 
     adjsrc = AdjointSource(
         adj_src_type, misfit=misfit, dt=observed.stats.delta,
-        adjoint_source=adjoint_source, windows=windows,
+        adjoint_source=ret_val["adjoint_source"], windows=windows,
         min_period=config.min_period, max_period=config.max_period,
         network=observed.stats.network, station=observed.stats.station,
         component=observed.stats.channel, location=observed.stats.location,
         starttime=observed.stats.starttime
     )
-    if double_difference:
-        adjsrc_dd = AdjointSource(
+    if "adjoint_source_2" in ret_val:
+        adjsrc_2 = AdjointSource(
             adj_src_type, misfit=misfit, dt=observed.stats.delta,
-            adjoint_source=adjoint_source_dd, windows=windows_dd,
+            adjoint_source=ret_val["adjoint_source_2"], windows=windows_2,
             min_period=config.min_period, max_period=config.max_period,
-            network=observed_dd.stats.network,
-            station=observed_dd.stats.station,
-            component=observed_dd.stats.channel,
-            location=observed_dd.stats.location,
-            starttime=observed_dd.stats.starttime
+            network=observed_2.stats.network,
+            station=observed_2.stats.station,
+            component=observed_2.stats.channel,
+            location=observed_2.stats.location,
+            starttime=observed_2.stats.starttime
         )
-        return adjsrc, adjsrc_dd
+        return adjsrc, adjsrc_2
     else:
         return adjsrc
 

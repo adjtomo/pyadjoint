@@ -20,8 +20,11 @@ def example_data():
 
 
 @pytest.fixture
-def example_dd_data():
-    """Return example data to be used to test adjoint sources"""
+def example_2_data():
+    """
+    Return example data to be used to test adjoint source double difference
+    calculations. Simply grabs the R component to provide a different waveform
+    """
     obs, syn = get_example_data()
     obs = obs.select(component="R")[0]
     syn = syn.select(component="R")[0]
@@ -44,7 +47,7 @@ def test_waveform_misfit(example_data, example_window):
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         adj_src_type="waveform_misfit", observed=obs, synthetic=syn, config=cfg,
-        windows=example_window, adjoint_src=True, plot=True,
+        windows=example_window, plot=True,
         plot_filename=f"{path}/waveform_misfit.png"
     )
     assert adjsrc.adjoint_source.any()
@@ -53,26 +56,49 @@ def test_waveform_misfit(example_data, example_window):
     assert isinstance(adjsrc.adjoint_source, np.ndarray)
 
 
-def test_waveform_dd_misfit(example_data, example_dd_data, example_window):
+def test_waveform_dd_misfit(example_data, example_2_data, example_window):
     """
     Test the waveform misfit function
     """
     obs, syn = example_data
-    obs_dd, syn_dd = example_dd_data
+    obs_2, syn_2 = example_2_data
     cfg = get_config(adjsrc_type="waveform_misfit", min_period=30.,
                      max_period=75.)
     adjsrcs = calculate_adjoint_source(
         adj_src_type="waveform_misfit", observed=obs, synthetic=syn, config=cfg,
-        windows=example_window, adjoint_src=True, plot=True,
-        plot_filename=f"{path}/waveform_dd_misfit.png", double_difference=True,
-        observed_dd=obs_dd, synthetic_dd=syn_dd, windows_dd=example_window
+        windows=example_window,  plot=True,
+        plot_filename=f"{path}/waveform_2_misfit.png",
+        choice="double_difference", observed_2=obs_2, synthetic_2=syn_2,
+        windows_2=example_window
     )
-
+    assert(len(adjsrcs) == 2)
     for adjsrc in adjsrcs:
         assert adjsrc.adjoint_source.any()
         assert adjsrc.misfit >= 0.0
         assert len(adjsrc.windows) == 1
         assert isinstance(adjsrc.adjoint_source, np.ndarray)
+
+
+def test_convolved_waveform_misfit(example_data, example_2_data,
+                                   example_window):
+    """
+    Test the waveform misfit function
+    """
+    obs, syn = example_data
+    obs_2, syn_2 = example_2_data
+    cfg = get_config(adjsrc_type="waveform_misfit", min_period=30.,
+                     max_period=75.)
+    adjsrc = calculate_adjoint_source(
+        adj_src_type="waveform_misfit", observed=obs, synthetic=syn, config=cfg,
+        windows=example_window,  plot=True,
+        plot_filename=f"{path}/waveform_2_misfit.png",
+        choice="convolved", observed_2=obs_2, synthetic_2=syn_2,
+        windows_2=example_window
+    )
+    assert adjsrc.adjoint_source.any()
+    assert adjsrc.misfit >= 0.0
+    assert len(adjsrc.windows) == 1
+    assert isinstance(adjsrc.adjoint_source, np.ndarray)
 
 
 def test_cc_traveltime_misfit(example_data, example_window):
@@ -84,7 +110,7 @@ def test_cc_traveltime_misfit(example_data, example_window):
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         adj_src_type="cc_traveltime_misfit", observed=obs, synthetic=syn,
-        config=cfg, windows=example_window, adjoint_src=True, plot=True,
+        config=cfg, windows=example_window, plot=True,
         plot_filename=f"{path}/cc_traveltime_misfit.png"
     )
 
@@ -105,7 +131,7 @@ def test_multitaper_misfit(example_data, example_window):
 
     adjsrc = calculate_adjoint_source(
         adj_src_type="multitaper_misfit", observed=obs, synthetic=syn,
-        config=cfg, windows=example_window, adjoint_src=True, plot=True,
+        config=cfg, windows=example_window, plot=True,
         plot_filename=f"{path}/multitaper_misfit.png"
     )
 
@@ -125,7 +151,7 @@ def test_exponentiated_phase_misfit(example_data, example_window):
 
     adjsrc = calculate_adjoint_source(
         adj_src_type="exponentiated_phase_misfit", observed=obs, synthetic=syn,
-        config=cfg, windows=example_window, adjoint_src=True, plot=True,
+        config=cfg, windows=example_window, plot=True,
         plot_filename=f"{path}/exponentiated_phase_misfit.png"
     )
 

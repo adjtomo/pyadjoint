@@ -7,11 +7,9 @@ import warnings
 from obspy.signal.cross_correlation import xcorr_pick_correction
 from scipy.integrate import simps
 from pyadjoint import logger
-from pyadjoint.utils.signal import window_taper, get_window_info
 
 
-def calculate_cc_shift(observed, synthetic, window=None, taper_percentage=0.3,
-                       taper_type="hann", use_cc_error=True, dt_sigma_min=1.0,
+def calculate_cc_shift(d, s, dt, use_cc_error=True, dt_sigma_min=1.0,
                        dlna_sigma_min=0.5, **kwargs):
     """
     Calculate cross-correlation traveltime misfit (time shift, amplitude
@@ -22,55 +20,27 @@ def calculate_cc_shift(observed, synthetic, window=None, taper_percentage=0.3,
         Kwargs not used but allows Config class to pass relevant parameters
         without explicitely naming them in the function call
 
-    :type observed: obspy.core.trace.Trace
-    :param observed: observed waveform to calculate adjoint source
-    :type synthetic:  obspy.core.trace.Trace
-    :param synthetic: synthetic waveform to calculate adjoint source
-    :type window: tuple or list
-    :param window: (left, right) representing left and right window borders.
-        If not given, will calculate on the entire time series
-    :type taper_percentage: float
-    :param taper_percentage: Percentage of a time window needs to be
-    tapered at two ends, to remove the non-zero values for adjoint
-    source and for fft.
-    :type taper_type: str
-    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-        for a list of available taper types
+    :type d: np.array
+    :param d: observed data to calculate cc shift and dlna
+    :type s: np.array
+    :param s: synthetic data to calculate cc shift and dlna
+    :type dt: float
+    :param dt: time sampling rate delta t units seconds
     :type use_cc_error: bool
     :param use_cc_error: use cross correlation errors for normalization
     :type dt_sigma_min: float
     :param dt_sigma_min: minimum travel time error allowed
     :type dlna_sigma_min: float
     :param dlna_sigma_min: minimum amplitude error allowed
-    :rtype: tuple (np.array, np.array, float, float, float, float)
-    :return: (windowed data, windowed synthetics, time shift [s], amplitude
-        anomaly, time shift error [s], amplitude anomaly error)
+    :rtype: tuple (float, float, float, float)
+    :return: (time shift [s], amplitude anomaly, time shift error [s],
+        amplitude anomaly error)
     """
-    # Convenience variables for quick access to information about time series
-    dt = synthetic.stats.delta
-
-    if not window:
-        window = [0, len(synthetic.data) * dt]
-
-    left_sample, right_sample, nlen_w = get_window_info(window, dt)
-
-    # Pre-allocate arrays for memory efficiency
-    d = np.zeros(nlen_w)
-    s = np.zeros(nlen_w)
-
-    # d and s represent the windowed data and synthetic arrays, respectively
-    d[0: nlen_w] = observed.data[left_sample: right_sample]
-    s[0: nlen_w] = synthetic.data[left_sample: right_sample]
-
-    # Taper windowed signals in place
-    window_taper(d, taper_percentage=taper_percentage, taper_type=taper_type)
-    window_taper(s, taper_percentage=taper_percentage, taper_type=taper_type)
-
     # Note that CC values may dramatically change with/without the tapering
     ishift = xcorr_shift(d, s)  # timeshift in unit samples
     tshift = ishift * dt  # timeshift in unit seconds
-    dlna = 0.5 * np.log(sum(d[0:nlen_w] * d[0:nlen_w]) /
-                        sum(s[0:nlen_w] * s[0:nlen_w]))  # amplitude anomaly
+    dlna = 0.5 * np.log(sum(d[:] * d[:]) /
+                        sum(s[:] * s[:]))  # amplitude anomaly
 
     # Uncertainty estimate based on cross-correlations to be used for norm.
     if use_cc_error:
@@ -87,7 +57,7 @@ def calculate_cc_shift(observed, synthetic, window=None, taper_percentage=0.3,
         sigma_dt = 1.0
         sigma_dlna = 1.0
 
-    return d, s, tshift, dlna, sigma_dt, sigma_dlna
+    return tshift, dlna, sigma_dt, sigma_dlna
 
 
 def calculate_cc_adjsrc(s, tshift, dlna, dt, sigma_dt=1., sigma_dlna=0.5,
@@ -139,6 +109,177 @@ def calculate_cc_adjsrc(s, tshift, dlna, dt, sigma_dt=1., sigma_dlna=0.5,
     return misfit_p, misfit_q, fp, fq
 
 
+def calculate_dd_cc_shift(d, s, d_2, s_2, dt, use_cc_error=True,
+                          dt_sigma_min=1.0, dlna_sigma_min=0.5, **kwargs):
+    """
+    Calculate double difference cross-correlation traveltime misfit
+    (time shift, amplitude anomaly) and associated errors, for a given window.
+    Slight variation on normal CC shift calculation
+
+    TODO
+     - DD dlna measurement was not properly calculated in the RDNO version
+
+    Assumes d, s, d_2 and s_2 all have the same sampling rate
+
+    .. note::
+        Kwargs not used but allows Config class to pass relevant parameters
+        without explicitely naming them in the function call
+
+    :type d: np.array
+    :param d: observed data to calculate cc shift and dlna
+    :type s: np.array
+    :param s: synthetic data to calculate cc shift and dlna
+    :type dt: float
+    :param dt: time sampling rate delta t units seconds
+    :type d_2: np.array
+    :param d_2: 2nd pair observed data to calculate cc shift and dlna
+    :type s_2: np.array
+    :param s_2: 2nd pair synthetic data to calculate cc shift and dlna
+    :type use_cc_error: bool
+    :param use_cc_error: use cross correlation errors for normalization
+    :type dt_sigma_min: float
+    :param dt_sigma_min: minimum travel time error allowed
+    :type dlna_sigma_min: float
+    :param dlna_sigma_min: minimum amplitude error allowed
+    :rtype: tuple (float, float, float, float)
+    :return: (time shift [s], amplitude anomaly, time shift error [s],
+        amplitude anomaly error)
+    """
+    # Calculate time shift between 'observed' or 'data' waveforms
+    ishift_obs = xcorr_shift(d, d_2)  # timeshift in unit samples
+    tshift_obs = ishift_obs * dt  # timeshift in unit seconds
+
+    # Calculate time shift between 'synthetic' waveforms
+    ishift_syn = xcorr_shift(s, s_2)  # timeshift in unit samples
+    tshift_syn = ishift_obs * dt  # timeshift in unit seconds
+
+    # Overall shift is difference between differential measurements
+    ishift_dd = ishift_syn - ishift_obs
+    tshift_dd = ishift_dd * dt
+
+    # FIXME: !!! This is not properly calculated as a differential !!!
+    dlna = 0.5 * np.log(sum(d[:] * d[:]) /
+                        sum(s[:] * s[:]))  # amplitude anomaly
+
+    # Uncertainty is estimated based on DATA cross correlation
+    if use_cc_error:
+        sigma_dt, sigma_dlna = calculate_cc_error(
+            d=d, s=d_2, dt=dt, cc_shift=ishift_obs, dlna=dlna,
+            dt_sigma_min=dt_sigma_min, dlna_sigma_min=dlna_sigma_min
+        )
+        logger.debug("CC error: "
+                     f"dt={tshift_obs:.2f}+/-{sigma_dt:.2f}s; "
+                     f"dlna = {dlna:.3f}+/-{sigma_dlna:.3f}"
+                     )
+    else:
+        sigma_dt = 1.0
+        sigma_dlna = 1.0
+
+    return tshift_dd, dlna, sigma_dt, sigma_dlna
+
+
+def calculate_dd_cc_adjsrc(s, s_2, tshift_dd, dlna_dd, dt, sigma_dt=1.,
+                           sigma_dlna=0.5, **kwargs):
+    """
+    Calculate double difference cross corrrelation adjoint sources.
+
+    TODO
+        - Add dlna capability to this function
+
+    .. note::
+        Kwargs not used but allows Config class to pass relevant parameters
+        without explicitely naming them in the function call
+
+    :type s: np.array
+    :param s: synthetic data array
+    :type s_2: np.array
+    :param s_2: second synthetic data array
+    :type tshift_dd: float
+    :param tshift_dd: measured dd time shift from `calculate_dd_cc_shift`
+    :type dlna_dd: float
+    :param dlna_dd: measured dd amplitude anomaly from `calculate_dd_cc_shift`
+    :type dt: float
+    :param dt: delta t, time sampling rate of `s`
+    :type sigma_dt: float
+    :param sigma_dt: traveltime error from `calculate_cc_shift`
+    :type sigma_dlna: float
+    :param sigma_dlna: amplitude anomaly error from `calculate_cc_shift`
+    :rtype: (float, float, np.array, np.array, np.array, np.array)
+    :return: (tshift misfit, dlna misfit, tshift adjsrc, dlna adjsrc,
+        tshift adjsrc 2, dlna adjsrc 2)
+    """
+    # So that we don't have to pass this in as an argument
+    ishift_dd = int(tshift_dd / dt)  # time shift in samples
+
+    n = len(s)
+
+    # Initialize empty arrays for memory efficiency
+    fp = np.zeros(n)  # time shift
+    fp_2 = np.zeros(n)
+
+    fq = np.zeros(n)  # amplitude anomaly
+    fq_2 = np.zeros(n)
+
+    # Calculate the misfit for both time shift and amplitude anomaly
+    misfit_p = 0.5 * (tshift_dd / sigma_dt) ** 2
+    misfit_q = 0.5 * (dlna_dd / sigma_dlna) ** 2
+
+    # Calculate adjoint sources for both time shift and amplitude anomaly
+    dsdt = np.gradient(s, dt)
+
+    # Time shift and gradient the first set of synthetics in reverse time
+    s_cc_dt, _ = cc_correction(s, -1 * ishift_dd, 0.)
+    dsdt_cc = np.gradient(s_cc_dt, dt)
+
+    # Time shift and gradient the second of synthetics
+    s_2_cc_dt, _ = cc_correction(s_2, ishift_dd, 0.)
+    dsdt_cc_2 = np.gradient(s_2_cc_dt, dt)
+
+    # Integrate the product of gradients
+    # FIXME: Is `dsdt` supposed to be `dsdt_cc`? Need to check equations
+    nnorm = simps(y=dsdt * dsdt_cc_2, dx=dt)
+
+    # note: Princeton ver. of code has a -1 on `fp`  because they have a '-' on
+    #   `nnorm`. Current format follows original Krischer code implementation
+    fp[0:n] = -1 * dsdt_cc_2[0:n] * tshift_dd / nnorm / sigma_dt ** 2  # -1
+    fp_2[0:n] = +1 * dsdt_cc[0:n] * tshift_dd / nnorm / sigma_dt ** 2  # +1
+
+    return misfit_p, misfit_q, fp, fp_2, fq, fq_2
+
+
+def cc_correction(s, cc_shift, dlna):
+    """
+    Apply a correction to synthetics by shifting in time by `cc_shift` samples
+    and scaling amplitude by `dlna`. Provides the 'best fitting' synthetic
+    array w.r.t data as realized by the cross correlation misfit function
+
+    :type s: np.array
+    :param s: synthetic data array
+    :type cc_shift: int
+    :param cc_shift: time shift (in samples) as calculated using cross a
+        cross correlation
+    :type dlna: float
+    :param dlna: amplitude anomaly as calculated by amplitude anomaly eq.
+    :rtype: (np.array, np.array)
+    :return: (time shifted synthetic array, amplitude scaled synthetic array)
+    """
+    nlen_t = int(len(s))
+    s_cc_dt = np.zeros(nlen_t)
+    s_cc_dtdlna = np.zeros(nlen_t)
+
+    for index in range(0, nlen_t):
+        index_shift = index - int(cc_shift)
+
+        if 0 <= index_shift < nlen_t:
+            # corrected by c.c. shift
+            s_cc_dt[index] = s[index_shift]
+
+            # corrected by c.c. shift and amplitude
+            s_cc_dtdlna[index] = np.exp(dlna) * s[index_shift]
+
+    return s_cc_dt, s_cc_dtdlna
+
+
 def calculate_cc_error(d, s, dt, cc_shift, dlna, dt_sigma_min=1.0,
                        dlna_sigma_min=0.5):
     """
@@ -160,20 +301,8 @@ def calculate_cc_error(d, s, dt, cc_shift, dlna, dt_sigma_min=1.0,
     :type dlna_sigma_min: float
     :param dlna_sigma_min: minimum amplitude error allowed
     """
-    # Correct d by shifting cc_shift and scaling dlna
-    nlen_t = int(len(d))
-    s_cc_dt = np.zeros(nlen_t)
-    s_cc_dtdlna = np.zeros(nlen_t)
-
-    for index in range(0, nlen_t):
-        index_shift = index - int(cc_shift)
-
-        if 0 <= index_shift < nlen_t:
-            # corrected by c.c. shift
-            s_cc_dt[index] = s[index_shift]
-
-            # corrected by c.c. shift and amplitude
-            s_cc_dtdlna[index] = np.exp(dlna) * s[index_shift]
+    # Apply a scaling and time shift to the synthetic data
+    s_cc_dt, s_cc_dtdlna = cc_correction(s, cc_shift, dlna)
 
     # time derivative of s_cc (velocity)
     s_cc_vel = np.gradient(s_cc_dtdlna, dt)
