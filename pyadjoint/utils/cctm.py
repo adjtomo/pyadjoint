@@ -155,7 +155,7 @@ def calculate_dd_cc_shift(d, s, d_2, s_2, dt, use_cc_error=True,
 
     # Overall shift is difference between differential measurements
     ishift_dd = ishift_syn - ishift_obs
-    tshift_dd = ishift_dd * dt
+    tshift = ishift_dd * dt
 
     # FIXME: !!! This is not properly calculated as a differential !!!
     dlna = 0.5 * np.log(sum(d[:] * d[:]) /
@@ -175,10 +175,10 @@ def calculate_dd_cc_shift(d, s, d_2, s_2, dt, use_cc_error=True,
         sigma_dt = 1.0
         sigma_dlna = 1.0
 
-    return tshift_dd, dlna, sigma_dt, sigma_dlna
+    return tshift, dlna, sigma_dt, sigma_dlna
 
 
-def calculate_dd_cc_adjsrc(s, s_2, tshift_dd, dlna_dd, dt, sigma_dt=1.,
+def calculate_dd_cc_adjsrc(s, s_2, tshift, dlna, dt, sigma_dt=1.,
                            sigma_dlna=0.5, **kwargs):
     """
     Calculate double difference cross corrrelation adjoint sources.
@@ -194,10 +194,10 @@ def calculate_dd_cc_adjsrc(s, s_2, tshift_dd, dlna_dd, dt, sigma_dt=1.,
     :param s: synthetic data array
     :type s_2: np.array
     :param s_2: second synthetic data array
-    :type tshift_dd: float
-    :param tshift_dd: measured dd time shift from `calculate_dd_cc_shift`
-    :type dlna_dd: float
-    :param dlna_dd: measured dd amplitude anomaly from `calculate_dd_cc_shift`
+    :type tshift: float
+    :param tshift: measured dd time shift from `calculate_dd_cc_shift`
+    :type dlna: float
+    :param dlna: measured dd amplitude anomaly from `calculate_dd_cc_shift`
     :type dt: float
     :param dt: delta t, time sampling rate of `s`
     :type sigma_dt: float
@@ -209,7 +209,7 @@ def calculate_dd_cc_adjsrc(s, s_2, tshift_dd, dlna_dd, dt, sigma_dt=1.,
         tshift adjsrc 2, dlna adjsrc 2)
     """
     # So that we don't have to pass this in as an argument
-    ishift_dd = int(tshift_dd / dt)  # time shift in samples
+    ishift_dd = int(tshift / dt)  # time shift in samples
 
     n = len(s)
 
@@ -221,8 +221,8 @@ def calculate_dd_cc_adjsrc(s, s_2, tshift_dd, dlna_dd, dt, sigma_dt=1.,
     fq_2 = np.zeros(n)
 
     # Calculate the misfit for both time shift and amplitude anomaly
-    misfit_p = 0.5 * (tshift_dd / sigma_dt) ** 2
-    misfit_q = 0.5 * (dlna_dd / sigma_dlna) ** 2
+    misfit_p = 0.5 * (tshift / sigma_dt) ** 2
+    misfit_q = 0.5 * (dlna / sigma_dlna) ** 2
 
     # Calculate adjoint sources for both time shift and amplitude anomaly
     dsdt = np.gradient(s, dt)
@@ -241,8 +241,8 @@ def calculate_dd_cc_adjsrc(s, s_2, tshift_dd, dlna_dd, dt, sigma_dt=1.,
 
     # note: Princeton ver. of code has a -1 on `fp`  because they have a '-' on
     #   `nnorm`. Current format follows original Krischer code implementation
-    fp[0:n] = -1 * dsdt_cc_2[0:n] * tshift_dd / nnorm / sigma_dt ** 2  # -1
-    fp_2[0:n] = +1 * dsdt_cc[0:n] * tshift_dd / nnorm / sigma_dt ** 2  # +1
+    fp[0:n] = -1 * dsdt_cc_2[0:n] * tshift / nnorm / sigma_dt ** 2  # -1
+    fp_2[0:n] = +1 * dsdt_cc[0:n] * tshift / nnorm / sigma_dt ** 2  # +1
 
     return misfit_p, misfit_q, fp, fp_2, fq, fq_2
 

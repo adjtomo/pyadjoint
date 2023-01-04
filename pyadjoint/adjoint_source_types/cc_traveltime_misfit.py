@@ -181,16 +181,17 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
             window_taper(s_2, taper_percentage=config.taper_percentage,
                          taper_type=config.taper_type)
 
-            tshift_dd, dlna_dd, sigma_dt_dd, sigma_dlna_dd = \
+            # Calculate double difference time shift
+            tshift, dlna, sigma_dt, sigma_dlna = \
                 calculate_dd_cc_shift(d=d, s=s, d_2=d_2, s_2=s_2, dt=dt,
                                       **vars(config)
                                       )
             # Calculate misfit and adjoint source for the given window
             # TODO: Add in dlna misfit and adjoint source in below function
             misfit_p, misfit_q, fp_win, fp_win_2, fq_win, fq_win_2 = \
-                calculate_dd_cc_adjsrc(s=s, tshift=tshift_dd, dlna=dlna_dd,
-                                       dt=dt, sigma_dt=sigma_dt_dd,
-                                       sigma_dlna=sigma_dlna_dd, **vars(config)
+                calculate_dd_cc_adjsrc(s=s, s_2=s_2, tshift=tshift, 
+                                       dlna=dlna, dt=dt, sigma_dt=sigma_dt,
+                                       sigma_dlna=sigma_dlna, **vars(config)
                                        )
         else:
             # Calculate cross correlation time shift, amplitude anomaly and

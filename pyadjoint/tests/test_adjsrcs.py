@@ -111,13 +111,38 @@ def test_cc_traveltime_misfit(example_data, example_window):
     adjsrc = calculate_adjoint_source(
         adj_src_type="cc_traveltime_misfit", observed=obs, synthetic=syn,
         config=cfg, windows=example_window, plot=True,
-        plot_filename=f"{path}/cc_traveltime_misfit.png"
+        plot_filename=f"{path}/cc_traveltime_misfit.png",
+        choice="double_difference", 
     )
 
     assert adjsrc.adjoint_source.any()
     assert adjsrc.misfit >= 0.0
     assert len(adjsrc.windows) == 1
     assert isinstance(adjsrc.adjoint_source, np.ndarray)
+
+
+def test_dd_cc_traveltime_misfit(example_data, example_2_data, example_window):
+    """
+    Test the waveform misfit function
+    """
+    obs, syn = example_data
+    obs_2, syn_2 = example_2_data
+    cfg = get_config(adjsrc_type="cc_traveltime_misfit", min_period=30.,
+                     max_period=75.)
+    adjsrcs = calculate_adjoint_source(
+        adj_src_type="cc_traveltime_misfit", observed=obs, synthetic=syn,
+        config=cfg, windows=example_window, plot=True,
+        plot_filename=f"{path}/cc_traveltime_misfit.png",
+        choice="double_difference", observed_2=obs_2, synthetic_2=syn_2,
+        windows_2=example_window
+    )
+
+    assert(len(adjsrcs) == 2)
+    for adjsrc in adjsrcs:
+        assert adjsrc.adjoint_source.any()
+        assert adjsrc.misfit >= 0.0
+        assert len(adjsrc.windows) == 1
+        assert isinstance(adjsrc.adjoint_source, np.ndarray)
 
 
 def test_multitaper_misfit(example_data, example_window):
