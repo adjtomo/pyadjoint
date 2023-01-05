@@ -182,7 +182,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
                          taper_type=config.taper_type)
 
             # Calculate double difference time shift
-            tshift, dlna, sigma_dt, sigma_dlna = \
+            tshift, _, _, dlna, _, sigma_dt, sigma_dlna = \
                 calculate_dd_cc_shift(d=d, s=s, d_2=d_2, s_2=s_2, dt=dt,
                                       **vars(config)
                                       )

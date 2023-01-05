@@ -158,24 +158,27 @@ def calculate_dd_cc_shift(d, s, d_2, s_2, dt, use_cc_error=True,
     tshift = ishift_dd * dt
 
     # FIXME: !!! This is not properly calculated as a differential !!!
-    dlna = 0.5 * np.log(sum(d[:] * d[:]) /
-                        sum(s[:] * s[:]))  # amplitude anomaly
+    dlna_obs = 0.5 * np.log(sum(d[:] * d[:]) /
+                            sum(d_2[:] * d_2[:]))  # amplitude anomaly
+    dlna_syn = 0.5 * np.log(sum(s[:] * s[:]) /
+                            sum(s_2[:] * s_2[:]))  # amplitude anomaly
 
     # Uncertainty is estimated based on DATA cross correlation
     if use_cc_error:
         sigma_dt, sigma_dlna = calculate_cc_error(
-            d=d, s=d_2, dt=dt, cc_shift=ishift_obs, dlna=dlna,
+            d=d, s=d_2, dt=dt, cc_shift=ishift_obs, dlna=dlna_obs,
             dt_sigma_min=dt_sigma_min, dlna_sigma_min=dlna_sigma_min
         )
         logger.debug("CC error: "
                      f"dt={tshift_obs:.2f}+/-{sigma_dt:.2f}s; "
-                     f"dlna = {dlna:.3f}+/-{sigma_dlna:.3f}"
+                     f"dlna = {dlna_obs:.3f}+/-{sigma_dlna:.3f}"
                      )
     else:
         sigma_dt = 1.0
         sigma_dlna = 1.0
 
-    return tshift, dlna, sigma_dt, sigma_dlna
+    return tshift, tshift_obs, tshift_syn, dlna_obs, dlna_syn, sigma_dt, \
+        sigma_dlna
 
 
 def calculate_dd_cc_adjsrc(s, s_2, tshift, dlna, dt, sigma_dt=1.,
