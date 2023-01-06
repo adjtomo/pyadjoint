@@ -76,7 +76,7 @@ class MultitaperMisfit:
     parameter passing between functions.
     """
     def __init__(self, observed, synthetic, config, windows,
-                 choice=None, observed_2=None, synthetic_2=None, windows_2=None
+                 observed_2=None, synthetic_2=None, windows_2=None
                  ):
         """
         Initialize Multitaper Misfit adjoint source creator
@@ -110,7 +110,6 @@ class MultitaperMisfit:
         self.windows = windows
 
         # For optional double-difference measurements
-        self.choice = choice
         self.observed_2 = observed_2
         self.synthetic_2 = synthetic_2
         self.windows_2 = windows_2
@@ -516,8 +515,10 @@ class MultitaperMisfit:
                 logger.info("calculate double difference adjoint source w/ MTM")
                 fp_t, fp_2_t = self.calculate_dd_mt_adjsrc(
                     s=s, s_2=s_2, tapers=tapers,  nfreq_min=nfreq_min,
-                    nfreq_max=nfreq_max, df=df, dtau_mtm=dtau_mtm,
+                    nfreq_max=nfreq_max, df=df, dtau_mtm=dtau_mtm, 
+                    dlna_mtm=dlna_mtm, wp_w=wp_w, wq_w=wq_w
                 )
+
                 win_stats.append(
                     {"left": left_sample * self.dt,
                      "right": right_sample * self.dt,
@@ -1394,29 +1395,49 @@ def calculate_adjoint_source(observed, synthetic, config, windows, choice=None,
         borders to be tapered in units of seconds since first sample in data
         array. Used to window `observed_2` and `synthetic_2`
     """
-    ret_val_p = {}
-    ret_val_q = {}
+    # Standard Multitaper Misfit approach, single waveform set
+    if choice is None:
+        ret_val_p = {}
+        ret_val_q = {}
 
-    # Use the MTM class to generate misfit and adjoint sources
-    mtm = MultitaperMisfit(observed=observed, synthetic=synthetic,
-                           config=config, windows=windows)
-    misfit_sum_p, misfit_sum_q, fp, fq, stats = mtm.calculate_adjoint_source()
+        # Use the MTM class to generate misfit and adjoint sources
+        mtm = MultitaperMisfit(observed=observed, synthetic=synthetic,
+                               config=config, windows=windows)
 
-    # Append information on the misfit for phase and amplitude
-    ret_val_p["misfit"] = misfit_sum_p
-    ret_val_q["misfit"] = misfit_sum_q
+        misfit_sum_p, misfit_sum_q, fp, fq, stats = \
+                mtm.calculate_adjoint_source()
 
-    # Pin some information about each of the windows provided
-    ret_val_p["window_stats"] = stats
-    ret_val_q["window_stats"] = stats
+        # Append information on the misfit for phase and amplitude
+        ret_val_p["misfit"] = misfit_sum_p
+        ret_val_q["misfit"] = misfit_sum_q
 
-    # Reverse adjoint source in time w.r.t synthetics
-    ret_val_p["adjoint_source"] = fp[::-1]
-    ret_val_q["adjoint_source"] = fq[::-1]
+        # Reverse adjoint source in time w.r.t synthetics
+        ret_val_p["adjoint_source"] = fp[::-1]
+        ret_val_q["adjoint_source"] = fq[::-1]
 
-    if config.measure_type == "dt":
-        ret_val = ret_val_p
-    elif config.measure_type == "am":
-        ret_val = ret_val_q
+        if config.measure_type == "dt":
+            ret_val = ret_val_p
+        elif config.measure_type == "am":
+            ret_val = ret_val_q
+
+        ret_val["window_stats"] = stats
+
+    # Double difference multitaper misfit, two sets of waveforms
+    elif choice == "double_difference":
+        ret_val = {}
+
+        # Use the MTM class to generate misfit and adjoint sources
+        mtm = MultitaperMisfit(observed=observed, synthetic=synthetic,
+                               config=config, windows=windows, 
+                               observed_2=observed_2, synthetic_2=synthetic_2,
+                               windows_2=windows_2)
+        misfit_sum_p, fp, fp_2, stats = mtm.calculate_dd_adjoint_source()
+
+        ret_val["misfit"] = misfit_sum_p
+        ret_val["adjoint_source"] = fp[::-1]
+        ret_val["adjoint_source_2"] = fp_2[::-1]
+        ret_val["window_stats"] = stats
+    else:
+        raise NotImplementedError
 
     return ret_val

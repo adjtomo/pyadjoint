@@ -6,7 +6,15 @@ import numpy as np
 from pyadjoint import calculate_adjoint_source, get_config
 from pyadjoint import get_example_data
 
+
+# plot constant to create figures for comparison
+PLOT = True
 path = "/Users/chow/Work/pyadjoint/new_images"  # deleteme
+
+# Logger useful for debugging, set here
+if True:
+    from pyadjoint import logger
+    logger.setLevel("DEBUG")
 
 
 @pytest.fixture
@@ -47,7 +55,7 @@ def test_waveform_misfit(example_data, example_window):
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         adj_src_type="waveform_misfit", observed=obs, synthetic=syn, config=cfg,
-        windows=example_window, plot=True,
+        windows=example_window, plot=PLOT,
         plot_filename=f"{path}/waveform_misfit.png"
     )
     assert adjsrc.adjoint_source.any()
@@ -66,7 +74,7 @@ def test_waveform_dd_misfit(example_data, example_2_data, example_window):
                      max_period=75.)
     adjsrcs = calculate_adjoint_source(
         adj_src_type="waveform_misfit", observed=obs, synthetic=syn, config=cfg,
-        windows=example_window,  plot=True,
+        windows=example_window,  plot=PLOT,
         plot_filename=f"{path}/waveform_2_misfit.png",
         choice="double_difference", observed_2=obs_2, synthetic_2=syn_2,
         windows_2=example_window
@@ -90,7 +98,7 @@ def test_convolved_waveform_misfit(example_data, example_2_data,
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         adj_src_type="waveform_misfit", observed=obs, synthetic=syn, config=cfg,
-        windows=example_window,  plot=True,
+        windows=example_window,  plot=PLOT,
         plot_filename=f"{path}/waveform_2_misfit.png",
         choice="convolved", observed_2=obs_2, synthetic_2=syn_2,
         windows_2=example_window
@@ -110,7 +118,7 @@ def test_cc_traveltime_misfit(example_data, example_window):
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         adj_src_type="cc_traveltime_misfit", observed=obs, synthetic=syn,
-        config=cfg, windows=example_window, plot=True,
+        config=cfg, windows=example_window, plot=PLOT,
         plot_filename=f"{path}/cc_traveltime_misfit.png",
         choice="double_difference", 
     )
@@ -131,7 +139,7 @@ def test_dd_cc_traveltime_misfit(example_data, example_2_data, example_window):
                      max_period=75.)
     adjsrcs = calculate_adjoint_source(
         adj_src_type="cc_traveltime_misfit", observed=obs, synthetic=syn,
-        config=cfg, windows=example_window, plot=True,
+        config=cfg, windows=example_window, plot=PLOT,
         plot_filename=f"{path}/cc_traveltime_misfit.png",
         choice="double_difference", observed_2=obs_2, synthetic_2=syn_2,
         windows_2=example_window
@@ -149,8 +157,6 @@ def test_multitaper_misfit(example_data, example_window):
     """
     Test the waveform misfit function
     """
-    from pyadjoint import logger
-    logger.setLevel("DEBUG")
 
     obs, syn = example_data
     cfg = get_config(adjsrc_type="multitaper_misfit", min_period=30.,
@@ -173,6 +179,34 @@ def test_multitaper_misfit(example_data, example_window):
     assert isinstance(adjsrc.adjoint_source, np.ndarray)
 
 
+def test_dd_multitaper_misfit(example_data, example_2_data, example_window):
+    """
+    Test the waveform misfit function
+    """
+    obs, syn = example_data
+    obs_2, syn_2 = example_2_data
+    cfg = get_config(adjsrc_type="multitaper_misfit", min_period=30.,
+                     max_period=75., min_cycle_in_window=3., 
+                     use_cc_error=False)
+
+    adjsrcs = calculate_adjoint_source(
+        adj_src_type="multitaper_misfit", observed=obs, synthetic=syn,
+        config=cfg, windows=example_window, plot=PLOT,
+        plot_filename=f"{path}/dd_multitaper_misfit.png", 
+        choice="double_difference", observed_2=obs_2, synthetic_2=syn_2,
+        windows_2=example_window
+    )
+
+    assert(len(adjsrcs) == 2)
+    for adjsrc in adjsrcs:
+        assert adjsrc.adjoint_source.any()
+        assert adjsrc.misfit >= 0.0
+        assert len(adjsrc.windows) == 1
+        for stats in adjsrc.window_stats:
+            assert(stats["type"] == "dd_multitaper")
+        assert isinstance(adjsrc.adjoint_source, np.ndarray)
+
+
 def test_exponentiated_phase_misfit(example_data, example_window):
     """
     Test the waveform misfit function
@@ -183,7 +217,7 @@ def test_exponentiated_phase_misfit(example_data, example_window):
 
     adjsrc = calculate_adjoint_source(
         adj_src_type="exponentiated_phase_misfit", observed=obs, synthetic=syn,
-        config=cfg, windows=example_window, plot=True,
+        config=cfg, windows=example_window, plot=PLOT,
         plot_filename=f"{path}/exponentiated_phase_misfit.png"
     )
 
