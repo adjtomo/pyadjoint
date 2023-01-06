@@ -173,8 +173,9 @@ class MultitaperMisfit:
             # Perform a series of checks to see if MTM is valid for the data
             # This will only loop once, but allows us to break if a check fail
             while is_mtm is True:
-                if self.check_time_series_acceptability(cc_tshift=cc_tshift,
-                                                        nlen_w=nlen_w) is False:
+                is_mtm = self.check_time_series_acceptability(
+                        cc_tshift=cc_tshift, nlen_w=nlen_w) 
+                if is_mtm is False:
                     break
 
                 # Shift and scale observed data 'd' to match synthetics, make
@@ -240,10 +241,11 @@ class MultitaperMisfit:
                     sigma_dlna_mt = np.zeros(self.nlen_f)
 
                 # Check if the multitaper measurements fail selection criteria
-                if self.check_mtm_time_shift_acceptability(
-                        nfreq_min=nfreq_min, nfreq_max=nfreq_max, df=df,
-                        cc_tshift=cc_tshift, dtau_mtm=dtau_mtm,
-                        sigma_dtau_mt=sigma_dtau_mt) is False:
+                is_mtm = self.check_mtm_time_shift_acceptability(
+                                nfreq_min=nfreq_min, nfreq_max=nfreq_max, df=df,
+                                cc_tshift=cc_tshift, dtau_mtm=dtau_mtm,
+                                sigma_dtau_mt=sigma_dtau_mt)
+                if is_mtm is False:
                     break
 
                 # We made it! If the loop is still running after this point,
@@ -272,6 +274,7 @@ class MultitaperMisfit:
                 win_stats.append(
                     {"left": left_sample * self.dt,
                      "right": right_sample * self.dt,
+                     "type": "multitaper",
                      "measurement_type": self.config.measure_type,
                      "misfit_dt": misfit_p,
                      "misfit_dlna": misfit_q,
@@ -293,6 +296,7 @@ class MultitaperMisfit:
                 win_stats.append(
                     {"left": left_sample * self.dt,
                      "right": right_sample * self.dt,
+                     "type": "cross_correlation_traveltime",
                      "measurement_type": self.config.measure_type,
                      "misfit_dt": misfit_p,
                      "misfit_dlna": misfit_q,
@@ -401,8 +405,9 @@ class MultitaperMisfit:
             # Perform a series of checks to see if MTM is valid for the data
             # This will only loop once, but allows us to break if a check fails
             while is_mtm is True:
-                if self.check_time_series_acceptability(cc_tshift=cc_tshift,
-                                                        nlen_w=nlen_w) is False:
+                is_mtm = self.check_time_series_acceptability(
+                        cc_tshift=cc_tshift, nlen_w=nlen_w) 
+                if is_mtm is False:
                     break
 
                 # Shift and scale observed data 'd' to match second set: `d_2`
@@ -485,10 +490,11 @@ class MultitaperMisfit:
                     sigma_dlna_mt = np.zeros(self.nlen_f)
 
                 # Check if the multitaper measurements fail selection criteria
-                if self.check_mtm_time_shift_acceptability(
-                        nfreq_min=nfreq_min, nfreq_max=nfreq_max, df=df,
-                        cc_tshift=cc_tshift, dtau_mtm=dtau_mtm,
-                        sigma_dtau_mt=sigma_dtau_mt) is False:
+                is_mtm = self.check_mtm_time_shift_acceptability(
+                                nfreq_min=nfreq_min, nfreq_max=nfreq_max, df=df,
+                                cc_tshift=cc_tshift, dtau_mtm=dtau_mtm,
+                                sigma_dtau_mt=sigma_dtau_mt)
+                if is_mtm is False:
                     break
 
                 # We made it! If the loop is still running after this point,
@@ -515,6 +521,7 @@ class MultitaperMisfit:
                 win_stats.append(
                     {"left": left_sample * self.dt,
                      "right": right_sample * self.dt,
+                     "type": "dd_multitaper",
                      "measurement_type": self.config.measure_type,
                      "misfit_dt": misfit_p,
                      "sigma_dt": sigma_dt_cc,
@@ -524,6 +531,7 @@ class MultitaperMisfit:
                      }
                 )
                 break
+
             # If at some point MTM broke out of the loop, this code block will
             # execute and calculate a CC adjoint source and misfit instead
             if is_mtm is False:
@@ -536,6 +544,7 @@ class MultitaperMisfit:
                 win_stats.append(
                     {"left": left_sample * self.dt,
                      "right": right_sample * self.dt,
+                     "type": "dd_cross_correlation_traveltime",
                      "measurement_type": self.config.measure_type,
                      "misfit_dt": misfit_p,
                      "misfit_dlna": misfit_q,
@@ -1222,7 +1231,7 @@ class MultitaperMisfit:
         :return: True if time series OK for MTM, False if fall back to CC
         """
         # Check length of the time shift w.r.t time step
-        if abs(cc_tshift) >= self.dt:
+        if abs(cc_tshift) <= self.dt:
             logger.info(f"reject MTM: time shift {cc_tshift} <= "
                         f"dt ({self.dt})")
             return False
@@ -1354,8 +1363,8 @@ class MultitaperMisfit:
         return nfreq_limit, is_search
 
 
-def calculate_adjoint_source(observed, synthetic, config, windows,
-                             adjoint_src=True, window_stats=True):
+def calculate_adjoint_source(observed, synthetic, config, windows, choice=None, 
+                             observed_2=None, synthetic_2=None, windows_2=None):
     """
     Convenience wrapper function for MTM class to match the expected format
     of Pyadjoint. Contains the logic for what to return to User.
@@ -1369,12 +1378,21 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :type windows: list of tuples
     :param windows: [(left, right),...] representing left and right window
         borders to be used to calculate misfit and adjoint sources
-    :type adjoint_src: bool
-    :param adjoint_src: flag to calculate adjoint source, if False, will only
-        calculate misfit
-    :type window_stats: bool
-    :param window_stats: flag to return stats for individual misfit windows used
-        to generate the adjoint source
+    :type choice: str
+    :param choice: Flag to turn on station pair calculations. Requires
+        `observed_2`, `synthetic_2`, `windows_2`. Available:
+        - 'double_difference': Double difference waveform misfit from
+            Yuan et al. 2016
+    :type observed_2: obspy.core.trace.Trace
+    :param observed_2: second observed waveform to calculate adjoint sources
+        from station pairs
+    :type synthetic_2:  obspy.core.trace.Trace
+    :param synthetic_2: second synthetic waveform to calculate adjoint sources
+        from station pairs
+    :type windows_2: list of tuples
+    :param windows_2: [(left, right),...] representing left and right window
+        borders to be tapered in units of seconds since first sample in data
+        array. Used to window `observed_2` and `synthetic_2`
     """
     ret_val_p = {}
     ret_val_q = {}
@@ -1389,14 +1407,12 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     ret_val_q["misfit"] = misfit_sum_q
 
     # Pin some information about each of the windows provided
-    if window_stats:
-        ret_val_p["window_stats"] = stats
-        ret_val_q["window_stats"] = stats
+    ret_val_p["window_stats"] = stats
+    ret_val_q["window_stats"] = stats
 
     # Reverse adjoint source in time w.r.t synthetics
-    if adjoint_src:
-        ret_val_p["adjoint_source"] = fp[::-1]
-        ret_val_q["adjoint_source"] = fq[::-1]
+    ret_val_p["adjoint_source"] = fp[::-1]
+    ret_val_q["adjoint_source"] = fq[::-1]
 
     if config.measure_type == "dt":
         ret_val = ret_val_p
