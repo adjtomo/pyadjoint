@@ -149,6 +149,9 @@ def test_multitaper_misfit(example_data, example_window):
     """
     Test the waveform misfit function
     """
+    from pyadjoint import logger
+    logger.setLevel("DEBUG")
+
     obs, syn = example_data
     cfg = get_config(adjsrc_type="multitaper_misfit", min_period=30.,
                      max_period=75., min_cycle_in_window=3., 
@@ -156,12 +159,16 @@ def test_multitaper_misfit(example_data, example_window):
 
     adjsrc = calculate_adjoint_source(
         adj_src_type="multitaper_misfit", observed=obs, synthetic=syn,
-        config=cfg, windows=example_window, plot=True,
+        config=cfg, windows=example_window, plot=False,
         plot_filename=f"{path}/multitaper_misfit.png"
     )
 
     assert adjsrc.adjoint_source.any()
     assert adjsrc.misfit >= 0.0
+    # Make sure the adj src successfully uses MTM measurement, does not fall
+    # back to cross correlation traveltime
+    for stats in adjsrc.window_stats:
+        assert(stats["type"] == "multitaper")
 
     assert isinstance(adjsrc.adjoint_source, np.ndarray)
 

@@ -20,7 +20,8 @@ class AdjointSource:
     """
     def __init__(self, adj_src_type, misfit, dt, min_period, max_period,
                  component, adjoint_source=None, windows=None,
-                 network=None, station=None, location=None, starttime=None):
+                 network=None, station=None, location=None, starttime=None,
+                 window_stats=None):
         """
         Class representing an already calculated adjoint source.
 
@@ -70,6 +71,7 @@ class AdjointSource:
         self.starttime = starttime
         self.adjoint_source = adjoint_source
         self.windows = windows
+        self.window_stats = window_stats
 
     def __str__(self):
         if self.network and self.station:

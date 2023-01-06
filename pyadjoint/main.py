@@ -126,11 +126,11 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     if misfit < 0.0:
         warnings.warn("Negative misfit value not expected", PyadjointWarning)
 
-    if adjoint_src and "adjoint_source" not in ret_val:
+    if "adjoint_source" not in ret_val:
         raise PyadjointError("The actual adjoint source was not calculated "
                              "by the underlying function although it was "
                              "requested.")
-    if adjoint_src and choice == "double_difference":
+    if choice == "double_difference":
         try:
             assert("adjoint_source_2" in ret_val)
         except AssertionError:
@@ -174,7 +174,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
         min_period=config.min_period, max_period=config.max_period,
         network=observed.stats.network, station=observed.stats.station,
         component=observed.stats.channel, location=observed.stats.location,
-        starttime=observed.stats.starttime
+        starttime=observed.stats.starttime, window_stats=ret_val["window_stats"]
     )
     if "adjoint_source_2" in ret_val:
         adjsrc_2 = AdjointSource(
@@ -185,7 +185,8 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
             station=observed_2.stats.station,
             component=observed_2.stats.channel,
             location=observed_2.stats.location,
-            starttime=observed_2.stats.starttime
+            starttime=observed.stats.starttime, 
+            window_stats=ret_val["window_stats"]
         )
         return adjsrc, adjsrc_2
     else:

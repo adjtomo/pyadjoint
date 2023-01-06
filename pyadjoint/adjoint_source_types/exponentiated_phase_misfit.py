@@ -134,7 +134,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
         win_stats.append(
             {"left": left_sample * dt, "right": right_sample * dt,
-             "measurement_type": "exp_phase",
+             "type": "exponentiated_phase", "measurement_type": "dt",
              "diff_real": np.mean(diff_real[0:nlen_w]),
              "diff_imag": np.mean(diff_imag[0:nlen_w]),
              "misfit_real": misfit_real, "misfit_imag": misfit_imag
