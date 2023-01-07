@@ -15,9 +15,8 @@ from pyadjoint.adjoint_source import AdjointSource
 from pyadjoint.utils.signal import sanity_check_waveforms
 
 
-def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
-                             windows, plot=False, plot_filename=None,
-                             choice=None, observed_2=None,
+def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
+                             plot_filename=None, choice=None, observed_2=None,
                              synthetic_2=None, windows_2=None, **kwargs):
     """
     Central function of Pyadjoint used to calculate adjoint sources and misfit.
@@ -30,8 +29,6 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     ``right_window_border``, both in seconds since the first sample in the
     data arrays.
 
-    :param adj_src_type: The type of adjoint source to calculate.
-    :type adj_src_type: str
     :param observed: The observed data.
     :type observed: :class:`obspy.core.trace.Trace`
     :param synthetic: The synthetic data.
@@ -86,12 +83,9 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
     # are allowed to mess with the trace objects.
     npts = observed.stats.npts
     adj_srcs = discover_adjoint_sources()
-    if adj_src_type not in adj_srcs.keys():
-        raise PyadjointError(f"Adjoint Source type '{adj_src_type}' is unknown."
-                             f" Available types: {sorted(adj_srcs.keys())}")
 
     # From here on out we use this generic function to describe adjoint source
-    fct = adj_srcs[adj_src_type][0]
+    fct = adj_srcs[config.adj_src_type]
 
     # Main processing function, calculate adjoint source here
     ret_val = fct(observed=observed, synthetic=synthetic, config=config,
@@ -104,7 +98,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
 
         # Plot the adjoint source, window and waveforms
         plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
-                            ret_val["misfit"], windows, adj_src_type)
+                            ret_val["misfit"], windows, config.adj_src_type)
         figure.savefig(plot_filename)
         plt.show()
         plt.close("all")
@@ -115,7 +109,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
             plot_adjoint_source(observed_2, synthetic_2,
                                 ret_val["adjoint_source_2"],
                                 ret_val["misfit"], windows_2,
-                                f"{adj_src_type}_2")
+                                f"{config.adj_src_type}_2")
             fid, ext = os.path.splitext(plot_filename)
             figure.savefig(f"{fid}_2{ext}")
             plt.show()
@@ -169,7 +163,7 @@ def calculate_adjoint_source(adj_src_type, observed, synthetic, config,
                 "either NaNs or Inf values. This must not be.")
 
     adjsrc = AdjointSource(
-        adj_src_type, misfit=misfit, dt=observed.stats.delta,
+        config.adj_src_type, misfit=misfit, dt=observed.stats.delta,
         adjoint_source=ret_val["adjoint_source"], windows=windows,
         min_period=config.min_period, max_period=config.max_period,
         network=observed.stats.network, station=observed.stats.station,

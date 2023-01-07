@@ -41,9 +41,6 @@ def discover_adjoint_sources():
     adjoint_sources = {}
 
     fct_name = "calculate_adjoint_source"
-    name_attr = "VERBOSE_NAME"
-    desc_attr = "DESCRIPTION"
-    add_attr = "ADDITIONAL_PARAMETERS"
 
     path = os.path.join(
         os.path.dirname(inspect.getfile(inspect.currentframe())),
@@ -57,23 +54,9 @@ def discover_adjoint_sources():
         if not callable(fct):
             continue
 
-        name = modname.split('.')[-1]
-
-        if not hasattr(m, name_attr):
-            raise PyadjointError(
-                "Adjoint source '%s' does not have a variable named %s." %
-                (name, name_attr))
-
-        if not hasattr(m, desc_attr):
-            raise PyadjointError(
-                "Adjoint source '%s' does not have a variable named %s." %
-                (name, desc_attr))
-
-        # Add tuple of name, verbose name, and description.
-        adjoint_sources[name] = (
-            fct, getattr(m, name_attr), getattr(m, desc_attr),
-            getattr(m, add_attr) if hasattr(m, add_attr) else None
-        )
+        # Create a dictionary of functions related to the adjsrc name
+        name = m.__name__.split(".")[-1]
+        adjoint_sources[name] = fct
 
     return adjoint_sources
 

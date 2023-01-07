@@ -120,14 +120,19 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
             if choice == "double_difference":
                 diff = (s - s_2) - (d - d_2)
             # Convolve the two sets of waveforms
-            elif choice == "convolved":
+            elif choice == "dd_convolved":
                 diff = np.convolve(s, d_2, "same") - np.convolve(d, s_2, "same")
             # Check at the top of function should avoid this
             else:
                 raise NotImplementedError
-        # Difference the two sets of waveforms
+        # Addressing a single set of waveforms
         else:
-            diff = s - d
+            # Convolve the two waveforms
+            if choice == "convolved":
+                diff = np.convolve(s, d, "same")
+            # Difference the two waveforms
+            else:
+                diff = s - d
 
         # Integrate with the composite Simpson's rule.
         misfit_win = 0.5 * simps(y=diff**2, dx=dt)

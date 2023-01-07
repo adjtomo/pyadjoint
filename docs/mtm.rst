@@ -30,7 +30,7 @@ The adjoint source for the same receiver is given by
 
     f_P^{\dagger}(t) = \sum_k h_k(t)P_j(t)
 
-in which :math:`h_k(t)` is one (the :math:`k`th) of multi-tapers.
+in which :math:`h_k(t)` is one (the :math:`k` th) of multi-tapers.
 
 .. math::
 

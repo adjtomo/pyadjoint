@@ -29,3 +29,16 @@ This particular implementation here uses
 `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
 to evaluate the definite integral.
 
+Usage
+`````
+
+The following code snippets illustrates the basic usage of the waveform
+misfit function.
+
+.. code:: python
+    import pyadjoint
+
+    obs, syn = pyadjoint.get_example_data()
+    obs = obs.select(component="Z")[0]
+    syn = syn.select(component="Z")[0]
+

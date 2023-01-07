@@ -55,6 +55,7 @@ code. You can run tests with Pytest.
    :caption: INTRODUCTION
 
    usage
+   example_dataset
 
 .. toctree::
    :maxdepth: 1
@@ -62,6 +63,7 @@ code. You can run tests with Pytest.
    :caption: MISFIT FUNCTIONS
 
    waveform
+   convolution
    cctm
    mtm
 

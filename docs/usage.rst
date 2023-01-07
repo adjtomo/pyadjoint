@@ -18,15 +18,35 @@ provide a familiar nomenclature we will always talk about observed and
 synthetic data even though the workflow is independent of what the data
 represents.
 
+Example Data
+~~~~~~~~~~~~
+
+The package comes with a helper function to get some example data used for
+illustrative and debugging purposes.
+
+
 .. code:: python
 
-    # Helper function to get some example data used for
-    # illustrative purposes.
-    obs, syn = pyadjoint.utils.get_example_data()
+    obs, syn = pyadjoint.get_example_data()
     # Select the vertical components of both.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
+Config
+~~~~~~
+
+Each misfit function requires a corresponding :class:`~pyadjoint.config.Config`
+class to control optional processing parameters. The
+:meth:`~pyadjoint.config.get_config` function provides a wrapper for grabbing
+the appropriate Config.
+
+.. code:: python
+
+    config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
+                                  max_period=100.)
+
+Calculate Adjoint Source
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Essentially all of ``Pyadjoint``'s functionality is accessed through its
 central :func:`~pyadjoint.main.calculate_adjoint_source` function.
@@ -37,12 +57,11 @@ A list of available adjoint source types can be found in
 .. code:: python
 
     adj_src = pyadjoint.calculate_adjoint_source(
+        config=config,
         # The type of misfit measurement and adjoint source.
         adj_src_type="waveform_misfit",
         # Pass observed and synthetic data traces.
         observed=obs, synthetic=syn,
-        # The spectral content of the data.
-        min_period=20.0, max_period=100.0,
         # List of window borders in seconds since the first sample.
         windows=[(800., 900.)]
         )
@@ -50,7 +69,6 @@ A list of available adjoint source types can be found in
 
 
 It returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object.
-
 
 .. code:: python
 

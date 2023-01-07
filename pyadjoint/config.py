@@ -37,6 +37,9 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
         raise NotImplementedError(f"adjoint source type must be in "
                                   f"{adjsrc_types}")
 
+    # Set the adjoint source type as an attribute for check functions and plots
+    cfg.adjsrc_type = adjsrc_type
+
     # Perform some parameter checks
     if "measure_type" in vars(cfg):
         assert(cfg.measure_type in ["dt", "am"]), \
@@ -220,5 +223,4 @@ class ConfigMultitaper:
         self.dt_fac = dt_fac
         self.err_fac = err_fac
         self.dt_max_scale = dt_max_scale
-
 

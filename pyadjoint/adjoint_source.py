@@ -59,7 +59,7 @@ class AdjointSource:
             raise ValueError(f"Unknown adjoint source type {adj_src_type}")
 
         self.adj_src_type = adj_src_type
-        self.adj_src_name = adj_srcs[adj_src_type][1]
+        self.adj_src_name = adj_src_type
         self.misfit = misfit
         self.dt = dt
         self.min_period = min_period
