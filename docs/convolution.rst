@@ -20,5 +20,27 @@ The adjoint source for the same receiver and component is given by
     f^{\dagger}(t) = - \left[ \mathbf{d}(T - t) *
     \mathbf{s}(T - t, \mathbf{m}) \right]
 
+Usage
+`````
 
+The following code snippets illustrates the basic usage of the convolution
+misfit function. The ``convolution`` misfit piggybacks on the waveform misft
+source code, and consequently shares the same config object.
 
+.. code:: python
+
+    import pyadjoint
+
+    obs, syn = pyadjoint.get_example_data()
+    obs = obs.select(component="Z")[0]
+    syn = syn.select(component="Z")[0]
+
+    config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
+                                  max_period=100., taper_percentage=0.3,
+                                  taper_type="cos")
+
+    adj_src = pyadjoint.calculate_adjoint_source(config=config,
+                                                 choice="convolution",
+                                                 observed=obs, synthetic=syn,
+                                                 windows=[(800., 900.)]
+                                                 )

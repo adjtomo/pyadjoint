@@ -2,7 +2,7 @@
 """
 Configuration object for Pyadjoint.
 
-:copyright:
+:authors:
     adjTomo Dev Team (adjtomo@gmail.com), 2022
     Youyi Ruan (youyir@princeton.edu), 2016
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2016
@@ -83,8 +83,8 @@ class ConfigExponentiatedPhase:
     :param max_period: Maximum period of the filtered input data in seconds.
     :type max_period: float
     :param taper_percentage: Percentage of a time window needs to be
-    tapered at two ends, to remove the non-zero values for adjoint
-    source and for fft.
+        tapered at two ends, to remove the non-zero values for adjoint
+        source and for fft.
     :type taper_percentage: float
     :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
         for a list of available taper types
@@ -165,7 +165,6 @@ class ConfigMultitaper:
     :type dt_sigma_min: float
     :param dlna_sigma_min: minimum amplitude error allowed
     :type dlna_sigma_min: float
-
     :param lnpt: power index to determine the time length use in FFT
         (2^lnpt)
     :type lnpt: int

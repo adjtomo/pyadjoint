@@ -66,7 +66,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
     observed, synthetic = sanity_check_waveforms(observed, synthetic)
 
     # Check to see if we're doing double difference
-    if choice is not None:
+    if choice is not None and ("dd" in choice or "double_difference" in choice):
         for check in [observed_2, synthetic_2, windows_2]:
             assert(check is not None), (
                 f"setting `choice` requires `observed_2`, `synthetic_2`, "

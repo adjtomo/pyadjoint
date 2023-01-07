@@ -25,7 +25,7 @@ from pyadjoint.utils.signal import get_window_info, window_taper
 # left_window_border, right_window_border, adjoint_src, and figure as
 # parameters. Other optional keyword arguments are possible.
 def calculate_adjoint_source(observed, synthetic, config, windows,
-                             choice=None, observed_2=None,
+                             choice="waveform", observed_2=None,
                              synthetic_2=None, windows_2=None):
     """
     Calculate adjoint source for the waveform misfit measurement
@@ -45,7 +45,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         `observed_2`, `synthetic_2`, `windows_2`. Available:
         - 'double_difference': Double difference waveform misfit from
             Yuan et al. 2016
-        - 'convolved': Waveform convolution misfit from Choi & Alkhalifah (2011)
+        - 'convolution': Waveform convolution misfit from Choi & Alkhalifah (2011)
     :type observed_2: obspy.core.trace.Trace
     :param observed_2: second observed waveform to calculate adjoint sources
         from station pairs
@@ -60,10 +60,9 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     assert(config.__class__.__name__ == "ConfigWaveform"), \
         "Incorrect configuration class passed to Waveform misfit"
 
-    if choice is not None:
-        assert choice in ["double_difference", "convolved"], \
-            f"if `choice` is set, must be `double_difference` or `convolved`"
-        logger.info(f"performing waveform caluclation with choice: `{choice}`")
+    choices = ["waveform", "convolution", "waveform_dd", "convolution_dd"]
+    assert choice in choices, f"`choice` must be in {choices}"
+    logger.info(f"performing waveform caluclation with choice: `{choice}`")
 
     # Dictionary of values to be used to fill out the adjoint source class
     ret_val = {}
@@ -77,7 +76,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     adj = np.zeros(nlen_data)
     misfit_sum = 0.0
 
-    if choice is not None:
+    # Sets up for double difference misfit types
+    if "dd" in choice:
         adj_2 = np.zeros(nlen_data)
 
     # Loop over time windows and calculate misfit for each window range
@@ -99,7 +99,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
         # Prepare double difference waveforms if requested.
         # Repeat the steps above for second set of waveforms
-        if choice in ["double_difference", "convolved"]:
+        if "dd" in choice:
             left_sample_2, right_sample_2, nlen_2 = \
                 get_window_info(windows_2[i], dt)
 
@@ -117,10 +117,10 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
                          taper_type=config.taper_type)
 
             # Diff the two sets of waveforms
-            if choice == "double_difference":
+            if choice == "waveform_dd":
                 diff = (s - s_2) - (d - d_2)
             # Convolve the two sets of waveforms
-            elif choice == "dd_convolved":
+            elif choice == "convolution_Dd":
                 diff = np.convolve(s, d_2, "same") - np.convolve(d, s_2, "same")
             # Check at the top of function should avoid this
             else:
@@ -128,11 +128,13 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         # Addressing a single set of waveforms
         else:
             # Convolve the two waveforms
-            if choice == "convolved":
+            if choice == "convolution":
                 diff = np.convolve(s, d, "same")
             # Difference the two waveforms
-            else:
+            elif choice == "waveform":
                 diff = s - d
+            else:
+                raise NotImplementedError
 
         # Integrate with the composite Simpson's rule.
         misfit_win = 0.5 * simps(y=diff**2, dx=dt)
@@ -145,12 +147,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
         # Include some information about each window's total misfit,
         # since its already calculated
-        if choice:
-            window_type = f"waveform_{choice}"
-        else:
-            window_type = "waveform"
         win_stats.append(
-            {"type": window_type, "left": left_sample * dt,
+            {"type": choice, "left": left_sample * dt,
              "right": right_sample * dt, "misfit": misfit_win,
              "difference": np.mean(diff)}
         )
@@ -158,19 +156,16 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
         # If doing differential measurements, add some information about
         # second set of waveforms
-        if choice is not None:
+        if "dd" in choice:
             win_stats[i]["right_2"] = right_sample_2 * dt
             win_stats[i]["left_2"] = left_sample_2 * dt
-
-            # Double difference returns two adjoint sources
-            if choice == "double_difference":
-                adj_2[left_sample_2: right_sample_2] = -1 * diff[0:nlen_2]
+            adj_2[left_sample_2: right_sample_2] = -1 * diff[0:nlen_2]
 
     # Finally, set the return dictionary
     ret_val["misfit"] = misfit_sum
     ret_val["window_stats"] = win_stats
     ret_val["adjoint_source"] = adj[::-1]
-    if choice == "double_difference":
+    if "dd" in choice:
         ret_val["adjoint_source_2"] = adj_2[::-1]
 
     return ret_val

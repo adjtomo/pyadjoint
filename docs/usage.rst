@@ -61,13 +61,14 @@ A list of available adjoint source types can be found using the
     options.
 
 Many types of adjoint sources have additional arguments that can be passed to
-it.
+it. See the :mod:`~pyadjoint.config` page for available keyword arguments
+and descriptions.
 
 .. code:: python
 
     config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
                                   max_period=100., taper_percentage=0.3,
-                                  taper_type="cosine")
+                                  taper_type="cos")
 
 Calculate Adjoint Source
 ~~~~~~~~~~~~~~~~~~~~~~~~

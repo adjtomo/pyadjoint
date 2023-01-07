@@ -44,3 +44,26 @@ details, please see [Tromp2005]_ and [Bozdag2011]_.
 This particular implementation here uses
 `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
 to evaluate the definite integral.
+
+Usage
+`````
+
+The following code snippets illustrates the basic usage of the cross correlation
+traveltime misfit function.
+
+.. code:: python
+
+    import pyadjoint
+
+    obs, syn = pyadjoint.get_example_data()
+    obs = obs.select(component="Z")[0]
+    syn = syn.select(component="Z")[0]
+
+    config = pyadjoint.get_config(adjsrc_type="cc_traveltime_misfit",
+                                  min_period=20., max_period=100.,
+                                  taper_percentage=0.3, taper_type="cos")
+
+    adj_src = pyadjoint.calculate_adjoint_source(config=config,
+                                                 observed=obs, synthetic=syn,
+                                                 windows=[(800., 900.)]
+                                                 )
