@@ -85,7 +85,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
     adj_srcs = discover_adjoint_sources()
 
     # From here on out we use this generic function to describe adjoint source
-    fct = adj_srcs[config.adj_src_type]
+    fct = adj_srcs[config.adjsrc_type]
 
     # Main processing function, calculate adjoint source here
     ret_val = fct(observed=observed, synthetic=synthetic, config=config,
@@ -98,7 +98,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
 
         # Plot the adjoint source, window and waveforms
         plot_adjoint_source(observed, synthetic, ret_val["adjoint_source"],
-                            ret_val["misfit"], windows, config.adj_src_type)
+                            ret_val["misfit"], windows, config.adjsrc_type)
         figure.savefig(plot_filename)
         plt.show()
         plt.close("all")
@@ -109,7 +109,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
             plot_adjoint_source(observed_2, synthetic_2,
                                 ret_val["adjoint_source_2"],
                                 ret_val["misfit"], windows_2,
-                                f"{config.adj_src_type}_2")
+                                f"{config.adjsrc_type}_2")
             fid, ext = os.path.splitext(plot_filename)
             figure.savefig(f"{fid}_2{ext}")
             plt.show()
@@ -163,7 +163,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
                 "either NaNs or Inf values. This must not be.")
 
     adjsrc = AdjointSource(
-        config.adj_src_type, misfit=misfit, dt=observed.stats.delta,
+        config.adjsrc_type, misfit=misfit, dt=observed.stats.delta,
         adjoint_source=ret_val["adjoint_source"], windows=windows,
         min_period=config.min_period, max_period=config.max_period,
         network=observed.stats.network, station=observed.stats.station,

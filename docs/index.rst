@@ -7,12 +7,11 @@ different misfit functions. It was designed to generate adjoint sources for
 full waveform inversion and adjoint tomography.
 
 .. note::
-    We recommend not using Pyadjoint standalone, but within the larger misfit
-    quantification package, `Pyatoa <https://github.com/adjtomo/pyatoa>`__.
+    We recommend Pyadjoint within the larger misfit quantification package
+    `Pyatoa <https://github.com/adjtomo/pyatoa>`__, as opposed to standalone.
 
 Pyadjoint is hosted on `GitHub <https://github.com/adjtomo/pyadjoint>`__ as
 part of the `adjTomo organization <https://github.com/adjtomo>`__.
-
 
 
 Have a look at the `Pyadjoint usage <usage.html>`__ page to learn how
@@ -66,6 +65,17 @@ code. You can run tests with Pytest.
    convolution
    cctm
    mtm
+   exponentiated_phase
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: DOUBLE DIFFERENCE MISFIT
+
+   waveform_dd
+   convolution_dd
+   cctm_dd
+   mtm_dd
 
 .. toctree::
    :maxdepth: 1

@@ -1,5 +1,5 @@
-Example Data Set used in Pyadjoint
-==================================
+Example Dataset
+===============
 
 This document illustrates where the example data used in Pyadjoint
 originates from. It uses a set of 3D synthetics from the Shakemovie
