@@ -18,65 +18,6 @@ from pyadjoint.utils.cctm import (calculate_cc_shift, calculate_cc_adjsrc,
                                   calculate_dd_cc_shift, calculate_dd_cc_adjsrc)
 
 
-VERBOSE_NAME = "Cross Correlation Traveltime Misfit"
-
-DESCRIPTION = r"""
-Traveltime misfits simply measure the squared traveltime difference. The
-misfit :math:`\chi(\mathbf{m})` for a given Earth model :math:`\mathbf{m}`
-and a single receiver and component is given by
-
-.. math::
-
-    \chi (\mathbf{m}) = \frac{1}{2} \left[ T^{obs} - T(\mathbf{m}) \right] ^ 2
-
-:math:`T^{obs}` is the observed traveltime, and :math:`T(\mathbf{m})` the
-predicted traveltime in Earth model :math:`\mathbf{m}`.
-
-In practice traveltime are measured by cross correlating observed and
-predicted waveforms. This particular implementation here measures cross
-correlation time shifts with subsample accuracy with a fitting procedure
-explained in [Deichmann1992]_. For more details see the documentation of the
-:func:`~obspy.signal.cross_correlation.xcorr_pick_correction` function and the
-corresponding
-`Tutorial <http://docs.obspy.org/tutorial/code_snippets/xcorr_pick_correction.html>`_.
-
-
-The adjoint source for the same receiver and component is then given by
-
-.. math::
-
-    f^{\dagger}(t) = - \left[ T^{obs} - T(\mathbf{m}) \right] ~ \frac{1}{N} ~
-    \partial_t \mathbf{s}(T - t, \mathbf{m})
-
-For the sake of simplicity we omit the spatial Kronecker delta and define
-the adjoint source as acting solely at the receiver's location. For more
-details, please see [Tromp2005]_ and [Bozdag2011]_.
-
-
-:math:`N` is a normalization factor given by
-
-
-.. math::
-
-    N = \int_0^T ~ \mathbf{s}(t, \mathbf{m}) ~
-    \partial^2_t \mathbf{s}(t, \mathbf{m}) dt
-
-This particular implementation here uses
-`Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
-to evaluate the definite integral.
-"""
-
-ADDITIONAL_PARAMETERS = r"""
-**taper_percentage** (:class:`float`)
-    Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
-    ``0.5`` (50%)). Defauls to ``0.15``.
-
-**taper_type** (:class:`float`)
-    The taper type, supports anything :meth:`obspy.core.trace.Trace.taper`
-    can use. Defaults to ``"hann"``.
-"""
-
-
 def calculate_adjoint_source(observed, synthetic, config, windows,
                              choice=None, observed_2=None,
                              synthetic_2=None, windows_2=None):

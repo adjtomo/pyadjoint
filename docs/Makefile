@@ -48,17 +48,9 @@ help:
 
 clean:
 	rm -rf $(BUILDDIR)/*
-	rm -rf example_dataset.rst
-	rm -rf example_dataset_files
-	rm -rf index.rst
-	rm -rf adjoint_sources
 
 html:
-	python ./convert.py index
-	python ./convert.py example_dataset
-	python ./create_sphinx_files_for_adjoint_sources.py
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	rm -f windows.json
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 

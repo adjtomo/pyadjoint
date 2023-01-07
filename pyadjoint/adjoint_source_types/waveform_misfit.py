@@ -20,61 +20,6 @@ from pyadjoint import logger
 from pyadjoint.utils.signal import get_window_info, window_taper
 
 
-# This is the verbose and pretty name of the adjoint source defined in this
-# function.
-VERBOSE_NAME = "Waveform Misfit"
-
-# Long and detailed description of the adjoint source defined in this file.
-# Don't spare any details. This will be rendered as restructured text in the
-# documentation. Be careful to escape the string with an ``r`` prefix.
-# Otherwise most backslashes will have a special meaning which messes with the
-# TeX like formulas.
-DESCRIPTION = r"""
-This is the simplest of all misfits and is defined as the squared difference
-between observed and synthetic data. The misfit :math:`\chi(\mathbf{m})` for a
-given Earth model :math:`\mathbf{m}` and a single receiver and component is
-given by
-
-.. math::
-
-    \chi (\mathbf{m}) = \frac{1}{2} \int_0^T \left| \mathbf{d}(t) -
-    \mathbf{s}(t, \mathbf{m}) \right| ^ 2 dt
-
-:math:`\mathbf{d}(t)` is the observed data and
-:math:`\mathbf{s}(t, \mathbf{m})` the synthetic data.
-
-The adjoint source for the same receiver and component is given by
-
-.. math::
-
-    f^{\dagger}(t) = - \left[ \mathbf{d}(T - t) -
-    \mathbf{s}(T - t, \mathbf{m}) \right]
-
-For the sake of simplicity we omit the spatial Kronecker delta and define
-the adjoint source as acting solely at the receiver's location. For more
-details, please see [Tromp2005]_ and [Bozdag2011]_.
-
-This particular implementation here uses
-`Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
-to evaluate the definite integral.
-"""
-
-# Optional: document any additional parameters this particular adjoint sources
-# receives in addition to the ones passed to the central adjoint source
-# calculation function. Make sure to indicate the default values. This is a
-# bit redundant but the only way I could figure out to make it work with the
-# rest of the architecture of pyadjoint.
-ADDITIONAL_PARAMETERS = r"""
-**taper_percentage** (:class:`float`)
-    Decimal percentage of taper at one end (ranging from ``0.0`` (0%) to
-    ``0.5`` (50%)). Defaults to ``0.15``.
-
-**taper_type** (:class:`str`)
-    The taper type, supports anything :method:`obspy.core.trace.Trace.taper`
-    can use. Defaults to ``"hann"``.
-"""
-
-
 # Each adjoint source file must contain a calculate_adjoint_source()
 # function. It must take observed, synthetic, min_period, max_period,
 # left_window_border, right_window_border, adjoint_src, and figure as
