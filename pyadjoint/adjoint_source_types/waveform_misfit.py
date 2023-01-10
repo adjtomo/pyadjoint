@@ -20,15 +20,11 @@ from pyadjoint import logger
 from pyadjoint.utils.signal import get_window_info, window_taper
 
 
-# Each adjoint source file must contain a calculate_adjoint_source()
-# function. It must take observed, synthetic, min_period, max_period,
-# left_window_border, right_window_border, adjoint_src, and figure as
-# parameters. Other optional keyword arguments are possible.
 def calculate_adjoint_source(observed, synthetic, config, windows,
                              choice="waveform", observed_2=None,
                              synthetic_2=None, windows_2=None):
     """
-    Calculate adjoint source for the waveform misfit measurement
+    Calculate adjoint source for the waveform-based misfit measurements.
 
     :type observed: obspy.core.trace.Trace
     :param observed: observed waveform to calculate adjoint source
@@ -43,9 +39,9 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :type choice: str
     :param choice: Flag to turn on station pair calculations. Requires
         `observed_2`, `synthetic_2`, `windows_2`. Available:
-        - 'double_difference': Double difference waveform misfit from
-            Yuan et al. 2016
-        - 'convolution': Waveform convolution misfit from Choi & Alkhalifah (2011)
+
+        - 'double_difference': Double difference waveform misfit from [Yuan2016]_
+        - 'convolution': Waveform convolution misfit from [Choi2011]_
     :type observed_2: obspy.core.trace.Trace
     :param observed_2: second observed waveform to calculate adjoint sources
         from station pairs

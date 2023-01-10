@@ -22,7 +22,7 @@ Pyadjoint is used
 Installation
 ~~~~~~~~~~~~
 
-It is recommended that Pyatoa be installed inside a `Conda 
+It is recommended that Pyadjoint be installed inside a `Conda
 <https://docs.conda.io/en/latest/>`__ environment.
 The ``devel`` branch provides the latest codebase.
 
@@ -65,19 +65,21 @@ code. You can run tests with Pytest.
    convolution
    cctm
    mtm
-   exponentiated_phase
+   exp_phase
 
 .. toctree::
    :maxdepth: 1
    :hidden:
    :caption: DOUBLE DIFFERENCE MISFIT
 
-   waveform_dd
-   convolution_dd
+   dd_waveform
+   dd_convolution
    cctm_dd
    mtm_dd
 
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: API
+   :caption: MISCELLANEOUS
+
+   citations

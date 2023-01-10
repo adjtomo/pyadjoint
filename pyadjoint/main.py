@@ -172,7 +172,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
     )
     if "adjoint_source_2" in ret_val:
         adjsrc_2 = AdjointSource(
-            adj_src_type, misfit=misfit, dt=observed.stats.delta,
+            adjsrc_type=config.adjsrc_type, misfit=misfit, 
+            dt=observed.stats.delta,
             adjoint_source=ret_val["adjoint_source_2"], windows=windows_2,
             min_period=config.min_period, max_period=config.max_period,
             network=observed_2.stats.network,

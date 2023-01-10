@@ -18,7 +18,6 @@ import numpy as np
 from scipy import signal
 from scipy.integrate import simps
 
-from pyadjoint import plot_adjoint_source
 from pyadjoint.utils.signal import get_window_info, window_taper
 
 VERBOSE_NAME = "Exponentiated Phase Misfit"

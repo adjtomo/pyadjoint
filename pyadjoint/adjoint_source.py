@@ -18,15 +18,15 @@ class AdjointSource:
     """
     Adjoint Source class to hold calculated adjoint sources
     """
-    def __init__(self, adj_src_type, misfit, dt, min_period, max_period,
+    def __init__(self, adjsrc_type, misfit, dt, min_period, max_period,
                  component, adjoint_source=None, windows=None,
                  network=None, station=None, location=None, starttime=None,
                  window_stats=None):
         """
         Class representing an already calculated adjoint source.
 
-        :param adj_src_type: The type of adjoint source.
-        :type adj_src_type:  str
+        :param adjsrc_type: The type of adjoint source.
+        :type adjsrc_type:  str
         :param misfit: The misfit value.
         :type misfit: float
         :param dt: The sampling rate of the adjoint source.
@@ -55,11 +55,11 @@ class AdjointSource:
         :type starttime: obspy.UTCDateTime
         """
         adj_srcs = discover_adjoint_sources()
-        if adj_src_type not in adj_srcs.keys():
-            raise ValueError(f"Unknown adjoint source type {adj_src_type}")
+        if adjsrc_type not in adj_srcs.keys():
+            raise ValueError(f"Unknown adjoint source type {adjsrc_type}")
 
-        self.adj_src_type = adj_src_type
-        self.adj_src_name = adj_src_type
+        self.adjsrc_type = adjsrc_type
+        self.adj_src_name = adjsrc_type
         self.misfit = misfit
         self.dt = dt
         self.min_period = min_period
@@ -214,7 +214,7 @@ class AdjointSource:
         elevation_in_m = float(coordinates["elevation_in_m"])
 
         parameters = {"dt": self.dt, "misfit_value": self.misfit,
-                      "adjoint_source_type": self.adj_src_type,
+                      "adjoint_source_type": self.adjsrc_type,
                       "min_period": min_period, "max_period": max_period,
                       "latitude": latitude, "longitude": longitude,
                       "elevation_in_m": elevation_in_m,

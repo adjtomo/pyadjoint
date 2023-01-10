@@ -1,8 +1,14 @@
 Cross Correlation Traveltime Misfit
 ====================================
 
-Traveltime misfits simply measure the squared traveltime difference. The
-misfit :math:`\chi(\mathbf{m})` for a given Earth model :math:`\mathbf{m}`
+.. warning::
+
+    Please refer to the original paper [Tromp2005]_ for rigorous mathematical
+    derivations of this misfit function. This documentation page only serves to
+    summarize their results for the purpose of explaining the underlying code.
+
+Traveltime misfits simply measure the squared traveltime difference.
+The misfit :math:`\chi(\mathbf{m})` for a given Earth model :math:`\mathbf{m}`
 and a single receiver and component is given by
 
 .. math::
@@ -28,22 +34,25 @@ The adjoint source for the same receiver and component is then given by
     f^{\dagger}(t) = - \left[ T^{obs} - T(\mathbf{m}) \right] ~ \frac{1}{N} ~
     \partial_t \mathbf{s}(T - t, \mathbf{m})
 
-For the sake of simplicity we omit the spatial Kronecker delta and define
-the adjoint source as acting solely at the receiver's location. For more
-details, please see [Tromp2005]_ and [Bozdag2011]_.
-
 
 :math:`N` is a normalization factor given by
-
 
 .. math::
 
     N = \int_0^T ~ \mathbf{s}(t, \mathbf{m}) ~
     \partial^2_t \mathbf{s}(t, \mathbf{m}) dt
 
-This particular implementation here uses
-`Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
-to evaluate the definite integral.
+.. note::
+
+    For the sake of simplicity we omit the spatial Kronecker delta and define
+    the adjoint source as acting solely at the receiver's location. For more
+    details, please see [Tromp2005]_ and [Bozdag2011]_.
+
+.. note::
+
+    This particular implementation here uses
+    `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
+    to evaluate the definite integral.
 
 Usage
 `````
