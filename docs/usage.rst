@@ -1,34 +1,36 @@
 Usage
 =====
 
-The first step is to import ObsPy and ``Pyadjoint``.
+This page illustrates how to calculate misfit and generate adjoint sources
+using Pyadjoint. Pyadjoint is mainly dependent on
+`ObsPy <https://docs.obspy.org/>`__ for seismic data handling.
 
 .. code:: python
 
     import obspy
     import pyadjoint
 
-``Pyadjoint`` expects the data to be fully preprocessed thus both
-observed and synthetic data are expected to have exactly the same
-length, sampling rate, and spectral content.
+Pyadjoint expects data to be fully preprocessed beforehand. Observed and
+synthetic data are expected to have exactly the same length, sampling rate, and
+spectral content. It is up to the User to input correctly formatted data.
 
-``Pyadjoint`` does not care about the actual components in question; it will
-use two traces and calculate misfit values and adjoint sources for them. To
-provide a familiar nomenclature we will always talk about observed and
-synthetic data even though the workflow is independent of what the data
-represents.
+Pyadjoint is generic and does not care what traces are provided. Despite this,
+we will talk about traces as "observed" and "synthetic."
 
 Example Data
 ~~~~~~~~~~~~
 
-The package comes with a helper function to get some example data used for
-illustrative and debugging purposes.
+The package comes with example data used for illustrative and debugging
+purposes. See the :doc:`~example_dataset` page for an explanation of where this
+data came from.
 
 
 .. code:: python
 
     obs, syn = pyadjoint.get_example_data()
-    # Select the vertical components of both.
+
+    # Pyadjoint requires individual components, not data streams
+    # Data are available in R, T and Z components
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
@@ -38,15 +40,15 @@ Config
 Each misfit function requires a corresponding :class:`~pyadjoint.config.Config`
 class to control optional processing parameters. The
 :meth:`~pyadjoint.config.get_config` function provides a wrapper for grabbing
-the appropriate Config.
+the appropriate Config object.
 
 .. code:: python
 
     config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
                                   max_period=100.)
 
-A list of available adjoint source types can be found using the
-:meth:`~pyadjoint.discover_adjoint_sources` function.
+A list of available adjoint sources can be found at the :doc:`~available` page.
+
 
 .. code:: python
 
@@ -57,8 +59,8 @@ A list of available adjoint source types can be found using the
 .. note::
 
     Some of these functions allow for modifiers such as the use of
-    double difference measurements. See individual misfit function pages for
-    options.
+    double difference measurements. See the 'double difference' section below
+    for more explanation
 
 Many types of adjoint sources have additional arguments that can be passed to
 it. See the :mod:`~pyadjoint.config` page for available keyword arguments
@@ -74,8 +76,9 @@ Calculate Adjoint Source
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Essentially all of ``Pyadjoint``'s functionality is accessed through its
-central :func:`~pyadjoint.main.calculate_adjoint_source` function.
-
+central :func:`~pyadjoint.main.calculate_adjoint_source` function. This function
+takes the previously defined Config class, the observed and synthetic waveforms,
+and a list of time windows.
 
 .. code:: python
 
@@ -86,6 +89,7 @@ central :func:`~pyadjoint.main.calculate_adjoint_source` function.
         # List of window borders in seconds since the first sample.
         windows=[(800., 900.)]
         )
+
 
 The function returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object.
 
@@ -108,6 +112,44 @@ The function returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object.
     # Misfit stats for each window are also stored
     >>> print(adj_src.window_stats)
     [{'type': 'waveform', 'left': 800.0, 'right': 901.0, 'misfit': 4.263067857359352e-11, 'difference': 1.519230269510467e-08}]
+
+
+Time Windows
+------------
+
+Time windows are typically used in misfit quantification to isolate portions
+of waveforms that include signals of interest.
+
+Individual time windows represent the start and end time (units: s) of a
+window in which to consider waveform misfit, and multiple overlapping time
+windows can be included in the final adjoint source.
+
+To include multiple windows:
+
+.. code::
+
+    windows = [(0, 100), (200, 500), (325, 552)]
+    adj_src = pyadjoint.calculate_adjoint_source(
+        config=config, observed=obs, synthetic=syn, windows=windows
+        )
+
+To calculate misfit on the entire trace, we need to consider all time steps
+in the trace:
+
+.. code::
+
+    windows = [(0, int(obs.stats.npts * obs.stats.dt)]
+
+
+Double Difference Measurements
+------------------------------
+
+Double difference misfit functions, defined in [Yuan2016]_, construct misfit
+and adjoint sources from differential measurements between stations to reduce
+the influence of systematic errors from source and stations. 'Differential' is
+defined as "between pairs of stations, from a common source."
+
+
 
 Plotting Adjoint Sources
 ~~~~~~~~~~~~~~~~~~~~~~~~

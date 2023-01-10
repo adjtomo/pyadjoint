@@ -6,20 +6,20 @@ Convolution Double Difference Misfit
     Double difference misfit functions, defined in [Yuan2016]_, construct misfit
     and adjoint sources from differential measurements between stations to reduce
     the influence of systematic errors from source and stations. "Differential" is
-    defined as "between pairs of stations, from a common source".
+    defined as "between pairs of stations, from a common source."
 
 
 For two stations, `i` and `j`, the convolution double difference misfit is
 defined as the squared difference of convolution of observed and synthetic data.
 The misfit :math:`\chi(\mathbf{m})` for a given Earth model :math:`\mathbf{m}` at
-a given component is:
+a given component is
 
 .. math::
 
     \chi (\mathbf{m}) = \frac{1}{2} \int_0^T \left|
     {s}_i(t, \mathbf{m}) * d_j(t) -
     {d}_j(t) * s_i(t, \mathbf{m})
-    \right| ^ 2 dt,
+    \right| ^ 2 dt.
 
 
 Double difference misfit functions result in two adjoint sources, one for each
@@ -46,14 +46,14 @@ differential waveform misfits:
 
 .. note::
 
-    This particular implementation here uses
+    This particular implementation uses
     `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
     to evaluate the definite integral.
 
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the waveform
+The following code snippet illustrates the basic usage of the waveform
 misfit function.
 
 Note that double difference implementations can take a set of windows for the
@@ -64,7 +64,7 @@ length.
 .. note::
 
     In the following code snippet, we use the 'R' component of the same station
-    in liue of waveforms from a second station. In practice, the second set of
+    in lieu of waveforms from a second station. In practice, the second set of
     waveforms should come from a completely different station.
 
 

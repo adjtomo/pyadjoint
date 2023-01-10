@@ -4,14 +4,13 @@ Exponentiated Phase Misfit
 .. warning::
 
     Please refer to the original paper [Yuan2020]_ for rigorous mathematical
-    derivations of this misfit function. This documentation page only serves to
-    summarize their results for the purpose of explaining the underlying code.
+    derivations of this misfit function.
 
 The exponentiated phase misfit, defined in [Yuan2020]_, measures misfit
 using a complex-valued phase representation that is a good substitute for
-instantaneous-phase measurements, which suffer from phase wrapping.
+instantaneous-phase measurements, which can suffer from phase wrapping.
 
-Exponentiated phase misfit measure the difference between observed and the
+The exponentiated phase misfit measures the difference between observed and the
 synthetic normalized analytic signals. The misfit :math:`\chi(\mathbf{m})` for
 a given Earth model :math:`\mathbf{m}` and a single receiver and component is
 given by
@@ -22,18 +21,21 @@ given by
     \frac{1}{2} \int_0^T \left[ \left\Vert \Delta R(t)\right\Vert^2 -
     \left\Vert\Delta I(t)\right\Vert^2 \right]dt,
 
-where :math:`\Delta R(t)`, the difference in the real parts is:
+where
 
 .. math::
 
     \Delta R(t) = \frac{d(t)}{E_d(t)} - \frac{s(t)}{E_s(t)},
 
-and :math:`\Delta I(t)`, the difference in the imaginary parts:
+is the difference in the real parts of the transform, and
 
 .. math::
 
     \Delta I(t) = \frac{\mathcal{H}\{d(t)\}}{E_d(t)} -
-    \frac{\mathcal{H}\{s(t)\}}{E_s(t)}.
+    \frac{\mathcal{H}\{s(t)\}}{E_s(t)}
+
+is the difference in the imaginary parts of the transform.
+
 
 Above, :math:`\mathcal{H}` represents the `Hilbert transform
 <https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html>`__
@@ -44,7 +46,7 @@ instantaneous phase of synthetics and data, respectively:
 
     E_s(t) = \sqrt{s^2(t) + \mathcal{H}^2\{s(t)\}}
 
-    E_d(t) = \sqrt{d^2(t) + \mathcal{H}^2\{d(t)\}}
+    E_d(t) = \sqrt{d^2(t) + \mathcal{H}^2\{d(t)\}}.
 
 
 The adjoint source for the exponentiated phase misfit function for a given
@@ -72,7 +74,7 @@ receiver and component is given by:
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the cross correlation
+The following code snippet illustrates the basic usage of the cross correlation
 traveltime misfit function.
 
 .. code:: python

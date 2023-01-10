@@ -25,8 +25,8 @@ component is given by
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the convolution
-misfit function. The ``convolution`` misfit piggybacks on the waveform misft
+The following code snippet illustrates the basic usage of the convolution
+misfit function. The ``convolution`` misfit piggybacks on the waveform misfit
 source code, and consequently shares the same config object.
 
 .. code:: python

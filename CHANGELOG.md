@@ -1,5 +1,12 @@
 # Change Log
-## v0.1.0
+## v0.2.1
+### Docs
+- Fixed typos, math and grammar errors in documentation
+- Added a docs page on available adjoint sources
+- Added a subsection on time windows and double difference measurements
+
+
+## v0.2.0
 ### Package structure
 - Renamed 'pyadjoint/doc/' -> 'pyadjoint/docs'
 - Renamed 'pyadjoint/src/' -> 'pydjoint/pyadjoint'

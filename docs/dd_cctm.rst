@@ -4,20 +4,13 @@ Cross Correlation Traveltime Double Difference Misfit
 .. warning::
 
     Please refer to the original paper [Yuan2016]_ for rigorous mathematical
-    derivations of this misfit function. This documentation page only serves to
-    summarize their results.
+    derivations of this misfit function.
 
-.. note::
-
-    Double difference misfit functions, defined in [Yuan2016]_, construct misfit
-    and adjoint sources from differential measurements between stations to reduce
-    the influence of systematic errors from source and stations. 'Differential' is
-    defined as "between pairs of stations, from a common source".
 
 For two stations, `i` and `j`, the cross correlation traveltime double
 difference misfit is defined as the squared difference of cross correlations of
 observed and synthetic data. The misfit :math:`\chi(\mathbf{m})` for a given
-Earth model :math:`\mathbf{m}` at a given component is:
+Earth model :math:`\mathbf{m}` at a given component is
 
 .. math::
 
@@ -45,7 +38,7 @@ observed waveforms `d`,
 Double difference misfit functions result in two adjoint sources, one for each
 station in the pair `i`, `j`. The corresponding adjoint sources for the misfit
 function :math:`\chi(\mathbf{m})` is defined as the difference of the
-differential waveform misfits:
+differential waveform misfits
 
 .. math::
 
@@ -55,9 +48,9 @@ differential waveform misfits:
 
     f_{j}^{\dagger}(t) =
     - \frac{\Delta{s}(t, \mathbf{m})_{ij} - \Delta{d}(t)_{ij}}{N_{ij}}
-    \partial{s_j}(T-[t+\Delta s_{ij}])
+    \partial{s_j}(T-[t+\Delta s_{ij}]),
 
-Where the normalization factor :math:`N_{ij}` is defined as:
+where the normalization factor :math:`N_{ij}` is defined as:
 
 .. math::
 
@@ -71,14 +64,14 @@ Where the normalization factor :math:`N_{ij}` is defined as:
 
 .. note::
 
-    This particular implementation here uses
+    This particular implementation uses
     `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
     to evaluate the definite integral.
 
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the double difference
+The following code snippet illustrates the basic usage of the double difference
 CCTM misfit function.
 
 Note that double difference implementations can take a set of windows for the
@@ -89,7 +82,7 @@ length.
 .. note::
 
     In the following code snippet, we use the 'R' component of the same station
-    in liue of waveforms from a second station. In practice, the second set of
+    in lieu of waveforms from a second station. In practice, the second set of
     waveforms should come from a completely different station.
 
 .. code:: python

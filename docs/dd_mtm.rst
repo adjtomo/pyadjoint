@@ -6,7 +6,7 @@ Double Difference Multitaper Misfit
     Double difference misfit functions, defined in [Yuan2016]_, construct misfit
     and adjoint sources from differential measurements between stations to reduce
     the influence of systematic errors from source and stations. 'Differential' is
-    defined as "between pairs of stations, from a common source".
+    defined as "between pairs of stations, from a common source."
 
 Due to the length and complexity of the equations for double difference
 multitaper misfit, please see [Yuan2016]_ Appendix A1 and A2 for the
@@ -16,7 +16,7 @@ mathematical expressions that define misfit and adjoint source.
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the double
+The following code snippet illustrates the basic usage of the double
 difference multitaper misfit function.
 
 Note that double difference implementations can take a set of windows for the
@@ -27,7 +27,7 @@ length.
 .. note::
 
     In the following code snippet, we use the 'R' component of the same station
-    in liue of waveforms from a second station. In practice, the second set of
+    in lieu of waveforms from a second station. In practice, the second set of
     waveforms should come from a completely different station.
 
 .. code:: python

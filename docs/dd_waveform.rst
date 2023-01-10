@@ -5,16 +5,15 @@ Waveform Double Difference Misfit
 
     Please refer to the papers [Tromp2005]_ and [Yuan2016]_ for mathematical
     derivations of the wavefoform misfit function and cross correlation
-    double difference measurement. This misfit function is not explicitely
+    double difference measurement. This misfit function is not explicitly
     derived there, but follows as a natural extension from these publications.
-
 
 .. note::
 
     Double difference misfit functions, defined in [Yuan2016]_, construct misfit
     and adjoint sources from differential measurements between stations to reduce
     the influence of systematic errors from source and stations. "Differential" is
-    defined as "between pairs of stations, from a common source".
+    defined as "between pairs of stations, from a common source."
 
 For two stations, `i` and `j`, the waveform double difference misfit is defined
 as the squared difference of differences of observed and synthetic data. The
@@ -65,14 +64,14 @@ differential waveform misfits:
 
 .. note::
 
-    This particular implementation here uses
+    This particular implementation uses
     `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
     to evaluate the definite integral.
 
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the waveform
+The following code snippet illustrates the basic usage of the waveform
 misfit function.
 
 Note that double difference implementations can take a set of windows for the
@@ -83,7 +82,7 @@ length.
 .. note::
 
     In the following code snippet, we use the 'R' component of the same station
-    in liue of waveforms from a second station. In practice, the second set of
+    in lieu of waveforms from a second station. In practice, the second set of
     waveforms should come from a completely different station.
 
 

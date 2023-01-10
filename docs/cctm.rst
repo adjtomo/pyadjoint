@@ -4,8 +4,7 @@ Cross Correlation Traveltime Misfit
 .. warning::
 
     Please refer to the original paper [Tromp2005]_ for rigorous mathematical
-    derivations of this misfit function. This documentation page only serves to
-    summarize their results for the purpose of explaining the underlying code.
+    derivations of this misfit function.
 
 Traveltime misfits simply measure the squared traveltime difference.
 The misfit :math:`\chi(\mathbf{m})` for a given Earth model :math:`\mathbf{m}`
@@ -50,14 +49,14 @@ The adjoint source for the same receiver and component is then given by
 
 .. note::
 
-    This particular implementation here uses
+    This particular implementation uses
     `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
     to evaluate the definite integral.
 
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the cross correlation
+The following code snippet illustrates the basic usage of the cross correlation
 traveltime misfit function.
 
 .. code:: python

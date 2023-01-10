@@ -48,7 +48,7 @@ in which :math:`h_k(t)` is one (the :math:`k` th) of multi-tapers.
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the multitaper
+The following code snippet illustrates the basic usage of the multitaper
 misfit function.
 
 .. code:: python

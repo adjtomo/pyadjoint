@@ -36,14 +36,14 @@ The adjoint source for the same receiver and component is given by
 
 .. note::
 
-    This particular implementation here uses
+    This particular implementation uses
     `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
     to evaluate the definite integral.
 
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the waveform
+The following code snippet illustrates the basic usage of the waveform
 misfit function.
 
 .. code:: python

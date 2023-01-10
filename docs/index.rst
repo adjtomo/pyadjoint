@@ -2,29 +2,28 @@
 Pyadjoint
 ===================================================
 `Pyadjoint <https://github.com/adjtomo/pyadjoint>`__ is an open-source Python
-package for calculating time-dependent time series misfit, offering a number of
-different misfit functions. It was designed to generate adjoint sources for 
-full waveform inversion and adjoint tomography.
+package for calculating time-dependent misfit with a variety of misfit
+functions. It was designed to generate adjoint sources for full waveform
+inversion and adjoint tomography.
 
 .. note::
-    We recommend Pyadjoint within the larger misfit quantification package
-    `Pyatoa <https://github.com/adjtomo/pyatoa>`__, as opposed to standalone.
+    Although it can be used standalone, we recommend using Pyadjoint within
+    the larger misfit quantification package
+    `Pyatoa <https://github.com/adjtomo/pyatoa>`__.
 
 Pyadjoint is hosted on `GitHub <https://github.com/adjtomo/pyadjoint>`__ as
 part of the `adjTomo organization <https://github.com/adjtomo>`__.
 
-
-Have a look at the `Pyadjoint usage <usage.html>`__ page to learn how
-Pyadjoint is used. Browse available adjoint sources using the navigation bar.
+Have a look at the `Pyadjoint usage <usage.html>`__ page to get started, and
+browse available adjoint sources using the navigation bar.
 
 --------------
 
 Installation
 ~~~~~~~~~~~~
 
-It is recommended that Pyadjoint be installed inside a `Conda
+We recommend Pyadjoint be installed inside a `Conda
 <https://docs.conda.io/en/latest/>`__ environment.
-The ``devel`` branch provides the latest codebase.
 
 .. code:: bash
 
@@ -34,6 +33,9 @@ The ``devel`` branch provides the latest codebase.
    conda activate pyadjoint
    conda install obspy
    pip install -e .
+
+--------------
+
 
 
 Running Tests
