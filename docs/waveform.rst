@@ -58,7 +58,7 @@ misfit function.
                                   max_period=100., taper_percentage=0.3,
                                   taper_type="cos")
 
-    adj_src = pyadjoint.calculate_adjoint_source(config=config,
+    adj_src = pyadjoint.calculate_adjoint_source(config=config, choice="waveform",
                                                  observed=obs, synthetic=syn,
                                                  windows=[(800., 900.)]
                                                  )
