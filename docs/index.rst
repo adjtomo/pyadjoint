@@ -15,7 +15,7 @@ part of the `adjTomo organization <https://github.com/adjtomo>`__.
 
 
 Have a look at the `Pyadjoint usage <usage.html>`__ page to learn how
-Pyadjoint is used
+Pyadjoint is used. Browse available adjoint sources using the navigation bar.
 
 --------------
 
@@ -74,8 +74,8 @@ code. You can run tests with Pytest.
 
    dd_waveform
    dd_convolution
-   cctm_dd
-   mtm_dd
+   dd_cctm
+   dd_mtm
 
 .. toctree::
    :maxdepth: 1

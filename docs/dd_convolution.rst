@@ -8,11 +8,6 @@ Convolution Double Difference Misfit
     the influence of systematic errors from source and stations. "Differential" is
     defined as "between pairs of stations, from a common source".
 
-.. warning::
-
-    Please refer to the original paper [Yuan2016]_ for rigorous mathematical
-    derivations of this misfit function. This documentation page only serves to
-    summarize their results.
 
 For two stations, `i` and `j`, the convolution double difference misfit is
 defined as the squared difference of convolution of observed and synthetic data.
@@ -22,23 +17,9 @@ a given component is:
 .. math::
 
     \chi (\mathbf{m}) = \frac{1}{2} \int_0^T \left|
-    \Delta{s}(t, \mathbf{m})_{ij} -
-    \Delta{d}(t)_{ij} \right| ^ 2 dt,
-
-where :math:`\Delta{s}(t, \mathbf{m})_{ij}` is the difference of
-synthetic waveforms `s`:
-
-.. math::
-
-    \Delta{s}(t, \mathbf{m})_{ij} =
-    s_{j}(t, \mathbf{m}) - s_{i}(t, \mathbf{m}),
-
-
-and :math:`\Delta{d}(t)` is the difference of observed waveforms `d`,
-
-.. math::
-
-    \Delta{d}(t)_{ij} = d_{j}(t) - d_{i}(t).
+    {s}_i(t, \mathbf{m}) * d_j(t) -
+    {d}_j(t) * s_i(t, \mathbf{m})
+    \right| ^ 2 dt,
 
 
 Double difference misfit functions result in two adjoint sources, one for each
@@ -49,10 +30,12 @@ differential waveform misfits:
 .. math::
 
     f_{i}^{\dagger}(t) =
-    + (\Delta{s}(t, \mathbf{m})_{ij} - \Delta{d}(t)_{ij})
+    + (  {s}_i(t, \mathbf{m}) * d_j(t) -
+    {d}_j(t) * s_i(t, \mathbf{m}))
 
     f_{j}^{\dagger}(t) =
-    - (\Delta{s}(t, \mathbf{m})_{ij} - \Delta{d}(t)_{ij})
+    - ({s}_i(t, \mathbf{m}) * d_j(t) -
+    {d}_j(t) * s_i(t, \mathbf{m}))
 
 
 .. note::
@@ -104,7 +87,7 @@ length.
     # Calculating double-difference adjoint source returns two adjoint sources
     adj_src, adj_src_2 = pyadjoint.calculate_adjoint_source(
         config=config, observed=obs, synthetic=syn, windows=[(800., 900.)],
-        choice="waveform_dd", observed_2=obs_2, synthetic_2=syn_2,
+        choice="convolution_dd", observed_2=obs_2, synthetic_2=syn_2,
         windows_2=[(800., 900.)]
         )
 
