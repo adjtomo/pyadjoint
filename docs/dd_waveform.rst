@@ -1,18 +1,20 @@
 Waveform Double Difference Misfit
 =================================
 
+.. warning::
+
+    Please refer to the papers [Tromp2005]_ and [Yuan2016]_ for mathematical
+    derivations of the wavefoform misfit function and cross correlation
+    double difference measurement. This misfit function is not explicitely
+    derived there, but follows as a natural extension from these publications.
+
+
 .. note::
 
     Double difference misfit functions, defined in [Yuan2016]_, construct misfit
     and adjoint sources from differential measurements between stations to reduce
     the influence of systematic errors from source and stations. "Differential" is
     defined as "between pairs of stations, from a common source".
-
-.. warning::
-
-    Please refer to the original paper [Yuan2016]_ for rigorous mathematical
-    derivations of this misfit function. This documentation page only serves to
-    summarize their results for the purpose of explaining the underlying code.
 
 For two stations, `i` and `j`, the waveform double difference misfit is defined
 as the squared difference of differences of observed and synthetic data. The

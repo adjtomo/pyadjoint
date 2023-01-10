@@ -1,18 +1,18 @@
 Cross Correlation Traveltime Double Difference Misfit
 ======================================================
 
+.. warning::
+
+    Please refer to the original paper [Yuan2016]_ for rigorous mathematical
+    derivations of this misfit function. This documentation page only serves to
+    summarize their results.
+
 .. note::
 
     Double difference misfit functions, defined in [Yuan2016]_, construct misfit
     and adjoint sources from differential measurements between stations to reduce
     the influence of systematic errors from source and stations. 'Differential' is
     defined as "between pairs of stations, from a common source".
-
-.. warning::
-
-    Please refer to the original paper [Yuan2016]_ for rigorous mathematical
-    derivations of this misfit function. This documentation page only serves to
-    summarize their results.
 
 For two stations, `i` and `j`, the cross correlation traveltime double
 difference misfit is defined as the squared difference of cross correlations of
