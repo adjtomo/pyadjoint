@@ -10,8 +10,21 @@ Configuration object for Pyadjoint.
     GNU General Public License, Version 3
     (http://www.gnu.org/copyleft/gpl.html)
 """
-from pyadjoint import discover_adjoint_sources
 from pyadjoint.utils.signal import TAPER_COLLECTION
+
+# Constants defining the available adjoint source types in this package and
+# their verbose names. New adjoint sources need to be added here.
+ADJSRC_TYPES = {
+    "waveform": "Waveform Misfit",
+    "convolution": "Convolution Misfit",
+    "exponentiated_phase": "Exponentiated Phase Misfit",
+    "cc_traveltime": "Cross Correlation Traveltime Misfit",
+    "multitaper": "Multitaper Misfit",
+    "waveform_dd": "Waveform Double Difference Misfit",
+    "convolution_dd": "Convolution Double Difference Misfit",
+    "cc_traveltime_dd": "Cross Correlation Traveltime Double Difference Misfit",
+    "multitaper_dd": "Multitaper Double Difference Misfit"
+}
 
 
 def get_config(adjsrc_type, min_period, max_period, **kwargs):
@@ -21,21 +34,38 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
     parameters
     """
     adjsrc_type = adjsrc_type.lower()  # allow for case-insensitivity
-    adjsrc_types = discover_adjoint_sources().keys()
-
+    assert(adjsrc_type in ADJSRC_TYPES.keys), \
+        f"`adjsrc_type` must be in {ADJSRC_TYPES.keys()}"
     assert(min_period < max_period), f"`min_period` must be < `max_period`"
 
-    if adjsrc_type == "waveform_misfit":
+    # Logic tree to determine what type of Config object is required, and
+    # any sub-arguments required
+    if adjsrc_type == "waveform":
         cfg = ConfigWaveform(min_period, max_period, **kwargs)
-    elif adjsrc_type == "exponentiated_phase_misfit":
+    elif adjsrc_type == "convolution":
+        cfg = ConfigWaveform(min_period, max_period, **kwargs)
+    elif adjsrc_type == "exponentiated_phase":
         cfg = ConfigExponentiatedPhase(min_period, max_period, **kwargs)
-    elif adjsrc_type == "cc_traveltime_misfit":
+    elif adjsrc_type == "cc_traveltime":
         cfg = ConfigCCTraveltime(min_period, max_period, **kwargs)
-    elif adjsrc_type == "multitaper_misfit":
+    elif adjsrc_type == "multitaper":
         cfg = ConfigMultitaper(min_period, max_period, **kwargs)
+    # Double difference Configs
+    elif adjsrc_type == "waveform_dd":
+        cfg = ConfigWaveform(min_period, max_period, double_difference=True,
+                             **kwargs)
+    elif adjsrc_type == "convolution_dd":
+        cfg = ConfigWaveform(min_period, max_period, double_difference=True,
+                             **kwargs)
+    elif adjsrc_type == "cc_traveltime_dd":
+        cfg = ConfigCCTraveltime(min_period, max_period, double_difference=True,
+                                 **kwargs)
+    elif adjsrc_type == "multitaper_dd":
+        cfg = ConfigMultitaper(min_period, max_period,  double_difference=True,
+                               **kwargs)
     else:
         raise NotImplementedError(f"adjoint source type must be in "
-                                  f"{adjsrc_types}")
+                                  f"{ADJSRC_TYPES.keys()}")
 
     # Set the adjoint source type as an attribute for check functions and plots
     cfg.adjsrc_type = adjsrc_type
@@ -67,11 +97,14 @@ class ConfigWaveform:
     :type taper_type: str
     """
     def __init__(self, min_period, max_period, taper_type="hann",
-                 taper_percentage=0.3):
+                 taper_percentage=0.3, double_difference=False):
         self.min_period = min_period
         self.max_period = max_period
         self.taper_type = taper_type
         self.taper_percentage = taper_percentage
+        self.double_difference = double_difference
+        # To be overwritten by get_config()
+        self.adjsrc_type = None
 
 
 class ConfigExponentiatedPhase:
@@ -91,14 +124,21 @@ class ConfigExponentiatedPhase:
     :type taper_type: str
     :param wtr_env: float
     :param wtr_env: window taper envelope amplitude scaling
+    :type double_difference: bool
+    :param double_difference: flag to turn on double difference measurements,
+        which signals to the main calc function whether additional waveforms
+        are required at input
     """
     def __init__(self, min_period, max_period, taper_type="hann",
-                 taper_percentage=0.3, wtr_env=0.2):
+                 taper_percentage=0.3, wtr_env=0.2, double_difference=False):
         self.min_period = min_period
         self.max_period = max_period
         self.taper_type = taper_type
         self.taper_percentage = taper_percentage
         self.wtr_env = wtr_env
+        self.double_difference = double_difference
+        # To be overwritten by get_config()
+        self.adjsrc_type = None
 
 
 class ConfigCCTraveltime:
@@ -125,10 +165,14 @@ class ConfigCCTraveltime:
     :type dt_sigma_min: float
     :param dlna_sigma_min: minimum amplitude error allowed
     :type dlna_sigma_min: float
+    :type double_difference: bool
+    :param double_difference: flag to turn on double difference measurements,
+        which signals to the main calc function whether additional waveforms
+        are required at input
     """
     def __init__(self, min_period, max_period, taper_type="hann",
                  taper_percentage=0.3, measure_type="dt", use_cc_error=True,
-                 dt_sigma_min=1.0, dlna_sigma_min=0.5):
+                 dt_sigma_min=1.0, dlna_sigma_min=0.5, double_difference=False):
         self.min_period = min_period
         self.max_period = max_period
         self.taper_type = taper_type
@@ -137,6 +181,9 @@ class ConfigCCTraveltime:
         self.use_cc_error = use_cc_error
         self.dt_sigma_min = dt_sigma_min
         self.dlna_sigma_min = dlna_sigma_min
+        self.double_difference = double_difference
+        # To be overwritten by get_config()
+        self.adjsrc_type = None
 
 
 class ConfigMultitaper:
@@ -197,6 +244,10 @@ class ConfigMultitaper:
     :type dt_max_scale: float
     :param phase_step: maximum step for cycle skip correction (?)
     :type phase_step: float
+    :type double_difference: bool
+    :param double_difference: flag to turn on double difference measurements,
+        which signals to the main calc function whether additional waveforms
+        are required at input
     """
     def __init__(self, min_period, max_period, lnpt=15,
                  transfunc_waterlevel=1.0E-10, water_threshold=0.02,
@@ -204,7 +255,8 @@ class ConfigMultitaper:
                  taper_percentage=0.3, mt_nw=4.0, num_taper=5, dt_fac=2.0,
                  phase_step=1.5, err_fac=2.5, dt_max_scale=3.5,
                  measure_type="dt", dt_sigma_min=1.0, dlna_sigma_min=0.5,
-                 use_cc_error=True, use_mt_error=False):
+                 use_cc_error=True, use_mt_error=False, double_difference=False
+                 ):
         self.min_period = min_period
         self.max_period = max_period
         self.taper_type = taper_type
@@ -226,4 +278,6 @@ class ConfigMultitaper:
         self.dt_fac = dt_fac
         self.err_fac = err_fac
         self.dt_max_scale = dt_max_scale
-
+        self.double_difference = double_difference
+        # To be overwritten by get_config()
+        self.adjsrc_type = None

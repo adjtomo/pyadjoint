@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 """
-Simple waveform misfit and adjoint source.
-
-.. note::
-    This file serves as the template for generation of new adjoint sources.
-    Copy-paste file and adjust name, description and underlying calculation
-    function to generate new adjoint source.
+Simple waveform-based misfit and adjoint source. Contains options for
+'waveform' and 'convolution' misfit functions, as well as their double
+difference counterparts
 
 :authors:
     adjTomo Dev Team (adjtomo@gmail.com), 2023

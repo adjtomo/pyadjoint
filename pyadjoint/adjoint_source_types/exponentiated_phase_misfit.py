@@ -2,11 +2,6 @@
 """
 Exponentiated phase misfit function and adjoint source.
 
-TODO
-    - write description
-    - add citation for bozdag paper
-    - write additional parameters
-
 :authors:
     adjtomo Dev Team (adjtomo@gmail.com), 2022
     Yanhua O. Yuan (yanhuay@princeton.edu), 2016
@@ -19,14 +14,6 @@ from scipy import signal
 from scipy.integrate import simps
 
 from pyadjoint.utils.signal import get_window_info, window_taper
-
-VERBOSE_NAME = "Exponentiated Phase Misfit"
-
-DESCRIPTION = r"""
-"""
-
-ADDITIONAL_PARAMETERS = r"""
-"""
 
 
 def calculate_adjoint_source(observed, synthetic, config, windows,

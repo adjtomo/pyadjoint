@@ -74,8 +74,8 @@ receiver and component is given by:
 Usage
 `````
 
-The following code snippet illustrates the basic usage of the cross correlation
-traveltime misfit function.
+The following code snippet illustrates the basic usage of the exponentiated
+phase misfit function.
 
 .. code:: python
 
