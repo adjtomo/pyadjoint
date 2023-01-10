@@ -1,7 +1,4 @@
-Changelog
----------
-Updates to Pyadjoint by version number
-
+# Change Log
 ## v0.1.0
 ### Package structure
 - Renamed 'pyadjoint/doc/' -> 'pyadjoint/docs'
@@ -14,6 +11,7 @@ Updates to Pyadjoint by version number
 - Revamped documentation, removed the old notebook and source-code bundled 
   documentation, moved all docs-related info out of source code and into the 
   upper-level docs/ directory.
+- New documentation pages for each of the double difference misfit functions, and exponentiated phase
 - New 'furo' theme for documentation
 
 ### Bug fixes
@@ -29,19 +27,17 @@ Updates to Pyadjoint by version number
     ``windows_dd``)
   - Main caculate function will return two adjoint sources if 
     ``double_difference`` is set True
-- Waveform misfit now includes ``convolved`` and ``double_difference`` 
-  station pair referential adjoint sources
+- Waveform misfit has four choices which include: ``waveform``, ``convolution``, ``waveform_dd`` and ``convolution_dd`` 
 - New Misfit Functions:
-	- Exponentiated phase
+    - Exponentiated phase
     - Convolved waveform difference
     - Waveform double difference
     - Convolved waveform double difference
-	- Multitaper double difference
+    - Multitaper double difference
 - Config class: 
 	- Introduces individual Configs for each misfit function (as in Princeton v)
 	- New `get_config` function which provides single entry point to grab 
 	  Config objects by name
-	- Config now carries the `adjsrc_type` parameter 
 
 ### Code architecture
 - New ``main.py`` script which now holds all the main processing scripts for
@@ -49,15 +45,13 @@ Updates to Pyadjoint by version number
 - Changed `window` -> `windows` for list of tuples carrying window information
 - Moved plotting functions out of individual adjoint sources and into the
   main call function
-- All adjoint sources return window information with a boolean toggle in 
-  ``window_stats``. Information on window length, misfit, and type.
 - All adjoint sources baselined with test data against Princeton/Mines version
   of code
 - Removed plot capability for User to provide their own Figure object
 - Removed boolean return flag for adjoint source and measurements because these
-  are calculated regardless so might as well return them
+  are calculated regardless so might as well return them. May re-introduce if requested.
 - Config now carries information on `adjsrc_type`, removed this from the main
-  calcualte_adjoint_source function, as it was redundnat. 
+  calculate_adjoint_source function, as it was redundant to have it in multiple places.
 
 ### Class/Function specific
 - AdjointSource class:
