@@ -2,17 +2,16 @@
 """
 Tests for the utility functions.
 
-:copyright:
+:authors:
+    adjTomo Dev Team (adjtomo@gmail.com), 2023
     Lion Krischer (krischer@geophysik.uni-muenchen.de), 2015
 :license:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 import obspy
 
-from pyadjoint.utils import taper_window
+from pyadjoint.utils.signal import taper_window
 
 
 def test_taper_within_window_simple():

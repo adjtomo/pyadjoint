@@ -3,7 +3,7 @@ Test suite for Config class
 """
 import pytest
 from pyadjoint import get_config
-from pyadjoint.utils import discover_adjoint_sources
+from pyadjoint import discover_adjoint_sources
 
 
 def test_all_configs():

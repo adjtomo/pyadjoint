@@ -57,7 +57,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         "Incorrect configuration class passed to Waveform misfit"
 
     choices = ["waveform", "convolution", "waveform_dd", "convolution_dd"]
-    assert choice in choices, f"`choice` must be in {choices}"
+    assert choice in choices, f"`choice` must be in {choices}, not {choice}"
     logger.info(f"performing waveform caluclation with choice: `{choice}`")
 
     # Dictionary of values to be used to fill out the adjoint source class
@@ -116,7 +116,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
             if choice == "waveform_dd":
                 diff = (s - s_2) - (d - d_2)
             # Convolve the two sets of waveforms
-            elif choice == "convolution_Dd":
+            elif choice == "convolution_dd":
                 diff = np.convolve(s, d_2, "same") - np.convolve(d, s_2, "same")
             # Check at the top of function should avoid this
             else:
