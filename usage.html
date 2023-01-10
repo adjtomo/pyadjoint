@@ -1,0 +1,439 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Example Dataset" href="example_dataset.html" /><link rel="prev" title="Pyadjoint" href="index.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>Usage - Pyadjoint documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Pyadjoint  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">Pyadjoint  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">INTRODUCTION</span></p>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Usage</a></li>
+<li class="toctree-l1"><a class="reference internal" href="example_dataset.html">Example Dataset</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">MISFIT FUNCTIONS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="waveform.html">Waveform Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convolution.html">Convolution Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cctm.html">Cross Correlation Traveltime Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtm.html">Multitaper Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exp_phase.html">Exponentiated Phase Misfit</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DOUBLE DIFFERENCE MISFIT</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dd_waveform.html">Waveform Double Difference Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dd_convolution.html">Convolution Double Difference Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dd_cctm.html">Cross Correlation Traveltime Double Difference Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dd_mtm.html">Double Difference Multitaper Misfit</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/cc_traveltime_misfit/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.cc_traveltime_misfit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/exponentiated_phase_misfit/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.exponentiated_phase_misfit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/multitaper_misfit/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.multitaper_misfit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/waveform_misfit/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.waveform_misfit</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/pyadjoint/tests/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.tests</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/tests/test_adjsrcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.tests.test_adjsrcs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/tests/test_config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.tests.test_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/tests/test_utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.tests.test_utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/pyadjoint/config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/pyadjoint/main/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.main</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/cctm/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cctm</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dpss/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dpss</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/signal/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signal</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="usage">
+<h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
+<p>The first step is to import ObsPy and <code class="docutils literal notranslate"><span class="pre">Pyadjoint</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">obspy</span>
+<span class="kn">import</span> <span class="nn">pyadjoint</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Pyadjoint</span></code> expects the data to be fully preprocessed thus both
+observed and synthetic data are expected to have exactly the same
+length, sampling rate, and spectral content.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Pyadjoint</span></code> does not care about the actual components in question; it will
+use two traces and calculate misfit values and adjoint sources for them. To
+provide a familiar nomenclature we will always talk about observed and
+synthetic data even though the workflow is independent of what the data
+represents.</p>
+<section id="example-data">
+<h2>Example Data<a class="headerlink" href="#example-data" title="Permalink to this heading"></a></h2>
+<p>The package comes with a helper function to get some example data used for
+illustrative and debugging purposes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
+<span class="c1"># Select the vertical components of both.</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="config">
+<h2>Config<a class="headerlink" href="#config" title="Permalink to this heading"></a></h2>
+<p>Each misfit function requires a corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code>
+class to control optional processing parameters. The
+<a class="reference internal" href="autoapi/pyadjoint/config/index.html#pyadjoint.config.get_config" title="pyadjoint.config.get_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_config()</span></code></a> function provides a wrapper for grabbing
+the appropriate Config.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
+                              <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A list of available adjoint source types can be found using the
+<a class="reference internal" href="autoapi/pyadjoint/index.html#pyadjoint.discover_adjoint_sources" title="pyadjoint.discover_adjoint_sources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">discover_adjoint_sources()</span></code></a> function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">discover_adjoint_sources</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+<span class="go">dict_keys([&#39;cc_traveltime_misfit&#39;, &#39;exponentiated_phase_misfit&#39;, &#39;multitaper_misfit&#39;, &#39;waveform_misfit&#39;])</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Some of these functions allow for modifiers such as the use of
+double difference measurements. See individual misfit function pages for
+options.</p>
+</div>
+<p>Many types of adjoint sources have additional arguments that can be passed to
+it. See the <a class="reference internal" href="autoapi/pyadjoint/config/index.html#module-pyadjoint.config" title="pyadjoint.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code></a> page for available keyword arguments
+and descriptions.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
+                              <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span> <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
+                              <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;cos&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="calculate-adjoint-source">
+<h2>Calculate Adjoint Source<a class="headerlink" href="#calculate-adjoint-source" title="Permalink to this heading"></a></h2>
+<p>Essentially all of <code class="docutils literal notranslate"><span class="pre">Pyadjoint</span></code>’s functionality is accessed through its
+central <a class="reference internal" href="autoapi/pyadjoint/main/index.html#pyadjoint.main.calculate_adjoint_source" title="pyadjoint.main.calculate_adjoint_source"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_adjoint_source()</span></code></a> function.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">adj_src</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+    <span class="c1"># Pass observed and synthetic data traces.</span>
+    <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
+    <span class="c1"># List of window borders in seconds since the first sample.</span>
+    <span class="n">windows</span><span class="o">=</span><span class="p">[(</span><span class="mf">800.</span><span class="p">,</span> <span class="mf">900.</span><span class="p">)]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>The function returns an <a class="reference internal" href="autoapi/pyadjoint/adjoint_source/index.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointSource</span></code></a> object.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adj_src</span><span class="p">)</span>
+<span class="go">&#39;waveform_misfit&#39; Adjoint Source for channel MXZ at station SY.DBO</span>
+<span class="go">    misfit: 4.263e-11</span>
+<span class="go">    adjoint_source: available with 3600 samples</span>
+<span class="go">    windows: generated with 1 windows</span>
+<span class="go"># Access misfit and adjoint sources. The misfit is a floating point number.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adj_src</span><span class="o">.</span><span class="n">misfit</span><span class="p">)</span>
+<span class="go">4.263067857359352e-11</span>
+<span class="go"># The adjoint source is a a numpy array.</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adj_src</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">)</span>
+<span class="go">[0. 0. 0. ... 0. 0. 0.]</span>
+<span class="go"># Time windows used to generate the array are stored</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adj_src</span><span class="o">.</span><span class="n">windows</span><span class="p">)</span>
+<span class="go">[(800.0, 900.0)]</span>
+<span class="go"># Misfit stats for each window are also stored</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adj_src</span><span class="o">.</span><span class="n">window_stats</span><span class="p">)</span>
+<span class="go">[{&#39;type&#39;: &#39;waveform&#39;, &#39;left&#39;: 800.0, &#39;right&#39;: 901.0, &#39;misfit&#39;: 4.263067857359352e-11, &#39;difference&#39;: 1.519230269510467e-08}]</span>
+</pre></div>
+</div>
+</section>
+<section id="plotting-adjoint-sources">
+<h2>Plotting Adjoint Sources<a class="headerlink" href="#plotting-adjoint-sources" title="Permalink to this heading"></a></h2>
+<p>All adjoint source types can also be plotted during the calculation. The
+type of plot produced depends on the type of misfit measurement and
+adjoint source.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
+                                   <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                   <span class="n">plot_filename</span><span class="o">=</span><span class="s2">&quot;./waveform_adjsrc.png&quot;</span><span class="p">);</span>
+</pre></div>
+</div>
+</section>
+<section id="saving-to-disk">
+<h2>Saving to Disk<a class="headerlink" href="#saving-to-disk" title="Permalink to this heading"></a></h2>
+<p>One of course wants to serialize the calculated adjoint sources to disc at one
+point in time. You need to pass the filename and the desired format as well as
+some format specific parameters to the
+<a class="reference internal" href="autoapi/pyadjoint/adjoint_source/index.html#pyadjoint.adjoint_source.AdjointSource.write" title="pyadjoint.adjoint_source.AdjointSource.write"><code class="xref py py-meth docutils literal notranslate"><span class="pre">write()</span></code></a> method of the
+<a class="reference internal" href="autoapi/pyadjoint/adjoint_source/index.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointSource</span></code></a> object. Instead of a filename
+you can also pass an open file or a file-like object. Please refer to its
+documentation for more details.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">adj_src</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s2">&quot;NET.STA.CHA.adj_src&quot;</span><span class="p">,</span>
+              <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;SPECFEM&quot;</span><span class="p">,</span> <span class="n">time_offset</span><span class="o">=-</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="example_dataset.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Example Dataset</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Home</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, adjTomo
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Usage</a><ul>
+<li><a class="reference internal" href="#example-data">Example Data</a></li>
+<li><a class="reference internal" href="#config">Config</a></li>
+<li><a class="reference internal" href="#calculate-adjoint-source">Calculate Adjoint Source</a></li>
+<li><a class="reference internal" href="#plotting-adjoint-sources">Plotting Adjoint Sources</a></li>
+<li><a class="reference internal" href="#saving-to-disk">Saving to Disk</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

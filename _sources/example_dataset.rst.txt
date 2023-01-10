@@ -1,0 +1,286 @@
+Example Dataset
+===============
+
+This document illustrates where the example data used in Pyadjoint
+originates from. It uses a set of 3D synthetics from the Shakemovie
+project and the same event extraced from a 2 second Instaseis database
+with the AK135 Earth model. Thus we effectively compare the results of a
+3D simulation including topography, ellipticity, … versus a simulation
+on a 1D background model with a spherical Earth. We will compare data in
+a period band from 20 to 100 seconds.
+
+To establish a more practical terminology, the Shakemovie seismograms
+will serve as our observed data, whereas the ones from Instaseis will be
+considered synthetics.
+
+Source and Receiver
+-------------------
+
+We use an event from the GCMT catalog:
+
+::
+
+   Event name: 201411150231A
+   CMT origin time: 2014-11-15T02:31:50.260000Z
+   Assumed half duration:  8.2
+   Mw = 7.0   Scalar Moment = 4.71e+19
+   Latitude:  1.97
+   Longitude: 126.42
+   Depth in km: 37.3
+
+   Exponent for moment tensor:  19    units: N-m
+            Mrr     Mtt     Mpp     Mrt     Mrp     Mtp
+   CMT     3.970  -0.760  -3.210   0.173  -2.220  -1.970
+
+recorded at station ``SY.DBO`` (``SY`` denotes the synthetic data
+network from the Shakemovie project):
+
+::
+
+   Latitude: 43.12, Longitude: -123.24, Elevation: 984.0 m
+
+Setup Variables
+~~~~~~~~~~~~~~~
+
+Sets up some values we’ll need throughout this document.
+
+.. code:: python
+
+    import obspy
+    import numpy as np
+    
+    event_longitude = 126.42
+    event_latitude = 1.97
+    event_depth_in_km = 37.3
+    
+    station_longitude = -123.24
+    station_latitude = 43.12
+    
+    max_period = 100.0
+    min_period = 20.0
+    
+    cmt_time = obspy.UTCDateTime(2014, 11, 15, 2, 31, 50.26)
+    
+    # Desired properties after the data processing.
+    sampling_rate = 1.0
+    npts = 3600
+
+Map of Source and Receiver
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    import matplotlib.pyplot as plt
+    plt.style.use("ggplot")
+    from mpl_toolkits.basemap import Basemap
+    
+    plt.figure(figsize=(12, 6))
+    
+    # Equal area mollweide projection.
+    m = Basemap(projection="moll", lon_0=180.0, resolution="c")
+    m.drawmapboundary(fill_color="#cccccc")
+    m.fillcontinents(color="white", lake_color="#cccccc", zorder=0)
+    
+    m.drawgreatcircle(event_longitude, event_latitude, station_longitude,
+                      station_latitude, lw=2, color="green")
+    m.scatter(event_longitude, event_latitude, color="red", s=500, marker="*",
+              latlon=True, zorder=5)
+    m.scatter(station_longitude, station_latitude, color="blue", s=400, marker="v",
+              latlon=True, zorder=5)
+    plt.show()
+
+Data
+----
+
+*“Raw”* data.
+
+.. code:: python
+
+    shakemovie_data = obspy.read("../src/pyadjoint/example_data/shakemovie_data.mseed")
+    instaseis_data = obspy.read("../src/pyadjoint/example_data/instaseis_data.mseed")
+    
+    print(shakemovie_data)
+    print(instaseis_data)
+
+Data Processing
+---------------
+
+Both data and synthetics are processed to have similar spectral content
+and to ensure they are sampled at the same points in time. The
+processing applied is similar to the typical preprocessing workflow
+applied to data in full waveform inversions using adjoint techniques.
+This example lacks instrument removal as both data samples are
+synthetics.
+
+.. code:: python
+
+    from obspy.signal.invsim import c_sac_taper
+    from obspy.core.util.geodetics import gps2DistAzimuth
+    
+    f2 = 1.0 / max_period
+    f3 = 1.0 / min_period
+    f1 = 0.8 * f2
+    f4 = 1.2 * f3
+    pre_filt = (f1, f2, f3, f4)
+    
+    def process_function(st):
+        st.detrend("linear")
+        st.detrend("demean")
+        st.taper(max_percentage=0.05, type="hann")
+    
+        # Perform a frequency domain taper like during the response removal
+        # just without an actual response...
+        for tr in st:
+            data = tr.data.astype(np.float64)
+    
+            # smart calculation of nfft dodging large primes
+            from obspy.signal.util import _npts2nfft
+            nfft = _npts2nfft(len(data))
+    
+            fy = 1.0 / (tr.stats.delta * 2.0)
+            freqs = np.linspace(0, fy, nfft // 2 + 1)
+    
+            # Transform data to Frequency domain
+            data = np.fft.rfft(data, n=nfft)
+            data *= c_sac_taper(freqs, flimit=pre_filt)
+            data[-1] = abs(data[-1]) + 0.0j
+            # transform data back into the time domain
+            data = np.fft.irfft(data)[0:len(data)]
+            # assign processed data and store processing information
+            tr.data = data
+    
+        st.detrend("linear")
+        st.detrend("demean")
+        st.taper(max_percentage=0.05, type="hann")
+    
+        st.interpolate(sampling_rate=sampling_rate, starttime=cmt_time,
+                       npts=npts)
+    
+        _, baz, _ = gps2DistAzimuth(station_latitude, station_longitude,
+                                    event_latitude, event_longitude)
+    
+        components = [tr.stats.channel[-1] for tr in st]
+        if "N" in components and "E" in components:
+            st.rotate(method="NE->RT", back_azimuth=baz)
+    
+        return st
+
+.. code:: python
+
+    # From now one we will refer to them as observed data and synthetics.
+    observed = process_function(shakemovie_data.copy())
+    synthetic = process_function(instaseis_data.copy())
+    
+    print(observed)
+    print(synthetic)
+
+Data Plots
+----------
+
+We first define a function to plot both data sets.
+
+.. code:: python
+
+    from obspy.core.util import geodetics
+    from obspy.taup import getTravelTimes
+    
+    def plot_data(start=0, end=1.0 / sampling_rate * npts, show_tts=False):
+        start, end = int(start), int(end)
+        plt.figure(figsize=(12, 6))
+        plt.subplot(311)
+    
+        obs_z = observed.select(component="Z")[0]
+        syn_z = synthetic.select(component="Z")[0]
+        obs_r = observed.select(component="R")[0]
+        syn_r = synthetic.select(component="R")[0]
+        obs_t = observed.select(component="T")[0]
+        syn_t = synthetic.select(component="T")[0]
+        
+        y_range = [obs_z.data[start: end].min(), obs_z.data[start: end].max(),
+                   syn_z.data[start: end].min(), syn_z.data[start: end].max(),
+                   obs_r.data[start: end].min(), obs_r.data[start: end].max(),
+                   syn_r.data[start: end].min(), syn_r.data[start: end].max(),
+                   obs_t.data[start: end].min(), obs_t.data[start: end].max(),
+                   syn_t.data[start: end].min(), syn_t.data[start: end].max()]
+        y_range = max(map(abs, y_range))
+        y_range *= 1.1
+        
+        dist_in_deg = geodetics.locations2degrees(
+            station_latitude, station_longitude,
+            event_latitude, event_longitude)
+        tts = getTravelTimes(dist_in_deg, event_depth_in_km, model="ak135")
+        x_range = end - start
+        tts = [_i for _i in tts
+               if (start + 0.05 * x_range) < _i["time"] < (end - 0.05 * x_range)]
+        
+        def plot_tts():
+            for _i, tt in enumerate(tts):
+                f = 1 if _i % 2 else -1
+                va = "top" if f is 1 else "bottom"
+                plt.text(tt["time"], f * y_range * 0.96, tt["phase_name"],
+                         color="0.2", ha="center", va=va, weight="900",
+                         fontsize=8)
+        
+        plt.plot(obs_z.times(), obs_z.data, color="black", label="observed")
+        plt.plot(syn_z.times(), syn_z.data, color="red", label="synthetic")
+        plt.legend(loc="lower left")
+        if show_tts:
+            plot_tts()
+        plt.xlim(start, end)
+        plt.ylim(-y_range, y_range)
+        plt.ylabel("Displacement in m")
+        plt.title("Vertical component")
+    
+    
+        plt.subplot(312)
+        plt.plot(obs_r.times(), obs_r.data, color="black", label="observed")
+        plt.plot(syn_r.times(), syn_r.data, color="red", label="synthetic")
+        plt.legend(loc="lower left")
+        if show_tts:
+            plot_tts()
+        plt.xlim(start, end)
+        plt.ylim(-y_range, y_range)
+        plt.ylabel("Displacement in m")
+        plt.title("Radial component")
+    
+        plt.subplot(313)
+    
+        plt.plot(obs_t.times(), obs_t.data, color="black", label="observed")
+        plt.plot(syn_t.times(), syn_t.data, color="red", label="synthetic")
+        plt.legend(loc="lower left")
+        if show_tts:
+            plot_tts()
+        plt.ylabel("Displacement in m")
+        plt.xlim(start, end)
+        plt.ylim(-y_range, y_range)
+        plt.xlabel("Seconds since event")
+        plt.title("Transverse component")
+    
+        plt.tight_layout()
+    
+        plt.show();
+
+Plot of All Data
+~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    plot_data()
+
+Plot of First Arrivals
+~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    plot_data(700, 1200, show_tts=True)
+
+Plot of Some Later Arrivals
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code:: python
+
+    plot_data(1400, 1900, show_tts=True)
+
+.. code:: python
+
+    plot_data(2000, 3000, show_tts=True)

@@ -1,99 +1,280 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Waveform Misfit" href="waveform.html" /><link rel="prev" title="Usage" href="usage.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>Example Dataset - Pyadjoint documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
     
-    <title>Example Data Set used in Pyadjoint &mdash; Pyadjoint 0.0.1a documentation</title>
-    
-    <link rel="stylesheet" href="_static/readable.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    
-    <script type="text/javascript">
-      var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    './',
-        VERSION:     '0.0.1a',
-        COLLAPSE_INDEX: false,
-        FILE_SUFFIX: '.html',
-        HAS_SOURCE:  true
-      };
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
     </script>
-    <script type="text/javascript" src="_static/jquery.js"></script>
-    <script type="text/javascript" src="_static/underscore.js"></script>
-    <script type="text/javascript" src="_static/doctools.js"></script>
-    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <link rel="top" title="Pyadjoint 0.0.1a documentation" href="index.html" />
-    <link rel="next" title="Citations" href="citations.html" />
-    <link rel="prev" title="Waveform Misfit" href="adjoint_sources/waveform_misfit.html" />
-   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+    
 
-  </head>
-  <body role="document">
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">Pyadjoint  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
   
   
+  <span class="sidebar-brand-text">Pyadjoint  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">INTRODUCTION</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Example Dataset</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">MISFIT FUNCTIONS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="waveform.html">Waveform Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="convolution.html">Convolution Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cctm.html">Cross Correlation Traveltime Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="mtm.html">Multitaper Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="exp_phase.html">Exponentiated Phase Misfit</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">DOUBLE DIFFERENCE MISFIT</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="dd_waveform.html">Waveform Double Difference Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dd_convolution.html">Convolution Double Difference Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dd_cctm.html">Cross Correlation Traveltime Double Difference Misfit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dd_mtm.html">Double Difference Multitaper Misfit</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/cc_traveltime_misfit/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.cc_traveltime_misfit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/exponentiated_phase_misfit/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.exponentiated_phase_misfit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/multitaper_misfit/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.multitaper_misfit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source_types/waveform_misfit/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.waveform_misfit</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="autoapi/pyadjoint/tests/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.tests</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/tests/test_adjsrcs/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.tests.test_adjsrcs</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/tests/test_config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.tests.test_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="autoapi/pyadjoint/tests/test_utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.tests.test_utils</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/pyadjoint/adjoint_source/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/pyadjoint/config/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.config</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/pyadjoint/main/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.main</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/cctm/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cctm</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dpss/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dpss</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/signal/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">signal</span></code></a></li>
+</ul>
+</li>
+</ul>
 
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="right" style="margin-right: 10px">
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a></li>
-        <li class="right" >
-          <a href="citations.html" title="Citations"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="adjoint_sources/waveform_misfit.html" title="Waveform Misfit"
-             accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Pyadjoint 0.0.1a documentation</a> &raquo;</li> 
-      </ul>
-    </div>  
+</div>
+</div>
 
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
-  <div class="section" id="example-data-set-used-in-pyadjoint">
-<h1>Example Data Set used in Pyadjoint<a class="headerlink" href="#example-data-set-used-in-pyadjoint" title="Permalink to this headline">¶</a></h1>
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="example-dataset">
+<h1>Example Dataset<a class="headerlink" href="#example-dataset" title="Permalink to this heading"></a></h1>
 <p>This document illustrates where the example data used in Pyadjoint
 originates from. It uses a set of 3D synthetics from the Shakemovie
 project and the same event extraced from a 2 second Instaseis database
 with the AK135 Earth model. Thus we effectively compare the results of a
-3D simulation including topography, ellipticity, ... versus a simulation
+3D simulation including topography, ellipticity, … versus a simulation
 on a 1D background model with a spherical Earth. We will compare data in
 a period band from 20 to 100 seconds.</p>
 <p>To establish a more practical terminology, the Shakemovie seismograms
 will serve as our observed data, whereas the ones from Instaseis will be
 considered synthetics.</p>
-<div class="section" id="source-and-receiver">
-<h2>Source and Receiver<a class="headerlink" href="#source-and-receiver" title="Permalink to this headline">¶</a></h2>
+<section id="source-and-receiver">
+<h2>Source and Receiver<a class="headerlink" href="#source-and-receiver" title="Permalink to this heading"></a></h2>
 <p>We use an event from the GCMT catalog:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>Event name: 201411150231A
-CMT origin time: 2014-11-15T02:31:50.260000Z
-Assumed half duration:  8.2
-Mw = 7.0   Scalar Moment = 4.71e+19
-Latitude:  1.97
-Longitude: 126.42
-Depth in km: 37.3
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Event</span> <span class="n">name</span><span class="p">:</span> <span class="mi">201411150231</span><span class="n">A</span>
+<span class="n">CMT</span> <span class="n">origin</span> <span class="n">time</span><span class="p">:</span> <span class="mi">2014</span><span class="o">-</span><span class="mi">11</span><span class="o">-</span><span class="mi">15</span><span class="n">T02</span><span class="p">:</span><span class="mi">31</span><span class="p">:</span><span class="mf">50.260000</span><span class="n">Z</span>
+<span class="n">Assumed</span> <span class="n">half</span> <span class="n">duration</span><span class="p">:</span>  <span class="mf">8.2</span>
+<span class="n">Mw</span> <span class="o">=</span> <span class="mf">7.0</span>   <span class="n">Scalar</span> <span class="n">Moment</span> <span class="o">=</span> <span class="mf">4.71e+19</span>
+<span class="n">Latitude</span><span class="p">:</span>  <span class="mf">1.97</span>
+<span class="n">Longitude</span><span class="p">:</span> <span class="mf">126.42</span>
+<span class="n">Depth</span> <span class="ow">in</span> <span class="n">km</span><span class="p">:</span> <span class="mf">37.3</span>
 
-Exponent for moment tensor:  19    units: N-m
-         Mrr     Mtt     Mpp     Mrt     Mrp     Mtp
-CMT     3.970  -0.760  -3.210   0.173  -2.220  -1.970
+<span class="n">Exponent</span> <span class="k">for</span> <span class="n">moment</span> <span class="n">tensor</span><span class="p">:</span>  <span class="mi">19</span>    <span class="n">units</span><span class="p">:</span> <span class="n">N</span><span class="o">-</span><span class="n">m</span>
+         <span class="n">Mrr</span>     <span class="n">Mtt</span>     <span class="n">Mpp</span>     <span class="n">Mrt</span>     <span class="n">Mrp</span>     <span class="n">Mtp</span>
+<span class="n">CMT</span>     <span class="mf">3.970</span>  <span class="o">-</span><span class="mf">0.760</span>  <span class="o">-</span><span class="mf">3.210</span>   <span class="mf">0.173</span>  <span class="o">-</span><span class="mf">2.220</span>  <span class="o">-</span><span class="mf">1.970</span>
 </pre></div>
 </div>
-<p>recorded at station <code class="docutils literal"><span class="pre">SY.DBO</span></code> (<code class="docutils literal"><span class="pre">SY</span></code> denotes the synthetic data
+<p>recorded at station <code class="docutils literal notranslate"><span class="pre">SY.DBO</span></code> (<code class="docutils literal notranslate"><span class="pre">SY</span></code> denotes the synthetic data
 network from the Shakemovie project):</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span>Latitude: 43.12, Longitude: -123.24, Elevation: 984.0 m
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Latitude</span><span class="p">:</span> <span class="mf">43.12</span><span class="p">,</span> <span class="n">Longitude</span><span class="p">:</span> <span class="o">-</span><span class="mf">123.24</span><span class="p">,</span> <span class="n">Elevation</span><span class="p">:</span> <span class="mf">984.0</span> <span class="n">m</span>
 </pre></div>
 </div>
-<div class="section" id="setup-variables">
-<h3>Setup Variables<a class="headerlink" href="#setup-variables" title="Permalink to this headline">¶</a></h3>
-<p>Sets up some values we&#8217;ll need throughout this document.</p>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">obspy</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<section id="setup-variables">
+<h3>Setup Variables<a class="headerlink" href="#setup-variables" title="Permalink to this heading"></a></h3>
+<p>Sets up some values we’ll need throughout this document.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">obspy</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
 <span class="n">event_longitude</span> <span class="o">=</span> <span class="mf">126.42</span>
 <span class="n">event_latitude</span> <span class="o">=</span> <span class="mf">1.97</span>
@@ -112,10 +293,10 @@ network from the Shakemovie project):</p>
 <span class="n">npts</span> <span class="o">=</span> <span class="mi">3600</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="map-of-source-and-receiver">
-<h3>Map of Source and Receiver<a class="headerlink" href="#map-of-source-and-receiver" title="Permalink to this headline">¶</a></h3>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
+</section>
+<section id="map-of-source-and-receiver">
+<h3>Map of Source and Receiver<a class="headerlink" href="#map-of-source-and-receiver" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;ggplot&quot;</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">mpl_toolkits.basemap</span> <span class="kn">import</span> <span class="n">Basemap</span>
 
@@ -129,45 +310,34 @@ network from the Shakemovie project):</p>
 <span class="n">m</span><span class="o">.</span><span class="n">drawgreatcircle</span><span class="p">(</span><span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span> <span class="n">station_longitude</span><span class="p">,</span>
                   <span class="n">station_latitude</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">)</span>
 <span class="n">m</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">event_longitude</span><span class="p">,</span> <span class="n">event_latitude</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;*&quot;</span><span class="p">,</span>
-          <span class="n">latlon</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+          <span class="n">latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">m</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">station_longitude</span><span class="p">,</span> <span class="n">station_latitude</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;v&quot;</span><span class="p">,</span>
-          <span class="n">latlon</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+          <span class="n">latlon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="_images/example_dataset_4_0.png" src="_images/example_dataset_4_0.png" />
-</div>
-</div>
-<div class="section" id="data">
-<h2>Data<a class="headerlink" href="#data" title="Permalink to this headline">¶</a></h2>
-<p><em>&#8220;Raw&#8221;</em> data.</p>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="n">shakemovie_data</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;../src/pyadjoint/example_data/shakemovie_data.mseed&quot;</span><span class="p">)</span>
+</section>
+</section>
+<section id="data">
+<h2>Data<a class="headerlink" href="#data" title="Permalink to this heading"></a></h2>
+<p><em>“Raw”</em> data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">shakemovie_data</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;../src/pyadjoint/example_data/shakemovie_data.mseed&quot;</span><span class="p">)</span>
 <span class="n">instaseis_data</span> <span class="o">=</span> <span class="n">obspy</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;../src/pyadjoint/example_data/instaseis_data.mseed&quot;</span><span class="p">)</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">shakemovie_data</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">instaseis_data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">shakemovie_data</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">instaseis_data</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span>3 Trace(s) in Stream:
-SY.DBO.S3.MXE | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
-SY.DBO.S3.MXN | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
-SY.DBO.S3.MXZ | 2014-11-15T02:31:49.087750Z - 2014-11-15T04:11:56.726250Z | 6.2 Hz, 37200 samples
-3 Trace(s) in Stream:
-SY.DBO..LXZ | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
-SY.DBO..LXN | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
-SY.DBO..LXE | 2014-11-15T02:31:50.259999Z - 2014-11-15T03:33:26.580798Z | 2.0 Hz, 7574 samples
-</pre></div>
-</div>
-</div>
-<div class="section" id="data-processing">
-<h2>Data Processing<a class="headerlink" href="#data-processing" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="data-processing">
+<h2>Data Processing<a class="headerlink" href="#data-processing" title="Permalink to this heading"></a></h2>
 <p>Both data and synthetics are processed to have similar spectral content
 and to ensure they are sampled at the same points in time. The
 processing applied is similar to the typical preprocessing workflow
 applied to data in full waveform inversions using adjoint techniques.
 This example lacks instrument removal as both data samples are
 synthetics.</p>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">obspy.signal.invsim</span> <span class="kn">import</span> <span class="n">c_sac_taper</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">obspy.signal.invsim</span> <span class="kn">import</span> <span class="n">c_sac_taper</span>
 <span class="kn">from</span> <span class="nn">obspy.core.util.geodetics</span> <span class="kn">import</span> <span class="n">gps2DistAzimuth</span>
 
 <span class="n">f2</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">max_period</span>
@@ -196,7 +366,7 @@ synthetics.</p>
         <span class="c1"># Transform data to Frequency domain</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">rfft</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="n">nfft</span><span class="p">)</span>
         <span class="n">data</span> <span class="o">*=</span> <span class="n">c_sac_taper</span><span class="p">(</span><span class="n">freqs</span><span class="p">,</span> <span class="n">flimit</span><span class="o">=</span><span class="n">pre_filt</span><span class="p">)</span>
-        <span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.0j</span>
+        <span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mf">0.0</span><span class="n">j</span>
         <span class="c1"># transform data back into the time domain</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">fft</span><span class="o">.</span><span class="n">irfft</span><span class="p">(</span><span class="n">data</span><span class="p">)[</span><span class="mi">0</span><span class="p">:</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)]</span>
         <span class="c1"># assign processed data and store processing information</span>
@@ -219,41 +389,22 @@ synthetics.</p>
     <span class="k">return</span> <span class="n">st</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span>/home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/obspy/__init__.py:157: ObsPyDeprecationWarning: Module &#39;obspy.core.util.geodetics&#39; is deprecated and will stop working with the next ObsPy version. Please import module &#39;obspy.geodetics&#39; instead.
-  ObsPyDeprecationWarning)
-/home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/obspy/core/util/deprecation_helpers.py:57: ObsPyDeprecationWarning: Function &#39;obspy.geodetics.gps2DistAzimuth&#39; is deprecated and will stop working with the next ObsPy version. Please use &#39;obspy.geodetics.base.gps2dist_azimuth&#39; instead.
-  warnings.warn(msg, ObsPyDeprecationWarning)
-</pre></div>
-</div>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="c1"># From now one we will refer to them as observed data and synthetics.</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># From now one we will refer to them as observed data and synthetics.</span>
 <span class="n">observed</span> <span class="o">=</span> <span class="n">process_function</span><span class="p">(</span><span class="n">shakemovie_data</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
 <span class="n">synthetic</span> <span class="o">=</span> <span class="n">process_function</span><span class="p">(</span><span class="n">instaseis_data</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
 
-<span class="k">print</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">synthetic</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">observed</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">synthetic</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span>/home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:29: ObsPyDeprecationWarning: &#39;c_sac_taper&#39; has been renamed to &#39;cosine_sac_taper&#39;.Use that instead.
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span></span>3 Trace(s) in Stream:
-SY.DBO.S3.MXT | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
-SY.DBO.S3.MXR | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
-SY.DBO.S3.MXZ | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
-3 Trace(s) in Stream:
-SY.DBO..LXZ | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
-SY.DBO..LXR | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
-SY.DBO..LXT | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz, 3600 samples
-</pre></div>
-</div>
-</div>
-<div class="section" id="data-plots">
-<h2>Data Plots<a class="headerlink" href="#data-plots" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="data-plots">
+<h2>Data Plots<a class="headerlink" href="#data-plots" title="Permalink to this heading"></a></h2>
 <p>We first define a function to plot both data sets.</p>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">obspy.core.util</span> <span class="kn">import</span> <span class="n">geodetics</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">obspy.core.util</span> <span class="kn">import</span> <span class="n">geodetics</span>
 <span class="kn">from</span> <span class="nn">obspy.taup</span> <span class="kn">import</span> <span class="n">getTravelTimes</span>
 
-<span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">sampling_rate</span> <span class="o">*</span> <span class="n">npts</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">plot_data</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">sampling_rate</span> <span class="o">*</span> <span class="n">npts</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">311</span><span class="p">)</span>
@@ -330,55 +481,86 @@ SY.DBO..LXT | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">();</span>
 </pre></div>
 </div>
-<div class="section" id="plot-of-all-data">
-<h3>Plot of All Data<a class="headerlink" href="#plot-of-all-data" title="Permalink to this headline">¶</a></h3>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">()</span>
+<section id="plot-of-all-data">
+<h3>Plot of All Data<a class="headerlink" href="#plot-of-all-data" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">()</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span>/home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:28: ObsPyDeprecationWarning: The getTravelTimes() function is deprecated. Please use the obspy.taup.TauPyModel class directly.
+</section>
+<section id="plot-of-first-arrivals">
+<h3>Plot of First Arrivals<a class="headerlink" href="#plot-of-first-arrivals" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/example_dataset_13_1.png" src="_images/example_dataset_13_1.png" />
-</div>
-<div class="section" id="plot-of-first-arrivals">
-<h3>Plot of First Arrivals<a class="headerlink" href="#plot-of-first-arrivals" title="Permalink to this headline">¶</a></h3>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">(</span><span class="mi">700</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</section>
+<section id="plot-of-some-later-arrivals">
+<h3>Plot of Some Later Arrivals<a class="headerlink" href="#plot-of-some-later-arrivals" title="Permalink to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">(</span><span class="mi">1400</span><span class="p">,</span> <span class="mi">1900</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="highlight-python"><div class="highlight"><pre><span></span>/home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:28: ObsPyDeprecationWarning: The getTravelTimes() function is deprecated. Please use the obspy.taup.TauPyModel class directly.
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/example_dataset_15_1.png" src="_images/example_dataset_15_1.png" />
-</div>
-<div class="section" id="plot-of-some-later-arrivals">
-<h3>Plot of Some Later Arrivals<a class="headerlink" href="#plot-of-some-later-arrivals" title="Permalink to this headline">¶</a></h3>
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">(</span><span class="mi">1400</span><span class="p">,</span> <span class="mi">1900</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span></span>/home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:28: ObsPyDeprecationWarning: The getTravelTimes() function is deprecated. Please use the obspy.taup.TauPyModel class directly.
-</pre></div>
-</div>
-<img alt="_images/example_dataset_17_1.png" src="_images/example_dataset_17_1.png" />
-<div class="code python highlight-python"><div class="highlight"><pre><span></span><span class="n">plot_data</span><span class="p">(</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="n">show_tts</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-</pre></div>
-</div>
-<div class="highlight-python"><div class="highlight"><pre><span></span>/home/travis/miniconda/envs/condaenv/lib/python3.5/site-packages/ipykernel/__main__.py:28: ObsPyDeprecationWarning: The getTravelTimes() function is deprecated. Please use the obspy.taup.TauPyModel class directly.
-</pre></div>
-</div>
-<img alt="_images/example_dataset_18_1.png" src="_images/example_dataset_18_1.png" />
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
-
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="waveform.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Waveform Misfit</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="usage.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Usage</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022, adjTomo
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
           </div>
         </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-  <h3><a href="index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Example Data Set used in Pyadjoint</a><ul>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Example Dataset</a><ul>
 <li><a class="reference internal" href="#source-and-receiver">Source and Receiver</a><ul>
 <li><a class="reference internal" href="#setup-variables">Setup Variables</a></li>
 <li><a class="reference internal" href="#map-of-source-and-receiver">Map of Source and Receiver</a></li>
@@ -395,34 +577,21 @@ SY.DBO..LXT | 2014-11-15T02:31:50.260000Z - 2014-11-15T03:31:49.260000Z | 1.0 Hz
 </ul>
 </li>
 </ul>
-<h3>Related Topics</h3>
-<ul>
-  <li><a href="index.html">Documentation index</a><ul>
-      <li>Previous: <a href="adjoint_sources/waveform_misfit.html" title="previous chapter">Waveform Misfit</a></li>
-      <li>Next: <a href="citations.html" title="next chapter">Citations</a></li>
-  </ul></li>
-</ul>
-<div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
-    <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
-      <input type="submit" value="Go" />
-      <input type="hidden" name="check_keywords" value="yes" />
-      <input type="hidden" name="area" value="default" />
-    </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
-</div>
-<script type="text/javascript">$('#searchbox').show(0);</script>
+
+          </div>
         </div>
       </div>
-      <div class="clearer"></div>
-    </div>
-  <div class="footer">
-    &copy; Copyright 2015, Lion Krischer.
-    Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+      
+      
+    </aside>
   </div>
-  
-  </body>
+</div><script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/scripts/furo.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
 </html>
