@@ -6,7 +6,7 @@ Exponentiated Phase Misfit
     Please refer to the original paper [Yuan2020]_ for rigorous mathematical
     derivations of this misfit function.
 
-The exponentiated phase misfit, defined in [Yuan2020]_, measures misfit
+The exponentiated phase misfit measures misfit
 using a complex-valued phase representation that is a good substitute for
 instantaneous-phase measurements, which can suffer from phase wrapping.
 
@@ -27,20 +27,20 @@ where
 
     \Delta R(t) = \frac{d(t)}{E_d(t)} - \frac{s(t)}{E_s(t)},
 
-is the difference in the real parts of the transform, and
+is the difference in the real parts of the `Hilbert transform
+<https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html>`__, and
 
 .. math::
 
     \Delta I(t) = \frac{\mathcal{H}\{d(t)\}}{E_d(t)} -
     \frac{\mathcal{H}\{s(t)\}}{E_s(t)}
 
-is the difference in the imaginary parts of the transform.
+is the difference in the imaginary parts of the Hilbert transform.
 
 
-Above, :math:`\mathcal{H}` represents the `Hilbert transform
-<https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html>`__
-of the signal in the curly braces, and :math:`E_s` and :math:`E_d` represent the
-instantaneous phase of synthetics and data, respectively:
+Above, :math:`\mathcal{H}` represents the Hilbert transform and :math:`E_s`
+and :math:`E_d` represent the instantaneous phase of synthetics and data,
+respectively,
 
 .. math::
 

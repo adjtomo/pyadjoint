@@ -19,7 +19,7 @@ Earth model :math:`\mathbf{m}` at a given component is
     \Delta{d}(t)_{ij} \right| ^ 2 dt,
 
 where :math:`\Delta{s}(t, \mathbf{m})_{ij}` is the cross correlation traveltime
-time shift of synthetic waveforms `s`:
+time shift of synthetic waveforms `s_i` and `s_j`,
 
 .. math::
 
@@ -28,17 +28,16 @@ time shift of synthetic waveforms `s`:
 
 
 and :math:`\mathbf{d}(t)` is the cross correlation traveltime time shift of
-observed waveforms `d`,
+observed waveforms `d_i` and `d_j`,
 
 .. math::
 
     \Delta{d}(t)_{ij} = \mathrm{argmax}_{\tau} \int_0^T
     d_{i}(t + \tau) d_{j}(t)dt.
 
-Double difference misfit functions result in two adjoint sources, one for each
-station in the pair `i`, `j`. The corresponding adjoint sources for the misfit
-function :math:`\chi(\mathbf{m})` is defined as the difference of the
-differential waveform misfits
+The corresponding adjoint sources for the misfit function
+:math:`\chi(\mathbf{m})` is defined as the difference of the differential
+waveform misfits
 
 .. math::
 
@@ -74,16 +73,6 @@ Usage
 The following code snippet illustrates the basic usage of the double difference
 CCTM misfit function.
 
-Note that double difference implementations can take a set of windows for the
-second set of waveforms, independent of the first set of windows. Windows
-are compared in order, so both ``windows`` and ``windows_2`` need to be the same
-length.
-
-.. note::
-
-    In the following code snippet, we use the 'R' component of the same station
-    in lieu of waveforms from a second station. In practice, the second set of
-    waveforms should come from a completely different station.
 
 .. code:: python
 

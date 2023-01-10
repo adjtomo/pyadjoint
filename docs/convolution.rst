@@ -1,7 +1,7 @@
 Convolution Misfit
 ==================
 
-Very similar to the :doc:`waveform` misfit, the :doc:`convolution` is
+Very similar to the :doc:`waveform` misfit, the convolution misfit is
 defined as the convolution between data and synthetics. The misfit,
 :math:`\chi(\mathbf{m})`, for a given Earth model :math:`\mathbf{m}`, and a
 single receiver and component is given by
@@ -26,8 +26,11 @@ Usage
 `````
 
 The following code snippet illustrates the basic usage of the convolution
-misfit function. The ``convolution`` misfit piggybacks on the waveform misfit
-source code, and consequently shares the same config object.
+misfit function.
+
+.. note::
+    The convolution misfit code piggybacks on the waveform misfit and
+    consequently shares the same Config object.
 
 .. code:: python
 

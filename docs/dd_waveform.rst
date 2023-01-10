@@ -4,16 +4,8 @@ Waveform Double Difference Misfit
 .. warning::
 
     Please refer to the papers [Tromp2005]_ and [Yuan2016]_ for mathematical
-    derivations of the wavefoform misfit function and cross correlation
-    double difference measurement. This misfit function is not explicitly
-    derived there, but follows as a natural extension from these publications.
-
-.. note::
-
-    Double difference misfit functions, defined in [Yuan2016]_, construct misfit
-    and adjoint sources from differential measurements between stations to reduce
-    the influence of systematic errors from source and stations. "Differential" is
-    defined as "between pairs of stations, from a common source."
+    derivations of the waveform misfit function and cross correlation
+    double difference measurement, from which this misfit function is derived.
 
 For two stations, `i` and `j`, the waveform double difference misfit is defined
 as the squared difference of differences of observed and synthetic data. The
@@ -27,7 +19,7 @@ a given component is:
     \Delta{d}(t)_{ij} \right| ^ 2 dt,
 
 where :math:`\Delta{s}(t, \mathbf{m})_{ij}` is the difference of
-synthetic waveforms `s`:
+synthetic waveforms `s_i` and `s_j`,
 
 .. math::
 
@@ -35,17 +27,16 @@ synthetic waveforms `s`:
     s_{j}(t, \mathbf{m}) - s_{i}(t, \mathbf{m}),
 
 
-and :math:`\Delta{d}(t)` is the difference of observed waveforms `d`,
+and :math:`\Delta{d}(t)` is the difference of observed waveforms `d_i` and `d_j`,
 
 .. math::
 
     \Delta{d}(t)_{ij} = d_{j}(t) - d_{i}(t).
 
 
-Double difference misfit functions result in two adjoint sources, one for each
-station in the pair `i`, `j`. The corresponding adjoint sources for the misfit
-function :math:`\chi(\mathbf{m})` is defined as the difference of the
-differential waveform misfits:
+The corresponding adjoint sources for the misfit function
+:math:`\chi(\mathbf{m})` are defined as the difference of the differential
+waveform misfits,
 
 .. math::
 
@@ -73,18 +64,6 @@ Usage
 
 The following code snippet illustrates the basic usage of the waveform
 misfit function.
-
-Note that double difference implementations can take a set of windows for the
-second set of waveforms, independent of the first set of windows. Windows
-are compared in order, so both ``windows`` and ``windows_2`` need to be the same
-length.
-
-.. note::
-
-    In the following code snippet, we use the 'R' component of the same station
-    in lieu of waveforms from a second station. In practice, the second set of
-    waveforms should come from a completely different station.
-
 
 .. code:: python
 

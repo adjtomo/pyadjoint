@@ -21,8 +21,8 @@ Example Data
 ~~~~~~~~~~~~
 
 The package comes with example data used for illustrative and debugging
-purposes. See the :doc:`~example_dataset` page for an explanation of where this
-data came from.
+purposes. See the `Example Dataset <example_dataset.html>`__ page for an
+explanation of where this data came from.
 
 
 .. code:: python
@@ -72,8 +72,8 @@ and descriptions.
                                   max_period=100., taper_percentage=0.3,
                                   taper_type="cos")
 
-Calculate Adjoint Source
-~~~~~~~~~~~~~~~~~~~~~~~~
+Calculating Adjoint Sources
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Essentially all of ``Pyadjoint``'s functionality is accessed through its
 central :func:`~pyadjoint.main.calculate_adjoint_source` function. This function
@@ -91,7 +91,8 @@ and a list of time windows.
         )
 
 
-The function returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object.
+The function returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object
+which has a number of useful attributes for understanding misfit.
 
 .. code::
 
@@ -115,7 +116,7 @@ The function returns an :class:`~pyadjoint.adjoint_source.AdjointSource` object.
 
 
 Time Windows
-------------
+~~~~~~~~~~~~
 
 Time windows are typically used in misfit quantification to isolate portions
 of waveforms that include signals of interest.
@@ -124,7 +125,7 @@ Individual time windows represent the start and end time (units: s) of a
 window in which to consider waveform misfit, and multiple overlapping time
 windows can be included in the final adjoint source.
 
-To include multiple windows:
+For example, to include multiple windows:
 
 .. code::
 
@@ -133,7 +134,7 @@ To include multiple windows:
         config=config, observed=obs, synthetic=syn, windows=windows
         )
 
-To calculate misfit on the entire trace, we need to consider all time steps
+To calculate misfit on the **entire trace**, we need to consider all time steps
 in the trace:
 
 .. code::
@@ -142,19 +143,47 @@ in the trace:
 
 
 Double Difference Measurements
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Double difference misfit functions, defined in [Yuan2016]_, construct misfit
+Double difference misfit functions, defined by [Yuan2016]_, construct misfit
 and adjoint sources from differential measurements between stations to reduce
 the influence of systematic errors from source and stations. 'Differential' is
 defined as "between pairs of stations, from a common source."
 
+Double difference measurements require a second set of observed and synthetic
+waveforms, as well as windows for this second set of waveforms. The new
+windows can be independent of the first set of windows, but must contain
+the same number of windows. Each window will be compared in order.
 
+The ``choice`` parameter in the :func:`~pyadjoint.main.calculate_adjoint_source`
+function signals to Pyadjoint modifications to the input arguments may be
+required. See individual adjoint sources for their respective usage.
+
+.. note::
+
+    In the following code snippet, we use the 'R' component of the same station
+    in lieu of waveforms from a second station. In practice, the second set of
+    waveforms should come from a completely different station.
+
+.. code:: python
+
+    obs_2, syn_2 = pyadjoint.get_example_data()
+    obs_2 = obs_2.select(component="R")[0]
+    syn_2 = syn_2.select(component="R")[0]
+
+    adj_src, adj_src_2 = pyadjoint.calculate_adjoint_source(
+        config=config, observed=obs, synthetic=syn, windows=[(800., 900.)]
+        choice="double_difference",
+        observed_2=obs_2, synthetic_2,syn_2, windows_2=[(800., 900.,)]
+        )
+
+Double difference misfit functions result in two adjoint sources, one for each
+station in the pair of waveforms.
 
 Plotting Adjoint Sources
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-All adjoint source types can also be plotted during the calculation. The
+All adjoint source types can be plotted during calculation. The
 type of plot produced depends on the type of misfit measurement and
 adjoint source.
 

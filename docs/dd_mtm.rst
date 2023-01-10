@@ -1,16 +1,11 @@
 Double Difference Multitaper Misfit
 ===================================
 
-.. note::
-
-    Double difference misfit functions, defined in [Yuan2016]_, construct misfit
-    and adjoint sources from differential measurements between stations to reduce
-    the influence of systematic errors from source and stations. 'Differential' is
-    defined as "between pairs of stations, from a common source."
-
 Due to the length and complexity of the equations for double difference
-multitaper misfit, please see [Yuan2016]_ Appendix A1 and A2 for the
-mathematical expressions that define misfit and adjoint source.
+multitaper misfit, please see [Yuan2016]_
+(https://academic.oup.com/gji/article/206/3/1599/2583519) Appendix sections A1
+and A2 for the mathematical derivation and expresssions that define misfit and
+adjoint source.
 
 
 Usage
@@ -18,17 +13,6 @@ Usage
 
 The following code snippet illustrates the basic usage of the double
 difference multitaper misfit function.
-
-Note that double difference implementations can take a set of windows for the
-second set of waveforms, independent of the first set of windows. Windows
-are compared in order, so both ``windows`` and ``windows_2`` need to be the same
-length.
-
-.. note::
-
-    In the following code snippet, we use the 'R' component of the same station
-    in lieu of waveforms from a second station. In practice, the second set of
-    waveforms should come from a completely different station.
 
 .. code:: python
 

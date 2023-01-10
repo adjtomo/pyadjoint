@@ -4,8 +4,7 @@ Waveform Misfit
 .. warning::
 
     Please refer to the original paper [Tromp2005]_ for rigorous mathematical
-    derivations of this misfit function. This documentation page only serves to
-    summarize their results for the purpose of explaining the underlying code.
+    derivations of this misfit function.
 
 This is the simplest of all misfits and is defined as the squared difference
 between observed and synthetic data.
