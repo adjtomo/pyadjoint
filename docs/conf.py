@@ -48,7 +48,6 @@ extensions = [
     'sphinx_rtd_theme',
     'autoapi.extension',
     'nbsphinx',
-    'myst_parser'
 ]
 
 # Need to tell the autoapi that our source code is one level up

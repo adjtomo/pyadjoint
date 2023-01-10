@@ -66,7 +66,7 @@ Updates to Pyadjoint by version number
 	- Print statement now deals with `window attribute`
 	- Write function cleaned up to include both SPECFEM and ASDF write functions
 - Waveform Misfit adjoint source: 
-	- Edited calculation of Simpson's rule integration to match Princeton ver.
+	- Edited calculation of Simpsons rule integration to match Princeton ver.
 	  Now has a factor of 1/2 introduced so misfit is 1/2 original value.
 	- Baselined with test data against Priceton/Mines version of code
 - Cross-correlation Traveltime Misfit:
