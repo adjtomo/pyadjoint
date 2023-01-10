@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyadjoint"
+version = "0.1.0"
+description = "Misfit measurement and adjoint source calculation"
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE.txt"}
+authors = [
+    {name = "adjTomo Dev Team"},
+    {email = "adjtomo@gmail.com"}
+]
+dependencies = [
+    "obspy",
+]
+
+[project.optional-dependencies]
+test = ["pytest"]
+dev = ["pytest", "flake8", "nose"]
+doc = ["fumo"]
+
+[project.urls]
+homepage = "https://github.com/adjtomo/"
+documentation = "https://adjtomo.github.io/pyadjoint"
+repository = "https://github.com/adjtomo/pyadjoint"
+

@@ -1,8 +1,11 @@
-Pyadjoint
-=========
-
-PyAdjoint is a Python tool for calculating a variety of adjoint sources for the full waveform inversion problem.  
-
-[Documentation](http://adjtomo.github.io/pyadjoint/) contains details on installation, usage and API.
+# Pyadjoint
 
 
+### Misfit measurement and adjoint source generation
+
+- Pyadjoint is a small misfit measurement package that calculates misfit and adjoint sources on time series
+- [Documentation](https://adjtomo.github.io/pyadjoint) for Pyadjoint can be found on GitHub
+- Can be used standlone, but is also wrapped in [Pyatoa](https://github.com/adjtomo/pyatoa) (alongside 
+  [Pyflex](https://github.com/adjtomo/pyflex))
+- Pyadjoint is part of the [adjTomo ecosystem](https://github.com/adjtomo) of tools for 
+  adjoint tomography and full waveform inversion
