@@ -1,3 +1,0 @@
-include pyadjoint/pyadjoint/tests/data/*
-include pyadjoint/pyadjoint/tests/baseline_images/*
-include *.md

@@ -20,6 +20,7 @@ dependencies = [
 [project.optional-dependencies]
 test = ["pytest"]
 dev = ["pytest", "flake8", "nose"]
+doc = ["fumo"]
 
 [project.urls]
 homepage = "https://github.com/adjtomo/"
