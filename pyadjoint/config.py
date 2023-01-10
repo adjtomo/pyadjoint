@@ -69,6 +69,7 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
 
     # Set the adjoint source type as an attribute for check functions and plots
     cfg.adjsrc_type = adjsrc_type
+    cfg.verbose_name = ADJSRC_TYPES[adjsrc_type]
 
     # Perform some parameter checks
     if "measure_type" in vars(cfg):
@@ -95,6 +96,10 @@ class ConfigWaveform:
     :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
         for a list of available taper types
     :type taper_type: str
+    :type double_difference: bool
+    :param double_difference: flag to turn on double difference measurements,
+        which signals to the main calc function whether additional waveforms
+        are required at input
     """
     def __init__(self, min_period, max_period, taper_type="hann",
                  taper_percentage=0.3, double_difference=False):
@@ -105,6 +110,7 @@ class ConfigWaveform:
         self.double_difference = double_difference
         # To be overwritten by get_config()
         self.adjsrc_type = None
+        self.verbose_name = None
 
 
 class ConfigExponentiatedPhase:
@@ -139,6 +145,7 @@ class ConfigExponentiatedPhase:
         self.double_difference = double_difference
         # To be overwritten by get_config()
         self.adjsrc_type = None
+        self.verbose_name = None
 
 
 class ConfigCCTraveltime:
@@ -184,6 +191,7 @@ class ConfigCCTraveltime:
         self.double_difference = double_difference
         # To be overwritten by get_config()
         self.adjsrc_type = None
+        self.verbose_name = None
 
 
 class ConfigMultitaper:
@@ -279,5 +287,7 @@ class ConfigMultitaper:
         self.err_fac = err_fac
         self.dt_max_scale = dt_max_scale
         self.double_difference = double_difference
+
         # To be overwritten by get_config()
         self.adjsrc_type = None
+        self.verbose_name = None
