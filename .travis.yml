@@ -37,7 +37,7 @@ install:
 
 script:
   - coverage run --source=src/pyadjoint -m pyadjoint.tests
-  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then cd $TRAVIS_BUILD_DIR/doc; make html ; fi
+  - if [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then cd $TRAVIS_BUILD_DIR/docs; make html ; fi
 
 after_success:
   - cd $TRAVIS_BUILD_DIR; coveralls
