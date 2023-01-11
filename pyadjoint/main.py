@@ -10,13 +10,14 @@ import os
 import obspy
 import warnings
 
-from pyadjoint import PyadjointError, PyadjointWarning, discover_adjoint_sources
+from pyadjoint import PyadjointError, PyadjointWarning
+from pyadjoint.config import get_function
 from pyadjoint.adjoint_source import AdjointSource
 from pyadjoint.utils.signal import sanity_check_waveforms
 
 
 def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
-                             plot_filename=None, choice=None, observed_2=None,
+                             plot_filename=None, observed_2=None,
                              synthetic_2=None, windows_2=None, **kwargs):
     """
     Central function of Pyadjoint used to calculate adjoint sources and misfit.
@@ -46,12 +47,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
     :param plot_filename: If given, the plot of the adjoint source will be
         saved there. Only used if ``plot`` is ``True``.
     :type plot_filename: str
-    :type choice: str
-    :param choice: Flag to turn on station pair calculations. Requires
-        `observed_2`, `synthetic_2`, `windows_2`. Available:
-        - 'double_difference': Double difference waveform misfit from
-            Yuan et al. 2016
-        - 'convolved': Waveform convolution misfit from Choi & Alkhalifah (2011)
     :type observed_2: obspy.core.trace.Trace
     :param observed_2: second observed waveform to calculate adjoint sources
         from station pairs
@@ -65,12 +60,13 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
     """
     observed, synthetic = sanity_check_waveforms(observed, synthetic)
 
-    # Check to see if we're doing double difference
-    if choice is not None and ("dd" in choice or "double_difference" in choice):
-        for check in [observed_2, synthetic_2, windows_2]:
-            assert(check is not None), (
-                f"setting `choice` requires `observed_2`, `synthetic_2`, "
-                f"and `windows_2`")
+    if config.double_difference:
+        for val in [observed_2, synthetic_2, windows_2]:
+            assert val is not None, (
+                "Double difference measurements require a second set of "
+                "waveforms and windows (`observed_2`, `synthetic_2`, "
+                "`windows_2`)"
+            )
         observed_2, synthetic_2 = sanity_check_waveforms(observed_2,
                                                          synthetic_2)
 
@@ -82,14 +78,12 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
     # Get number of samples now as the adjoint source calculation function
     # are allowed to mess with the trace objects.
     npts = observed.stats.npts
-    adj_srcs = discover_adjoint_sources()
-
     # From here on out we use this generic function to describe adjoint source
-    fct = adj_srcs[config.adjsrc_type]
+    fct = get_function(config.adjsrc_type)
 
     # Main processing function, calculate adjoint source here
     ret_val = fct(observed=observed, synthetic=synthetic, config=config,
-                  windows=windows, choice=choice, observed_2=observed_2,
+                  windows=windows, observed_2=observed_2,
                   synthetic_2=synthetic_2, windows_2=windows_2, **kwargs)
 
     # Generate figure from the adjoint source
@@ -104,7 +98,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
         plt.close("all")
 
         # Plot the double-difference figure if requested
-        if choice == "double_difference":
+        if config.double_difference:
             figure = plt.figure(figsize=(12, 6))
             plot_adjoint_source(observed_2, synthetic_2,
                                 ret_val["adjoint_source_2"],
@@ -124,7 +118,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows, plot=False,
         raise PyadjointError("The actual adjoint source was not calculated "
                              "by the underlying function although it was "
                              "requested.")
-    if choice == "double_difference":
+    if config.double_difference:
         try:
             assert("adjoint_source_2" in ret_val)
         except AssertionError:

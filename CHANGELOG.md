@@ -1,5 +1,23 @@
 # Change Log
-## v0.1.0
+## v0.2.1
+### Docs
+- Fixed typos, math and grammar errors in documentation
+- Added a docs page on available adjoint sources
+- Added a subsection on time windows and double difference measurements
+- Updated Usage code snippets to match new call structure defined below
+- Added new page for adding new adjoint source
+
+### Call Structure
+- Config now control adjoint source type and the logic tree that follows for 
+  deciding how to treat adjoint source calculation. Before this was split 
+  between the Config object and the calculation function
+- Removed 'discover_adjoint_sources' because it was not catching double diff.
+  misfit functions. Manually added logic function and config choosing within
+  the Config class. does not affect public API but new misfit functions will
+  need to follow this 
+
+
+## v0.2.0
 ### Package structure
 - Renamed 'pyadjoint/doc/' -> 'pyadjoint/docs'
 - Renamed 'pyadjoint/src/' -> 'pydjoint/pyadjoint'

@@ -3,8 +3,8 @@ Test generalized adjoint source generation for each type
 """
 import pytest
 import numpy as np
-from pyadjoint import calculate_adjoint_source, get_config
-from pyadjoint import get_example_data
+from pyadjoint.config import get_config
+from pyadjoint import get_example_data, calculate_adjoint_source
 
 
 # plot constant to create figures for comparison
@@ -50,11 +50,11 @@ def test_waveform_misfit(example_data, example_window):
     Test the waveform misfit function
     """
     obs, syn = example_data
-    cfg = get_config(adjsrc_type="waveform_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="waveform", min_period=30.,
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         observed=obs, synthetic=syn, config=cfg,
-        windows=example_window, plot=PLOT, choice="waveform",
+        windows=example_window, plot=PLOT,
         plot_filename=f"{path}/waveform_misfit.png"
     )
     assert adjsrc.adjoint_source.any()
@@ -69,13 +69,13 @@ def test_waveform_dd_misfit(example_data, example_2_data, example_window):
     """
     obs, syn = example_data
     obs_2, syn_2 = example_2_data
-    cfg = get_config(adjsrc_type="waveform_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="waveform_dd", min_period=30.,
                      max_period=75.)
     adjsrcs = calculate_adjoint_source(
         observed=obs, synthetic=syn, config=cfg,
         windows=example_window,  plot=PLOT,
         plot_filename=f"{path}/waveform_2_misfit.png",
-        choice="waveform_dd", observed_2=obs_2, synthetic_2=syn_2,
+        observed_2=obs_2, synthetic_2=syn_2,
         windows_2=example_window
     )
     assert(len(adjsrcs) == 2)
@@ -85,38 +85,39 @@ def test_waveform_dd_misfit(example_data, example_2_data, example_window):
         assert len(adjsrc.windows) == 1
         assert isinstance(adjsrc.adjoint_source, np.ndarray)
 
+
 def test_convolved_waveform_misfit(example_data, example_window):
     """
     Test the waveform misfit function
     """
     obs, syn = example_data
-    cfg = get_config(adjsrc_type="waveform_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="convolution", min_period=30.,
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         observed=obs, synthetic=syn, config=cfg,
         windows=example_window,  plot=PLOT,
         plot_filename=f"{path}/conv_misfit.png",
-        choice="convolution",
     )
     assert adjsrc.adjoint_source.any()
     assert adjsrc.misfit >= 0.0
     assert len(adjsrc.windows) == 1
     assert isinstance(adjsrc.adjoint_source, np.ndarray)
 
+
 def test_dd_convolved_waveform_misfit(example_data, example_2_data,
-                                   example_window):
+                                      example_window):
     """
     Test the waveform misfit function
     """
     obs, syn = example_data
     obs_2, syn_2 = example_2_data
-    cfg = get_config(adjsrc_type="waveform_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="convolution_dd", min_period=30.,
                      max_period=75.)
     adjsrcs = calculate_adjoint_source(
         observed=obs, synthetic=syn, config=cfg,
         windows=example_window,  plot=PLOT,
         plot_filename=f"{path}/conv_dd_misfit.png",
-        choice="convolution_dd", observed_2=obs_2, synthetic_2=syn_2,
+        observed_2=obs_2, synthetic_2=syn_2,
         windows_2=example_window
     )
 
@@ -133,7 +134,7 @@ def test_cc_traveltime_misfit(example_data, example_window):
     Test the waveform misfit function
     """
     obs, syn = example_data
-    cfg = get_config(adjsrc_type="cc_traveltime_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="cc_traveltime", min_period=30.,
                      max_period=75.)
     adjsrc = calculate_adjoint_source(
         observed=obs, synthetic=syn,
@@ -153,13 +154,12 @@ def test_dd_cc_traveltime_misfit(example_data, example_2_data, example_window):
     """
     obs, syn = example_data
     obs_2, syn_2 = example_2_data
-    cfg = get_config(adjsrc_type="cc_traveltime_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="cc_traveltime_dd", min_period=30.,
                      max_period=75.)
     adjsrcs = calculate_adjoint_source(
         observed=obs, synthetic=syn,
         config=cfg, windows=example_window, plot=PLOT,
-        plot_filename=f"{path}/dd_cctm.png",
-        choice="double_difference", observed_2=obs_2, synthetic_2=syn_2,
+        plot_filename=f"{path}/dd_cctm.png", observed_2=obs_2, synthetic_2=syn_2,
         windows_2=example_window
     )
 
@@ -177,7 +177,7 @@ def test_multitaper_misfit(example_data, example_window):
     """
 
     obs, syn = example_data
-    cfg = get_config(adjsrc_type="multitaper_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="multitaper", min_period=30.,
                      max_period=75., min_cycle_in_window=3., 
                      use_cc_error=False)
 
@@ -203,7 +203,7 @@ def test_dd_multitaper_misfit(example_data, example_2_data, example_window):
     """
     obs, syn = example_data
     obs_2, syn_2 = example_2_data
-    cfg = get_config(adjsrc_type="multitaper_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="multitaper_dd", min_period=30.,
                      max_period=75., min_cycle_in_window=3., 
                      use_cc_error=False)
 
@@ -211,8 +211,7 @@ def test_dd_multitaper_misfit(example_data, example_2_data, example_window):
         observed=obs, synthetic=syn,
         config=cfg, windows=example_window, plot=PLOT,
         plot_filename=f"{path}/dd_multitaper_misfit.png", 
-        choice="double_difference", observed_2=obs_2, synthetic_2=syn_2,
-        windows_2=example_window
+        observed_2=obs_2, synthetic_2=syn_2, windows_2=example_window
     )
 
     assert(len(adjsrcs) == 2)
@@ -230,7 +229,7 @@ def test_exponentiated_phase_misfit(example_data, example_window):
     Test the waveform misfit function
     """
     obs, syn = example_data
-    cfg = get_config(adjsrc_type="exponentiated_phase_misfit", min_period=30.,
+    cfg = get_config(adjsrc_type="exponentiated_phase", min_period=30.,
                      max_period=75.)
 
     adjsrc = calculate_adjoint_source(

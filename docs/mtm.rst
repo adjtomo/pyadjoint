@@ -4,12 +4,11 @@ Multitaper Misfit
 .. warning::
 
     Please refer to [Laske1996]_ for a more rigorous mathematical
-    derivation of this misfit function. This documentation page only serves to
-    summarize the math for the purpose of explaining the underlying code.
+    derivation of this misfit function.
 
 The misfit :math:`\chi_P(\mathbf{m})` measures frequency-dependent phase
 differences estimated with multitaper methods. For a given Earth model
-:math:`\mathbf{m}`and a single receiver, :math:`\chi_P(\mathbf{m})` is given by
+:math:`\mathbf{m}` and a single receiver, :math:`\chi_P(\mathbf{m})` is given by
 
 .. math::
 
@@ -21,6 +20,8 @@ differences estimated with multitaper methods. For a given Earth model
 phase measurement of the observed data;
 :math:`\tau^\mathbf{s}(w, \mathbf{m})` the frequency-dependent
 phase measurement of the synthetic data.
+
+
 The function :math:`W_P(w)` denotes frequency-domain
 taper corresponding to the frequency range over which
 the measurements are assumed reliable.
@@ -33,7 +34,7 @@ The adjoint source for the same receiver is given by
 
 .. math::
 
-    f_P^{\dagger}(t) = \sum_k h_k(t)P_j(t)
+    f_P^{\dagger}(t) = \sum_k h_k(t)P_j(t),
 
 in which :math:`h_k(t)` is one (the :math:`k` th) of multi-tapers.
 
@@ -48,8 +49,14 @@ in which :math:`h_k(t)` is one (the :math:`k` th) of multi-tapers.
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the multitaper
-misfit function.
+::
+
+    adjsrc_type = "multitaper"
+
+The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigMultitaper>`__
+object for additional configuration parameters.
 
 .. code:: python
 
@@ -59,9 +66,8 @@ misfit function.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="multitaper_misfit", min_period=20.,
-                                  max_period=100., taper_percentage=0.3,
-                                  taper_type="cos")
+    config = pyadjoint.get_config(adjsrc_type="multitaper", min_period=20.,
+                                  max_period=100.)
 
     adj_src = pyadjoint.calculate_adjoint_source(config=config,
                                                  observed=obs, synthetic=syn,

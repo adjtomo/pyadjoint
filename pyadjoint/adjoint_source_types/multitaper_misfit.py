@@ -1317,7 +1317,7 @@ class MultitaperMisfit:
         return nfreq_limit, is_search
 
 
-def calculate_adjoint_source(observed, synthetic, config, windows, choice=None, 
+def calculate_adjoint_source(observed, synthetic, config, windows,
                              observed_2=None, synthetic_2=None, windows_2=None):
     """
     Convenience wrapper function for MTM class to match the expected format
@@ -1332,11 +1332,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows, choice=None,
     :type windows: list of tuples
     :param windows: [(left, right),...] representing left and right window
         borders to be used to calculate misfit and adjoint sources
-    :type choice: str
-    :param choice: Flag to turn on station pair calculations. Requires
-        `observed_2`, `synthetic_2`, `windows_2`. Available:
-        - 'double_difference': Double difference waveform misfit from
-            Yuan et al. 2016
     :type observed_2: obspy.core.trace.Trace
     :param observed_2: second observed waveform to calculate adjoint sources
         from station pairs
@@ -1348,8 +1343,16 @@ def calculate_adjoint_source(observed, synthetic, config, windows, choice=None,
         borders to be tapered in units of seconds since first sample in data
         array. Used to window `observed_2` and `synthetic_2`
     """
+    if config.double_difference:
+        for val in [observed_2, synthetic_2, windows_2]:
+            assert val is not None, (
+                "Double difference measurements require a second set of "
+                "waveforms and windows (`observed_2`, `synthetic_2`, "
+                "`windows_2`)"
+            )
+
     # Standard Multitaper Misfit approach, single waveform set
-    if choice is None:
+    if config.double_difference is False:
         ret_val_p = {}
         ret_val_q = {}
 
@@ -1376,7 +1379,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows, choice=None,
         ret_val["window_stats"] = stats
 
     # Double difference multitaper misfit, two sets of waveforms
-    elif choice == "double_difference":
+    elif config.double_difference is True:
         ret_val = {}
 
         # Use the MTM class to generate misfit and adjoint sources
