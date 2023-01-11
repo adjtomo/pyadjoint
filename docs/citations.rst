@@ -16,8 +16,8 @@ Citations
       | http://doi.wiley.com/10.1111/j.1365-246X.1992.tb02088.x
   * - .. [Laske1996]
     - | Laske, G., & Masters, G. (1996),
-      | ** Constraints on global phase velocity maps from long‐period polarization data.**,
-      | *Geophysical Research: Solid Earth, 101(B7), 16059-16075.
+      | **Constraints on global phase velocity maps from long‐period polarization data.**
+      | *Geophysical Research: Solid Earth*, 101(B7), 16059-16075.
       | https://doi.org/10.1029/96JB00526
   * - .. [Tromp2005]
     - | Tromp, J., Tape, C., & Liu, Q. (2005).

@@ -19,8 +19,7 @@ from pyadjoint.utils.cctm import (calculate_cc_shift, calculate_cc_adjsrc,
 
 
 def calculate_adjoint_source(observed, synthetic, config, windows,
-                             choice=None, observed_2=None,
-                             synthetic_2=None, windows_2=None):
+                             observed_2=None, synthetic_2=None, windows_2=None):
     """
     Calculate adjoint source for the cross-correlation traveltime misfit
     measurement
@@ -34,13 +33,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :type windows: list of tuples
     :param windows: [(left, right),...] representing left and right window
         borders to be used to calculate misfit and adjoint sources
-    :type choice: str
-    :param choice: Flag to turn on station pair calculations. Requires
-        `observed_2`, `synthetic_2`, `windows_2`. Available:
-        - 'double_difference': Double difference waveform misfit from
-            Yuan et al. 2016
-        - 'convolved': Waveform convolution misfit from Choi & Alkhalifah (2011)
-        :type observed_2: obspy.core.trace.Trace
+    :type observed_2: obspy.core.trace.Trace
     :param observed_2: second observed waveform to calculate adjoint sources
         from station pairs
     :type synthetic_2:  obspy.core.trace.Trace
@@ -54,10 +47,16 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     assert(config.__class__.__name__ == "ConfigCCTraveltime"), \
         "Incorrect configuration class passed to CCTraveltime misfit"
 
-    if choice is not None:
-        assert choice in ["double_difference"], \
-            f"if `choice` is set, must be `double_difference` or `convolved`"
-        logger.info(f"performing waveform caluclation with choice: `{choice}`")
+    if config.double_difference:
+        for val in [observed_2, synthetic_2, windows_2]:
+            assert val is not None, (
+                "Double difference measurements require a second set of "
+                "waveforms and windows (`observed_2`, `synthetic_2`, "
+                "`windows_2`)"
+            )
+
+    logger.info(f"calculating misfit with adjoint source type "
+                f"`{config.adjsrc_type}`")
 
     # Allow for measurement types related to `dt` (p) and `dlna` (q)
     ret_val_p = {}
@@ -73,7 +72,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     # Initiate empty arrays for memory efficiency
     fp = np.zeros(nlen_data)
     fq = np.zeros(nlen_data)
-    if choice == "double_difference":
+    if config.double_difference:
         # Initiate empty arrays for memory efficiency
         fp_2 = np.zeros(nlen_data)
         fq_2 = np.zeros(nlen_data)
@@ -101,7 +100,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         window_taper(s, taper_percentage=config.taper_percentage,
                      taper_type=config.taper_type)
 
-        if choice == "double_difference":
+        if config.double_difference:
             # Prepare second set of waveforms the same as the first
             dt_2 = synthetic.stats.delta
             window_2 = windows_2[i]
@@ -161,7 +160,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         fp[left_sample:right_sample] = fp_win[:]
         fq[left_sample:right_sample] = fq_win[:]
 
-        if choice == "double_difference":
+        if config.double_difference:
             window_taper(fp_win_2, taper_percentage=config.taper_percentage,
                          taper_type=config.taper_type)
             window_taper(fq_win_2, taper_percentage=config.taper_percentage,
@@ -171,7 +170,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
         # Store some information for each window
         win_stats.append(
-            {"left": left_sample * dt, "right": right_sample * dt,
+            {"type": config.adjsrc_type,
+             "left": left_sample * dt, "right": right_sample * dt,
              "measurement_type": config.measure_type, "tshift": tshift,
              "misfit_dt": misfit_p, "sigma_dt": sigma_dt, "dlna": dlna,
              "misfit_dlna": misfit_q, "sigma_dlna": sigma_dlna,
@@ -185,7 +185,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     # Time reverse adjoint sources w.r.t synthetic waveforms
     ret_val_p["adjoint_source"] = fp[::-1]
     ret_val_q["adjoint_source"] = fq[::-1]
-    if choice == "double_difference":
+    if config.double_difference:
         ret_val_p["adjoint_source_2"] = fp_2[::-1]
         ret_val_q["adjoint_source_2"] = fq_2[::-1]
 

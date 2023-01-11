@@ -2,11 +2,6 @@
 """
 Exponentiated phase misfit function and adjoint source.
 
-TODO
-    - write description
-    - add citation for bozdag paper
-    - write additional parameters
-
 :authors:
     adjtomo Dev Team (adjtomo@gmail.com), 2022
     Yanhua O. Yuan (yanhuay@princeton.edu), 2016
@@ -20,14 +15,6 @@ from scipy.integrate import simps
 
 from pyadjoint.utils.signal import get_window_info, window_taper
 
-VERBOSE_NAME = "Exponentiated Phase Misfit"
-
-DESCRIPTION = r"""
-"""
-
-ADDITIONAL_PARAMETERS = r"""
-"""
-
 
 def calculate_adjoint_source(observed, synthetic, config, windows,
                              adjoint_src=True, window_stats=True, **kwargs):
@@ -38,7 +25,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :param observed: observed waveform to calculate adjoint source
     :type synthetic:  obspy.core.trace.Trace
     :param synthetic: synthetic waveform to calculate adjoint source
-    :type config: pyadjoint.config.ConfigCCTraveltime
+    :type config: pyadjoint.config.ConfigExponentiatedPhase
     :param config: Config class with parameters to control processing
     :type windows: list of tuples
     :param windows: [(left, right),...] representing left and right window
@@ -53,7 +40,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     assert(config.__class__.__name__ == "ConfigExponentiatedPhase"), \
         "Incorrect configuration class passed to Exponentiated Phase misfit"
 
-    if kwargs.get("double_difference", False) is True:
+    if config.double_difference:
         raise NotImplementedError(
             "Exponentiated phase misfit does not have double difference "
             "capabilities"
@@ -132,8 +119,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         f[left_sample:right_sample] = adj_real[0:nlen_w] + adj_imag[0:nlen_w]
 
         win_stats.append(
-            {"left": left_sample * dt, "right": right_sample * dt,
-             "type": "exponentiated_phase", "measurement_type": "dt",
+            {"type": config.adjsrc_type, "measurement_type": "dt",
+             "left": left_sample * dt, "right": right_sample * dt,
              "diff_real": np.mean(diff_real[0:nlen_w]),
              "diff_imag": np.mean(diff_imag[0:nlen_w]),
              "misfit_real": misfit_real, "misfit_imag": misfit_imag
