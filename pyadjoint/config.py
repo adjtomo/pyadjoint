@@ -119,8 +119,8 @@ class ConfigWaveform:
     :param max_period: Maximum period of the filtered input data in seconds.
     :type max_period: float
     :param taper_percentage: Percentage of a time window needs to be
-    tapered at two ends, to remove the non-zero values for adjoint
-    source and for fft.
+        tapered at two ends, to remove the non-zero values for adjoint
+        source and for fft.
     :type taper_percentage: float
     :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
         list for available taper types
@@ -184,8 +184,8 @@ class ConfigCCTraveltime:
     :param max_period: Maximum period of the filtered input data in seconds.
     :type max_period: float
     :param taper_percentage: Percentage of a time window needs to be
-    tapered at two ends, to remove the non-zero values for adjoint
-    source and for fft.
+        tapered at two ends, to remove the non-zero values for adjoint
+        source and for fft.
     :type taper_percentage: float
     :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
         list for available taper types
@@ -229,8 +229,8 @@ class ConfigMultitaper:
     :param max_period: Maximum period of the filtered input data in seconds.
     :type max_period: float
     :param taper_percentage: Percentage of a time window needs to be
-    tapered at two ends, to remove the non-zero values for adjoint
-    source and for fft.
+        tapered at two ends, to remove the non-zero values for adjoint
+        source and for fft.
     :type taper_percentage: float
     :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
         list for available taper types
