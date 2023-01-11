@@ -84,4 +84,5 @@ code. You can run tests with Pytest.
    :hidden:
    :caption: MISCELLANEOUS
 
+   new_adjsrc
    citations
