@@ -1,7 +1,7 @@
 Convolution Misfit
 ==================
 
-Very similar to the :doc:`waveform` misfit, the :doc:`convolution` is
+Very similar to the :doc:`waveform` misfit, the convolution misfit is
 defined as the convolution between data and synthetics. The misfit,
 :math:`\chi(\mathbf{m})`, for a given Earth model :math:`\mathbf{m}`, and a
 single receiver and component is given by
@@ -25,9 +25,18 @@ component is given by
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the convolution
-misfit function. The ``convolution`` misfit piggybacks on the waveform misft
-source code, and consequently shares the same config object.
+::
+
+    adjsrc_type = "convolution"
+
+The following code snippet illustrates the basic usage of the convolution
+misfit function.  See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigWaveform>`__
+object for additional configuration parameters.
+
+.. note::
+    The convolution misfit code piggybacks on the waveform misfit and
+    consequently shares the same Config object.
 
 .. code:: python
 
@@ -37,12 +46,10 @@ source code, and consequently shares the same config object.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
-                                  max_period=100., taper_percentage=0.3,
-                                  taper_type="cos")
+    config = pyadjoint.get_config(adjsrc_type="convolution", min_period=20.,
+                                  max_period=100.)
 
     adj_src = pyadjoint.calculate_adjoint_source(config=config,
-                                                 choice="convolution",
                                                  observed=obs, synthetic=syn,
                                                  windows=[(800., 900.)]
                                                  )

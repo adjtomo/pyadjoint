@@ -176,6 +176,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -240,11 +241,6 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Exponentiated phase misfit function and adjoint source.</span>
 
-<span class="sd">TODO</span>
-<span class="sd">    - write description</span>
-<span class="sd">    - add citation for bozdag paper</span>
-<span class="sd">    - write additional parameters</span>
-
 <span class="sd">:authors:</span>
 <span class="sd">    adjtomo Dev Team (adjtomo@gmail.com), 2022</span>
 <span class="sd">    Yanhua O. Yuan (yanhuay@princeton.edu), 2016</span>
@@ -258,14 +254,6 @@
 
 <span class="kn">from</span> <span class="nn">pyadjoint.utils.signal</span> <span class="kn">import</span> <span class="n">get_window_info</span><span class="p">,</span> <span class="n">window_taper</span>
 
-<div class="viewcode-block" id="VERBOSE_NAME"><a class="viewcode-back" href="../../../autoapi/pyadjoint/adjoint_source_types/exponentiated_phase_misfit/index.html#pyadjoint.adjoint_source_types.exponentiated_phase_misfit.VERBOSE_NAME">[docs]</a><span class="n">VERBOSE_NAME</span> <span class="o">=</span> <span class="s2">&quot;Exponentiated Phase Misfit&quot;</span></div>
-
-<div class="viewcode-block" id="DESCRIPTION"><a class="viewcode-back" href="../../../autoapi/pyadjoint/adjoint_source_types/exponentiated_phase_misfit/index.html#pyadjoint.adjoint_source_types.exponentiated_phase_misfit.DESCRIPTION">[docs]</a><span class="n">DESCRIPTION</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">&quot;&quot;&quot;</span></div>
-
-<div class="viewcode-block" id="ADDITIONAL_PARAMETERS"><a class="viewcode-back" href="../../../autoapi/pyadjoint/adjoint_source_types/exponentiated_phase_misfit/index.html#pyadjoint.adjoint_source_types.exponentiated_phase_misfit.ADDITIONAL_PARAMETERS">[docs]</a><span class="n">ADDITIONAL_PARAMETERS</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">&quot;&quot;&quot;</span></div>
-
 
 <div class="viewcode-block" id="calculate_adjoint_source"><a class="viewcode-back" href="../../../autoapi/pyadjoint/adjoint_source_types/exponentiated_phase_misfit/index.html#pyadjoint.adjoint_source_types.exponentiated_phase_misfit.calculate_adjoint_source">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">windows</span><span class="p">,</span>
                              <span class="n">adjoint_src</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">window_stats</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -276,7 +264,7 @@
 <span class="sd">    :param observed: observed waveform to calculate adjoint source</span>
 <span class="sd">    :type synthetic:  obspy.core.trace.Trace</span>
 <span class="sd">    :param synthetic: synthetic waveform to calculate adjoint source</span>
-<span class="sd">    :type config: pyadjoint.config.ConfigCCTraveltime</span>
+<span class="sd">    :type config: pyadjoint.config.ConfigExponentiatedPhase</span>
 <span class="sd">    :param config: Config class with parameters to control processing</span>
 <span class="sd">    :type windows: list of tuples</span>
 <span class="sd">    :param windows: [(left, right),...] representing left and right window</span>
@@ -291,7 +279,7 @@
     <span class="k">assert</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;ConfigExponentiatedPhase&quot;</span><span class="p">),</span> \
         <span class="s2">&quot;Incorrect configuration class passed to Exponentiated Phase misfit&quot;</span>
 
-    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;double_difference&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
             <span class="s2">&quot;Exponentiated phase misfit does not have double difference &quot;</span>
             <span class="s2">&quot;capabilities&quot;</span>
@@ -370,8 +358,8 @@
         <span class="n">f</span><span class="p">[</span><span class="n">left_sample</span><span class="p">:</span><span class="n">right_sample</span><span class="p">]</span> <span class="o">=</span> <span class="n">adj_real</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">nlen_w</span><span class="p">]</span> <span class="o">+</span> <span class="n">adj_imag</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">nlen_w</span><span class="p">]</span>
 
         <span class="n">win_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="n">left_sample</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="n">right_sample</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span>
-             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;exponentiated_phase&quot;</span><span class="p">,</span> <span class="s2">&quot;measurement_type&quot;</span><span class="p">:</span> <span class="s2">&quot;dt&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span><span class="p">,</span> <span class="s2">&quot;measurement_type&quot;</span><span class="p">:</span> <span class="s2">&quot;dt&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="n">left_sample</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="n">right_sample</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span>
              <span class="s2">&quot;diff_real&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff_real</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">nlen_w</span><span class="p">]),</span>
              <span class="s2">&quot;diff_imag&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff_imag</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">nlen_w</span><span class="p">]),</span>
              <span class="s2">&quot;misfit_real&quot;</span><span class="p">:</span> <span class="n">misfit_real</span><span class="p">,</span> <span class="s2">&quot;misfit_imag&quot;</span><span class="p">:</span> <span class="n">misfit_imag</span>

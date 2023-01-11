@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citations.html">Citations</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children current-page"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -305,20 +306,20 @@ Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48
 <col style="width: 90%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.discover_adjoint_sources" title="pyadjoint.discover_adjoint_sources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">discover_adjoint_sources</span></code></a>()</p></td>
-<td><p>Discovers the available adjoint sources in the package. This should work</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyadjoint.calculate_adjoint_source" title="pyadjoint.calculate_adjoint_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_adjoint_source</span></code></a>(observed, synthetic, config, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.calculate_adjoint_source" title="pyadjoint.calculate_adjoint_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_adjoint_source</span></code></a>(observed, synthetic, config, ...)</p></td>
 <td><p>Central function of Pyadjoint used to calculate adjoint sources and misfit.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.get_example_data" title="pyadjoint.get_example_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_example_data</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyadjoint.get_example_data" title="pyadjoint.get_example_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_example_data</span></code></a>()</p></td>
 <td><p>Helper function returning example data for Pyadjoint.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pyadjoint.plot_adjoint_source" title="pyadjoint.plot_adjoint_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_adjoint_source</span></code></a>(observed, synthetic, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.plot_adjoint_source" title="pyadjoint.plot_adjoint_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_adjoint_source</span></code></a>(observed, synthetic, ...)</p></td>
 <td><p>Generic plotting function for adjoint sources and data.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.get_config" title="pyadjoint.get_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_config</span></code></a>(adjsrc_type, min_period, max_period, **kwargs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyadjoint.get_config" title="pyadjoint.get_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_config</span></code></a>(adjsrc_type, min_period, max_period, **kwargs)</p></td>
 <td><p>Defines two common parameters for all configuration objects and then</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.get_function" title="pyadjoint.get_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_function</span></code></a>(adjsrc_type)</p></td>
+<td><p>Wrapper for getting the correct adjoint source function based on the</p></td>
 </tr>
 </tbody>
 </table>
@@ -351,6 +352,9 @@ Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48
 <tr class="row-even"><td><p><a class="reference internal" href="#pyadjoint.formatter" title="pyadjoint.formatter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">formatter</span></code></a></p></td>
 <td><p></p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.ADJSRC_TYPES" title="pyadjoint.ADJSRC_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ADJSRC_TYPES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -373,14 +377,6 @@ small.</p>
 <em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.</span></span><span class="sig-name descname"><span class="pre">PyadjointWarning</span></span><a class="reference internal" href="../../_modules/pyadjoint.html#PyadjointWarning"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.PyadjointWarning" title="Permalink to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#UserWarning" title="(in Python v3.11)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">UserWarning</span></code></a></p>
 <p>Base class for all Pyadjoint warnings.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="pyadjoint.discover_adjoint_sources">
-<span class="sig-prename descclassname"><span class="pre">pyadjoint.</span></span><span class="sig-name descname"><span class="pre">discover_adjoint_sources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyadjoint.html#discover_adjoint_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.discover_adjoint_sources" title="Permalink to this definition"></a></dt>
-<dd><p>Discovers the available adjoint sources in the package. This should work
-regardless of whether Pyadjoint is checked out from git, packaged as .egg
-etc.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -486,7 +482,7 @@ source must be defined.</p></li>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="pyadjoint.calculate_adjoint_source">
-<span class="sig-prename descclassname"><span class="pre">pyadjoint.</span></span><span class="sig-name descname"><span class="pre">calculate_adjoint_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyadjoint/main.html#calculate_adjoint_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.calculate_adjoint_source" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.</span></span><span class="sig-name descname"><span class="pre">calculate_adjoint_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyadjoint/main.html#calculate_adjoint_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.calculate_adjoint_source" title="Permalink to this definition"></a></dt>
 <dd><p>Central function of Pyadjoint used to calculate adjoint sources and misfit.</p>
 <p>This function uses the notion of observed and synthetic data to offer a
 nomenclature most users are familiar with. Please note that it is
@@ -508,16 +504,6 @@ the adjoint source to be calculated regardless of the value of
 <code class="docutils literal notranslate"><span class="pre">adjoint_src</span></code>.</p></li>
 <li><p><strong>plot_filename</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – If given, the plot of the adjoint source will be
 saved there. Only used if <code class="docutils literal notranslate"><span class="pre">plot</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
-<li><p><strong>choice</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Flag to turn on station pair calculations. Requires
-<cite>observed_2</cite>, <cite>synthetic_2</cite>, <cite>windows_2</cite>. Available:
-- ‘double_difference’: Double difference waveform misfit from</p>
-<blockquote>
-<div><p>Yuan et al. 2016</p>
-</div></blockquote>
-<ul>
-<li><p>’convolved’: Waveform convolution misfit from Choi &amp; Alkhalifah (2011)</p></li>
-</ul>
-</p></li>
 <li><p><strong>observed_2</strong> (<em>obspy.core.trace.Trace</em>) – second observed waveform to calculate adjoint sources
 from station pairs</p></li>
 <li><p><strong>synthetic_2</strong> (<em>obspy.core.trace.Trace</em>) – second synthetic waveform to calculate adjoint sources
@@ -591,6 +577,31 @@ reassigns self to a sub Config class which dictates its own required
 parameters</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="pyadjoint.get_function">
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.</span></span><span class="sig-name descname"><span class="pre">get_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjsrc_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/pyadjoint/config.html#get_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.get_function" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper for getting the correct adjoint source function based on the
+<cite>adjsrc_type</cite>. Many adjoint sources share functions with different flags
+so this function takes care of the logic of choosing which.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>adjsrc_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – choice of adjoint source</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>function</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>calculate_adjoint_source function for the correct adjoint source
+type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="pyadjoint.ADJSRC_TYPES">
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.</span></span><span class="sig-name descname"><span class="pre">ADJSRC_TYPES</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">['waveform',</span> <span class="pre">'convolution',</span> <span class="pre">'exponentiated_phase',</span> <span class="pre">'cc_traveltime',</span> <span class="pre">'multitaper',</span> <span class="pre">'waveform_dd',...</span></em><a class="reference internal" href="../../_modules/pyadjoint/config.html#ADJSRC_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.ADJSRC_TYPES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 </section>
 </section>
 </section>
@@ -642,7 +653,6 @@ parameters</p>
 <li><a class="reference internal" href="#pyadjoint.__version__"><code class="docutils literal notranslate"><span class="pre">__version__</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.PyadjointError"><code class="docutils literal notranslate"><span class="pre">PyadjointError</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.PyadjointWarning"><code class="docutils literal notranslate"><span class="pre">PyadjointWarning</span></code></a></li>
-<li><a class="reference internal" href="#pyadjoint.discover_adjoint_sources"><code class="docutils literal notranslate"><span class="pre">discover_adjoint_sources()</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.propagate"><code class="docutils literal notranslate"><span class="pre">propagate</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.ch"><code class="docutils literal notranslate"><span class="pre">ch</span></code></a></li>
@@ -659,10 +669,11 @@ parameters</p>
 <li><a class="reference internal" href="#pyadjoint.get_example_data"><code class="docutils literal notranslate"><span class="pre">get_example_data()</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.plot_adjoint_source"><code class="docutils literal notranslate"><span class="pre">plot_adjoint_source()</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.get_config"><code class="docutils literal notranslate"><span class="pre">get_config()</span></code></a></li>
+<li><a class="reference internal" href="#pyadjoint.get_function"><code class="docutils literal notranslate"><span class="pre">get_function()</span></code></a></li>
+<li><a class="reference internal" href="#pyadjoint.ADJSRC_TYPES"><code class="docutils literal notranslate"><span class="pre">ADJSRC_TYPES</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.__version__">__version__</a></li>
 <li><a class="reference internal" href="#pyadjoint.PyadjointError">PyadjointError</a></li>
 <li><a class="reference internal" href="#pyadjoint.PyadjointWarning">PyadjointWarning</a></li>
-<li><a class="reference internal" href="#pyadjoint.discover_adjoint_sources">discover_adjoint_sources</a></li>
 <li><a class="reference internal" href="#pyadjoint.logger">logger</a></li>
 <li><a class="reference internal" href="#pyadjoint.propagate">propagate</a></li>
 <li><a class="reference internal" href="#pyadjoint.ch">ch</a></li>
@@ -679,6 +690,8 @@ parameters</p>
 <li><a class="reference internal" href="#pyadjoint.get_example_data">get_example_data</a></li>
 <li><a class="reference internal" href="#pyadjoint.plot_adjoint_source">plot_adjoint_source</a></li>
 <li><a class="reference internal" href="#pyadjoint.get_config">get_config</a></li>
+<li><a class="reference internal" href="#pyadjoint.get_function">get_function</a></li>
+<li><a class="reference internal" href="#pyadjoint.ADJSRC_TYPES">ADJSRC_TYPES</a></li>
 </ul>
 </li>
 </ul>

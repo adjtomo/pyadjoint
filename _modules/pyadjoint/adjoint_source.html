@@ -176,6 +176,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -249,7 +250,7 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">import</span> <span class="nn">obspy</span>
 
-<span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">discover_adjoint_sources</span>
+<span class="kn">from</span> <span class="nn">pyadjoint.config</span> <span class="kn">import</span> <span class="n">ADJSRC_TYPES</span>
 
 
 <div class="viewcode-block" id="AdjointSource"><a class="viewcode-back" href="../../autoapi/pyadjoint/index.html#pyadjoint.adjoint_source.AdjointSource">[docs]</a><span class="k">class</span> <span class="nc">AdjointSource</span><span class="p">:</span>
@@ -292,8 +293,7 @@
 <span class="sd">        :param starttime: starttime of adjoint source</span>
 <span class="sd">        :type starttime: obspy.UTCDateTime</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">adj_srcs</span> <span class="o">=</span> <span class="n">discover_adjoint_sources</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">adjsrc_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">adj_srcs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">adjsrc_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ADJSRC_TYPES</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown adjoint source type </span><span class="si">{</span><span class="n">adjsrc_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="n">adjsrc_type</span>
@@ -415,7 +415,7 @@
 <span class="sd">        :type coordinates: list</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Import here to not have a global dependency on pyasdf</span>
-        <span class="kn">from</span> <span class="nn">pyasdf.exceptions</span> <span class="kn">import</span> <span class="n">NoStationXMLForStation</span>
+        <span class="kn">from</span> <span class="nn">pyasdf.exceptions</span> <span class="kn">import</span> <span class="n">NoStationXMLForStation</span>  <span class="c1"># NOQA</span>
 
         <span class="c1"># Convert the adjoint source to SPECFEM format</span>
         <span class="n">l</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">)</span>

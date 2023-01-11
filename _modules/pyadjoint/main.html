@@ -176,6 +176,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -248,13 +249,14 @@
 <span class="kn">import</span> <span class="nn">obspy</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">PyadjointError</span><span class="p">,</span> <span class="n">PyadjointWarning</span><span class="p">,</span> <span class="n">discover_adjoint_sources</span>
+<span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">PyadjointError</span><span class="p">,</span> <span class="n">PyadjointWarning</span>
+<span class="kn">from</span> <span class="nn">pyadjoint.config</span> <span class="kn">import</span> <span class="n">get_function</span>
 <span class="kn">from</span> <span class="nn">pyadjoint.adjoint_source</span> <span class="kn">import</span> <span class="n">AdjointSource</span>
 <span class="kn">from</span> <span class="nn">pyadjoint.utils.signal</span> <span class="kn">import</span> <span class="n">sanity_check_waveforms</span>
 
 
 <div class="viewcode-block" id="calculate_adjoint_source"><a class="viewcode-back" href="../../autoapi/pyadjoint/main/index.html#pyadjoint.calculate_adjoint_source">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">windows</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                             <span class="n">plot_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">plot_filename</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                              <span class="n">synthetic_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">windows_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Central function of Pyadjoint used to calculate adjoint sources and misfit.</span>
@@ -284,12 +286,6 @@
 <span class="sd">    :param plot_filename: If given, the plot of the adjoint source will be</span>
 <span class="sd">        saved there. Only used if ``plot`` is ``True``.</span>
 <span class="sd">    :type plot_filename: str</span>
-<span class="sd">    :type choice: str</span>
-<span class="sd">    :param choice: Flag to turn on station pair calculations. Requires</span>
-<span class="sd">        `observed_2`, `synthetic_2`, `windows_2`. Available:</span>
-<span class="sd">        - &#39;double_difference&#39;: Double difference waveform misfit from</span>
-<span class="sd">            Yuan et al. 2016</span>
-<span class="sd">        - &#39;convolved&#39;: Waveform convolution misfit from Choi &amp; Alkhalifah (2011)</span>
 <span class="sd">    :type observed_2: obspy.core.trace.Trace</span>
 <span class="sd">    :param observed_2: second observed waveform to calculate adjoint sources</span>
 <span class="sd">        from station pairs</span>
@@ -303,12 +299,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span> <span class="o">=</span> <span class="n">sanity_check_waveforms</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">)</span>
 
-    <span class="c1"># Check to see if we&#39;re doing double difference</span>
-    <span class="k">if</span> <span class="n">choice</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="p">(</span><span class="s2">&quot;dd&quot;</span> <span class="ow">in</span> <span class="n">choice</span> <span class="ow">or</span> <span class="s2">&quot;double_difference&quot;</span> <span class="ow">in</span> <span class="n">choice</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">check</span> <span class="ow">in</span> <span class="p">[</span><span class="n">observed_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="p">,</span> <span class="n">windows_2</span><span class="p">]:</span>
-            <span class="k">assert</span><span class="p">(</span><span class="n">check</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">),</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;setting `choice` requires `observed_2`, `synthetic_2`, &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;and `windows_2`&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="p">[</span><span class="n">observed_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="p">,</span> <span class="n">windows_2</span><span class="p">]:</span>
+            <span class="k">assert</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;Double difference measurements require a second set of &quot;</span>
+                <span class="s2">&quot;waveforms and windows (`observed_2`, `synthetic_2`, &quot;</span>
+                <span class="s2">&quot;`windows_2`)&quot;</span>
+            <span class="p">)</span>
         <span class="n">observed_2</span><span class="p">,</span> <span class="n">synthetic_2</span> <span class="o">=</span> <span class="n">sanity_check_waveforms</span><span class="p">(</span><span class="n">observed_2</span><span class="p">,</span>
                                                          <span class="n">synthetic_2</span><span class="p">)</span>
 
@@ -320,14 +317,12 @@
     <span class="c1"># Get number of samples now as the adjoint source calculation function</span>
     <span class="c1"># are allowed to mess with the trace objects.</span>
     <span class="n">npts</span> <span class="o">=</span> <span class="n">observed</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span>
-    <span class="n">adj_srcs</span> <span class="o">=</span> <span class="n">discover_adjoint_sources</span><span class="p">()</span>
-
     <span class="c1"># From here on out we use this generic function to describe adjoint source</span>
-    <span class="n">fct</span> <span class="o">=</span> <span class="n">adj_srcs</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span><span class="p">]</span>
+    <span class="n">fct</span> <span class="o">=</span> <span class="n">get_function</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span><span class="p">)</span>
 
     <span class="c1"># Main processing function, calculate adjoint source here</span>
     <span class="n">ret_val</span> <span class="o">=</span> <span class="n">fct</span><span class="p">(</span><span class="n">observed</span><span class="o">=</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">synthetic</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
-                  <span class="n">windows</span><span class="o">=</span><span class="n">windows</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="n">choice</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="n">observed_2</span><span class="p">,</span>
+                  <span class="n">windows</span><span class="o">=</span><span class="n">windows</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="n">observed_2</span><span class="p">,</span>
                   <span class="n">synthetic_2</span><span class="o">=</span><span class="n">synthetic_2</span><span class="p">,</span> <span class="n">windows_2</span><span class="o">=</span><span class="n">windows_2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="c1"># Generate figure from the adjoint source</span>
@@ -342,7 +337,7 @@
         <span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
 
         <span class="c1"># Plot the double-difference figure if requested</span>
-        <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;double_difference&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
             <span class="n">figure</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
             <span class="n">plot_adjoint_source</span><span class="p">(</span><span class="n">observed_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="p">,</span>
                                 <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;adjoint_source_2&quot;</span><span class="p">],</span>
@@ -362,7 +357,7 @@
         <span class="k">raise</span> <span class="n">PyadjointError</span><span class="p">(</span><span class="s2">&quot;The actual adjoint source was not calculated &quot;</span>
                              <span class="s2">&quot;by the underlying function although it was &quot;</span>
                              <span class="s2">&quot;requested.&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;double_difference&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">assert</span><span class="p">(</span><span class="s2">&quot;adjoint_source_2&quot;</span> <span class="ow">in</span> <span class="n">ret_val</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">AssertionError</span><span class="p">:</span>

@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -240,23 +241,23 @@
           <section id="pyadjoint">
 <h1>Pyadjoint<a class="headerlink" href="#pyadjoint" title="Permalink to this heading"></a></h1>
 <p><a class="reference external" href="https://github.com/adjtomo/pyadjoint">Pyadjoint</a> is an open-source Python
-package for calculating time-dependent time series misfit, offering a number of
-different misfit functions. It was designed to generate adjoint sources for
-full waveform inversion and adjoint tomography.</p>
+package for calculating time-dependent misfit with a variety of misfit
+functions. It was designed to generate adjoint sources for full waveform
+inversion and adjoint tomography.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>We recommend Pyadjoint within the larger misfit quantification package
-<a class="reference external" href="https://github.com/adjtomo/pyatoa">Pyatoa</a>, as opposed to standalone.</p>
+<p>Although it can be used standalone, we recommend using Pyadjoint within
+the larger misfit quantification package
+<a class="reference external" href="https://github.com/adjtomo/pyatoa">Pyatoa</a>.</p>
 </div>
 <p>Pyadjoint is hosted on <a class="reference external" href="https://github.com/adjtomo/pyadjoint">GitHub</a> as
 part of the <a class="reference external" href="https://github.com/adjtomo">adjTomo organization</a>.</p>
-<p>Have a look at the <a class="reference external" href="usage.html">Pyadjoint usage</a> page to learn how
-Pyadjoint is used. Browse available adjoint sources using the navigation bar.</p>
+<p>Have a look at the <a class="reference external" href="usage.html">Pyadjoint usage</a> page to get started, and
+browse available adjoint sources using the navigation bar.</p>
 <hr class="docutils" />
 <section id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this heading"></a></h2>
-<p>It is recommended that Pyadjoint be installed inside a <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a> environment.
-The <code class="docutils literal notranslate"><span class="pre">devel</span></code> branch provides the latest codebase.</p>
+<p>We recommend Pyadjoint be installed inside a <a class="reference external" href="https://docs.conda.io/en/latest/">Conda</a> environment.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/adjtomo/pyadjoint.git
 <span class="nb">cd</span> pyadjoint
 conda env create -n pyadjoint
@@ -265,6 +266,7 @@ conda install obspy
 pip install -e .
 </pre></div>
 </div>
+<hr class="docutils" />
 <section id="running-tests">
 <h3>Running Tests<a class="headerlink" href="#running-tests" title="Permalink to this heading"></a></h3>
 <p>Tests ensure Pyadjoint runs as expected after changes are made to the source

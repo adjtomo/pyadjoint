@@ -30,7 +30,7 @@ Functions
 
 
 
-.. py:function:: calculate_adjoint_source(observed, synthetic, config, windows, choice=None, observed_2=None, synthetic_2=None, windows_2=None)
+.. py:function:: calculate_adjoint_source(observed, synthetic, config, windows, observed_2=None, synthetic_2=None, windows_2=None)
 
    Calculate adjoint source for the cross-correlation traveltime misfit
    measurement
@@ -44,13 +44,7 @@ Functions
    :type windows: list of tuples
    :param windows: [(left, right),...] representing left and right window
        borders to be used to calculate misfit and adjoint sources
-   :type choice: str
-   :param choice: Flag to turn on station pair calculations. Requires
-       `observed_2`, `synthetic_2`, `windows_2`. Available:
-       - 'double_difference': Double difference waveform misfit from
-           Yuan et al. 2016
-       - 'convolved': Waveform convolution misfit from Choi & Alkhalifah (2011)
-       :type observed_2: obspy.core.trace.Trace
+   :type observed_2: obspy.core.trace.Trace
    :param observed_2: second observed waveform to calculate adjoint sources
        from station pairs
    :type synthetic_2:  obspy.core.trace.Trace

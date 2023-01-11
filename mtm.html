@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -242,12 +243,11 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Please refer to <a class="reference internal" href="citations.html#laske1996" id="id1"><span>[Laske1996]</span></a> for a more rigorous mathematical
-derivation of this misfit function. This documentation page only serves to
-summarize the math for the purpose of explaining the underlying code.</p>
+derivation of this misfit function.</p>
 </div>
 <p>The misfit <span class="math notranslate nohighlight">\(\chi_P(\mathbf{m})\)</span> measures frequency-dependent phase
 differences estimated with multitaper methods. For a given Earth model
-<span class="math notranslate nohighlight">\(\mathbf{m}\)</span>chi_P(mathbf{m})` is given by</p>
+<span class="math notranslate nohighlight">\(\mathbf{m}\)</span> and a single receiver, <span class="math notranslate nohighlight">\(\chi_P(\mathbf{m})\)</span> is given by</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\chi_P (\mathbf{m}) = \frac{1}{2} \int_0^W  W_P(w) \left|
@@ -257,8 +257,8 @@ differences estimated with multitaper methods. For a given Earth model
 <p><span class="math notranslate nohighlight">\(\tau^\mathbf{d}(w)\)</span> is the frequency-dependent
 phase measurement of the observed data;
 <span class="math notranslate nohighlight">\(\tau^\mathbf{s}(w, \mathbf{m})\)</span> the frequency-dependent
-phase measurement of the synthetic data.
-The function <span class="math notranslate nohighlight">\(W_P(w)\)</span> denotes frequency-domain
+phase measurement of the synthetic data.</p>
+<p>The function <span class="math notranslate nohighlight">\(W_P(w)\)</span> denotes frequency-domain
 taper corresponding to the frequency range over which
 the measurements are assumed reliable.
 <span class="math notranslate nohighlight">\(\sigma_P(w)\)</span> is associated with the
@@ -268,7 +268,7 @@ or Jackknife multitaper approach.</p>
 <p>The adjoint source for the same receiver is given by</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[f_P^{\dagger}(t) = \sum_k h_k(t)P_j(t)\]</div>
+\[f_P^{\dagger}(t) = \sum_k h_k(t)P_j(t),\]</div>
 </div>
 <p>in which <span class="math notranslate nohighlight">\(h_k(t)\)</span> is one (the <span class="math notranslate nohighlight">\(k\)</span> th) of multi-tapers.</p>
 <div class="math-wrapper docutils container">
@@ -280,17 +280,21 @@ p_j(w) = \frac{iw s_j}{\sum_k(iw s_k)(iw s_k)^*} \\
 </div>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
-<p>The following code snippets illustrates the basic usage of the multitaper
-misfit function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="s2">&quot;multitaper&quot;</span>
+</pre></div>
+</div>
+<p>The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+<a class="reference external" href="autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigMultitaper">Config</a>
+object for additional configuration parameters.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyadjoint</span>
 
 <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
 <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;multitaper_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
-                              <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span> <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-                              <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;cos&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;multitaper&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
+                              <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">)</span>
 
 <span class="n">adj_src</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
                                              <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>

@@ -7,6 +7,10 @@
 
    Configuration object for Pyadjoint.
 
+   To add new adjoint sources, you will need to
+   add a name, function and config to `ADJSRC_TYPES`, `get_config` and
+   `get_function`, respectively.
+
    :authors:
        adjTomo Dev Team (adjtomo@gmail.com), 2022
        Youyi Ruan (youyir@princeton.edu), 2016
@@ -38,8 +42,22 @@ Functions
 .. autoapisummary::
 
    pyadjoint.config.get_config
+   pyadjoint.config.get_function
 
 
+
+Attributes
+~~~~~~~~~~
+
+.. autoapisummary::
+
+   pyadjoint.config.ADJSRC_TYPES
+
+
+.. py:data:: ADJSRC_TYPES
+   :annotation: = ['waveform', 'convolution', 'exponentiated_phase', 'cc_traveltime', 'multitaper', 'waveform_dd',...
+
+   
 
 .. py:function:: get_config(adjsrc_type, min_period, max_period, **kwargs)
 
@@ -48,7 +66,20 @@ Functions
    parameters
 
 
-.. py:class:: ConfigWaveform(min_period, max_period, taper_type='hann', taper_percentage=0.3)
+.. py:function:: get_function(adjsrc_type)
+
+   Wrapper for getting the correct adjoint source function based on the
+   `adjsrc_type`. Many adjoint sources share functions with different flags
+   so this function takes care of the logic of choosing which.
+
+   :type adjsrc_type: str
+   :param adjsrc_type: choice of adjoint source
+   :rtype: function
+   :return: calculate_adjoint_source function for the correct adjoint source
+       type
+
+
+.. py:class:: ConfigWaveform(min_period, max_period, taper_type='hann', taper_percentage=0.3, double_difference=False)
 
    Waveform misfit function required parameters
 
@@ -57,15 +88,19 @@ Functions
    :param max_period: Maximum period of the filtered input data in seconds.
    :type max_period: float
    :param taper_percentage: Percentage of a time window needs to be
-   tapered at two ends, to remove the non-zero values for adjoint
-   source and for fft.
+       tapered at two ends, to remove the non-zero values for adjoint
+       source and for fft.
    :type taper_percentage: float
-   :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-       for a list of available taper types
+   :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+       list for available taper types
    :type taper_type: str
+   :type double_difference: bool
+   :param double_difference: flag to turn on double difference measurements,
+       which signals to the main calc function whether additional waveforms
+       are required at input
 
 
-.. py:class:: ConfigExponentiatedPhase(min_period, max_period, taper_type='hann', taper_percentage=0.3, wtr_env=0.2)
+.. py:class:: ConfigExponentiatedPhase(min_period, max_period, taper_type='hann', taper_percentage=0.3, wtr_env=0.2, double_difference=False)
 
    Exponentiated Phase misfit function required parameters
 
@@ -77,14 +112,18 @@ Functions
        tapered at two ends, to remove the non-zero values for adjoint
        source and for fft.
    :type taper_percentage: float
-   :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-       for a list of available taper types
+   :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+       list for available taper types
    :type taper_type: str
    :param wtr_env: float
    :param wtr_env: window taper envelope amplitude scaling
+   :type double_difference: bool
+   :param double_difference: flag to turn on double difference measurements,
+       which signals to the main calc function whether additional waveforms
+       are required at input
 
 
-.. py:class:: ConfigCCTraveltime(min_period, max_period, taper_type='hann', taper_percentage=0.3, measure_type='dt', use_cc_error=True, dt_sigma_min=1.0, dlna_sigma_min=0.5)
+.. py:class:: ConfigCCTraveltime(min_period, max_period, taper_type='hann', taper_percentage=0.3, measure_type='dt', use_cc_error=True, dt_sigma_min=1.0, dlna_sigma_min=0.5, double_difference=False)
 
    Cross-correlation Traveltime misfit function required parameters
 
@@ -93,11 +132,11 @@ Functions
    :param max_period: Maximum period of the filtered input data in seconds.
    :type max_period: float
    :param taper_percentage: Percentage of a time window needs to be
-   tapered at two ends, to remove the non-zero values for adjoint
-   source and for fft.
+       tapered at two ends, to remove the non-zero values for adjoint
+       source and for fft.
    :type taper_percentage: float
-   :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-       for a list of available taper types
+   :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+       list for available taper types
    :type taper_type: str
    :param measure_type: measurement type used in calculation of misfit,
        dt(travel time), am(dlnA), wf(full waveform)
@@ -108,9 +147,13 @@ Functions
    :type dt_sigma_min: float
    :param dlna_sigma_min: minimum amplitude error allowed
    :type dlna_sigma_min: float
+   :type double_difference: bool
+   :param double_difference: flag to turn on double difference measurements,
+       which signals to the main calc function whether additional waveforms
+       are required at input
 
 
-.. py:class:: ConfigMultitaper(min_period, max_period, lnpt=15, transfunc_waterlevel=1e-10, water_threshold=0.02, ipower_costaper=10, min_cycle_in_window=0.5, taper_type='hann', taper_percentage=0.3, mt_nw=4.0, num_taper=5, dt_fac=2.0, phase_step=1.5, err_fac=2.5, dt_max_scale=3.5, measure_type='dt', dt_sigma_min=1.0, dlna_sigma_min=0.5, use_cc_error=True, use_mt_error=False)
+.. py:class:: ConfigMultitaper(min_period, max_period, lnpt=15, transfunc_waterlevel=1e-10, water_threshold=0.02, ipower_costaper=10, min_cycle_in_window=0.5, taper_type='hann', taper_percentage=0.3, mt_nw=4.0, num_taper=5, dt_fac=2.0, phase_step=1.5, err_fac=2.5, dt_max_scale=3.5, measure_type='dt', dt_sigma_min=1.0, dlna_sigma_min=0.5, use_cc_error=True, use_mt_error=False, double_difference=False)
 
    Multitaper misfit function required parameters
 
@@ -119,11 +162,11 @@ Functions
    :param max_period: Maximum period of the filtered input data in seconds.
    :type max_period: float
    :param taper_percentage: Percentage of a time window needs to be
-   tapered at two ends, to remove the non-zero values for adjoint
-   source and for fft.
+       tapered at two ends, to remove the non-zero values for adjoint
+       source and for fft.
    :type taper_percentage: float
-   :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-       for a list of available taper types
+   :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+       list for available taper types
    :type taper_type: str
    :param measure_type: measurement type used in calculation of misfit,
        dt(travel time), am(dlnA), wf(full waveform)
@@ -168,5 +211,9 @@ Functions
    :type dt_max_scale: float
    :param phase_step: maximum step for cycle skip correction (?)
    :type phase_step: float
+   :type double_difference: bool
+   :param double_difference: flag to turn on double difference measurements,
+       which signals to the main calc function whether additional waveforms
+       are required at input
 
 

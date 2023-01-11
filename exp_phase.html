@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -242,13 +243,12 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Please refer to the original paper <a class="reference internal" href="citations.html#yuan2020" id="id1"><span>[Yuan2020]</span></a> for rigorous mathematical
-derivations of this misfit function. This documentation page only serves to
-summarize their results for the purpose of explaining the underlying code.</p>
+derivations of this misfit function.</p>
 </div>
-<p>The exponentiated phase misfit, defined in <a class="reference internal" href="citations.html#yuan2020" id="id2"><span>[Yuan2020]</span></a>, measures misfit
+<p>The exponentiated phase misfit measures misfit
 using a complex-valued phase representation that is a good substitute for
-instantaneous-phase measurements, which suffer from phase wrapping.</p>
-<p>Exponentiated phase misfit measure the difference between observed and the
+instantaneous-phase measurements, which can suffer from phase wrapping.</p>
+<p>The exponentiated phase misfit measures the difference between observed and the
 synthetic normalized analytic signals. The misfit <span class="math notranslate nohighlight">\(\chi(\mathbf{m})\)</span> for
 a given Earth model <span class="math notranslate nohighlight">\(\mathbf{m}\)</span> and a single receiver and component is
 given by</p>
@@ -258,23 +258,24 @@ given by</p>
 \frac{1}{2} \int_0^T \left[ \left\Vert \Delta R(t)\right\Vert^2 -
 \left\Vert\Delta I(t)\right\Vert^2 \right]dt,\]</div>
 </div>
-<p>where <span class="math notranslate nohighlight">\(\Delta R(t)\)</span>, the difference in the real parts is:</p>
+<p>where</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\Delta R(t) = \frac{d(t)}{E_d(t)} - \frac{s(t)}{E_s(t)},\]</div>
 </div>
-<p>and <span class="math notranslate nohighlight">\(\Delta I(t)\)</span>, the difference in the imaginary parts:</p>
+<p>is the difference in the real parts of the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html">Hilbert transform</a>, and</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[\Delta I(t) = \frac{\mathcal{H}\{d(t)\}}{E_d(t)} -
-\frac{\mathcal{H}\{s(t)\}}{E_s(t)}.\]</div>
+\frac{\mathcal{H}\{s(t)\}}{E_s(t)}\]</div>
 </div>
-<p>Above, <span class="math notranslate nohighlight">\(\mathcal{H}\)</span> represents the <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.hilbert.html">Hilbert transform</a>
-of the signal in the curly braces, and <span class="math notranslate nohighlight">\(E_s\)</span> and <span class="math notranslate nohighlight">\(E_d\)</span> represent the
-instantaneous phase of synthetics and data, respectively:</p>
+<p>is the difference in the imaginary parts of the Hilbert transform.</p>
+<p>Above, <span class="math notranslate nohighlight">\(\mathcal{H}\)</span> represents the Hilbert transform and <span class="math notranslate nohighlight">\(E_s\)</span>
+and <span class="math notranslate nohighlight">\(E_d\)</span> represent the instantaneous phase of synthetics and data,
+respectively,</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
-\[ \begin{align}\begin{aligned}E_s(t) = \sqrt{s^2(t) + \mathcal{H}^2\{s(t)\}}\\E_d(t) = \sqrt{d^2(t) + \mathcal{H}^2\{d(t)\}}\end{aligned}\end{align} \]</div>
+\[ \begin{align}\begin{aligned}E_s(t) = \sqrt{s^2(t) + \mathcal{H}^2\{s(t)\}}\\E_d(t) = \sqrt{d^2(t) + \mathcal{H}^2\{d(t)\}}.\end{aligned}\end{align} \]</div>
 </div>
 <p>The adjoint source for the exponentiated phase misfit function for a given
 receiver and component is given by:</p>
@@ -293,19 +294,24 @@ receiver and component is given by:</p>
 <p class="admonition-title">Note</p>
 <p>For the sake of simplicity we omit the spatial Kronecker delta and define
 the adjoint source as acting solely at the receiver’s location. For more
-details, please see <a class="reference internal" href="citations.html#tromp2005" id="id3"><span>[Tromp2005]</span></a> and <a class="reference internal" href="citations.html#yuan2020" id="id4"><span>[Yuan2020]</span></a>.</p>
+details, please see <a class="reference internal" href="citations.html#tromp2005" id="id2"><span>[Tromp2005]</span></a> and <a class="reference internal" href="citations.html#yuan2020" id="id3"><span>[Yuan2020]</span></a>.</p>
 </div>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
-<p>The following code snippets illustrates the basic usage of the cross correlation
-traveltime misfit function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="s2">&quot;exponentiated_phase&quot;</span>
+</pre></div>
+</div>
+<p>The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+<a class="reference external" href="autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigExponentiatedPhase">Config</a>
+object for additional configuration parameters.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyadjoint</span>
 
 <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
 <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;exponentiated_phase_misfit&quot;</span><span class="p">,</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;exponentiated_phase&quot;</span><span class="p">,</span>
                               <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span>
                               <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;cos&quot;</span><span class="p">)</span>
 

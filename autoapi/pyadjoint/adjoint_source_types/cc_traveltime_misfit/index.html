@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../citations.html">Citations</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../../../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -270,7 +271,7 @@ Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48
 </div>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyadjoint.adjoint_source_types.cc_traveltime_misfit.calculate_adjoint_source">
-<span class="sig-prename descclassname"><span class="pre">pyadjoint.adjoint_source_types.cc_traveltime_misfit.</span></span><span class="sig-name descname"><span class="pre">calculate_adjoint_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pyadjoint/adjoint_source_types/cc_traveltime_misfit.html#calculate_adjoint_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.adjoint_source_types.cc_traveltime_misfit.calculate_adjoint_source" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.adjoint_source_types.cc_traveltime_misfit.</span></span><span class="sig-name descname"><span class="pre">calculate_adjoint_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pyadjoint/adjoint_source_types/cc_traveltime_misfit.html#calculate_adjoint_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.adjoint_source_types.cc_traveltime_misfit.calculate_adjoint_source" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate adjoint source for the cross-correlation traveltime misfit
 measurement</p>
 <dl class="field-list simple">
@@ -281,22 +282,7 @@ measurement</p>
 <li><p><strong>config</strong> (<a class="reference internal" href="../../config/index.html#pyadjoint.config.ConfigCCTraveltime" title="pyadjoint.config.ConfigCCTraveltime"><em>pyadjoint.config.ConfigCCTraveltime</em></a>) – Config class with parameters to control processing</p></li>
 <li><p><strong>windows</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><em>tuples</em>) – [(left, right),…] representing left and right window
 borders to be used to calculate misfit and adjoint sources</p></li>
-<li><p><strong>choice</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Flag to turn on station pair calculations. Requires
-<cite>observed_2</cite>, <cite>synthetic_2</cite>, <cite>windows_2</cite>. Available:
-- ‘double_difference’: Double difference waveform misfit from</p>
-<blockquote>
-<div><p>Yuan et al. 2016</p>
-</div></blockquote>
-<ul>
-<li><p>’convolved’: Waveform convolution misfit from Choi &amp; Alkhalifah (2011)</p></li>
-</ul>
-<dl class="field-list simple">
-<dt class="field-odd">type observed_2</dt>
-<dd class="field-odd"><p>obspy.core.trace.Trace</p>
-</dd>
-</dl>
-</p></li>
-<li><p><strong>observed_2</strong> – second observed waveform to calculate adjoint sources
+<li><p><strong>observed_2</strong> (<em>obspy.core.trace.Trace</em>) – second observed waveform to calculate adjoint sources
 from station pairs</p></li>
 <li><p><strong>synthetic_2</strong> (<em>obspy.core.trace.Trace</em>) – second synthetic waveform to calculate adjoint sources
 from station pairs</p></li>

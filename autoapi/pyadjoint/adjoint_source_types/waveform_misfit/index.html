@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../citations.html">Citations</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../../../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -239,13 +240,18 @@
         <article role="main">
           <section id="module-pyadjoint.adjoint_source_types.waveform_misfit">
 <span id="pyadjoint-adjoint-source-types-waveform-misfit"></span><h1><a class="reference internal" href="#module-pyadjoint.adjoint_source_types.waveform_misfit" title="pyadjoint.adjoint_source_types.waveform_misfit"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.adjoint_source_types.waveform_misfit</span></code></a><a class="headerlink" href="#module-pyadjoint.adjoint_source_types.waveform_misfit" title="Permalink to this heading"></a></h1>
-<p>Simple waveform misfit and adjoint source.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This file serves as the template for generation of new adjoint sources.
-Copy-paste file and adjust name, description and underlying calculation
-function to generate new adjoint source.</p>
-</div>
+<p>Simple waveform-based misfit and adjoint source. Contains options for
+‘waveform’ and ‘convolution’ misfit functions, as well as their double
+difference counterparts</p>
+<dl class="simple">
+<dt>This one function takes care of implementation for multiple misfit functions:</dt><dd><ul class="simple">
+<li><p>‘waveform’: Waveform misfit from <a class="reference internal" href="../../../../citations.html#tromp2005" id="id1"><span>[Tromp2005]</span></a></p></li>
+<li><p>‘convolution’: Waveform convolution misfit from <a class="reference internal" href="../../../../citations.html#choi2011" id="id2"><span>[Choi2011]</span></a></p></li>
+<li><p>‘waveform_dd’: Double difference waveform misfit from <a class="reference internal" href="../../../../citations.html#yuan2016" id="id3"><span>[Yuan2016]</span></a></p></li>
+<li><p>‘convolution_dd’: Double difference convolution misfit</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">authors</dt>
 <dd class="field-odd"><p>adjTomo Dev Team (<a class="reference external" href="mailto:adjtomo&#37;&#52;&#48;gmail&#46;com">adjtomo<span>&#64;</span>gmail<span>&#46;</span>com</a>), 2023
@@ -275,7 +281,7 @@ Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48
 </div>
 <dl class="py function">
 <dt class="sig sig-object py" id="pyadjoint.adjoint_source_types.waveform_misfit.calculate_adjoint_source">
-<span class="sig-prename descclassname"><span class="pre">pyadjoint.adjoint_source_types.waveform_misfit.</span></span><span class="sig-name descname"><span class="pre">calculate_adjoint_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">choice</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'waveform'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pyadjoint/adjoint_source_types/waveform_misfit.html#calculate_adjoint_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.adjoint_source_types.waveform_misfit.calculate_adjoint_source" title="Permalink to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.adjoint_source_types.waveform_misfit.</span></span><span class="sig-name descname"><span class="pre">calculate_adjoint_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">observed</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observed_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">synthetic_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pyadjoint/adjoint_source_types/waveform_misfit.html#calculate_adjoint_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.adjoint_source_types.waveform_misfit.calculate_adjoint_source" title="Permalink to this definition"></a></dt>
 <dd><p>Calculate adjoint source for the waveform-based misfit measurements.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -286,13 +292,6 @@ Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48
 <li><p><strong>windows</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.11)"><em>list</em></a><em> of </em><em>tuples</em>) – [(left, right),…] representing left and right window
 borders to be tapered in units of seconds since first sample in data
 array</p></li>
-<li><p><strong>choice</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – <p>Flag to turn on station pair calculations. Requires
-<cite>observed_2</cite>, <cite>synthetic_2</cite>, <cite>windows_2</cite>. Available:</p>
-<ul>
-<li><p>’double_difference’: Double difference waveform misfit from <a class="reference internal" href="../../../../citations.html#yuan2016" id="id1"><span>[Yuan2016]</span></a></p></li>
-<li><p>’convolution’: Waveform convolution misfit from <a class="reference internal" href="../../../../citations.html#choi2011" id="id2"><span>[Choi2011]</span></a></p></li>
-</ul>
-</p></li>
 <li><p><strong>observed_2</strong> (<em>obspy.core.trace.Trace</em>) – second observed waveform to calculate adjoint sources
 from station pairs</p></li>
 <li><p><strong>synthetic_2</strong> (<em>obspy.core.trace.Trace</em>) – second synthetic waveform to calculate adjoint sources

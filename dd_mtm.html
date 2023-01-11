@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Citations" href="citations.html" /><link rel="prev" title="Cross Correlation Traveltime Double Difference Misfit" href="dd_cctm.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Add a New Adjoint Source" href="new_adjsrc.html" /><link rel="prev" title="Cross Correlation Traveltime Double Difference Misfit" href="dd_cctm.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
         <title>Double Difference Multitaper Misfit - Pyadjoint documentation</title>
@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -239,30 +240,20 @@
         <article role="main">
           <section id="double-difference-multitaper-misfit">
 <h1>Double Difference Multitaper Misfit<a class="headerlink" href="#double-difference-multitaper-misfit" title="Permalink to this heading"></a></h1>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Double difference misfit functions, defined in <a class="reference internal" href="citations.html#yuan2016" id="id1"><span>[Yuan2016]</span></a>, construct misfit
-and adjoint sources from differential measurements between stations to reduce
-the influence of systematic errors from source and stations. ‘Differential’ is
-defined as “between pairs of stations, from a common source”.</p>
-</div>
 <p>Due to the length and complexity of the equations for double difference
-multitaper misfit, please see <a class="reference internal" href="citations.html#yuan2016" id="id2"><span>[Yuan2016]</span></a> Appendix A1 and A2 for the
-mathematical expressions that define misfit and adjoint source.</p>
+multitaper misfit, please see <a class="reference internal" href="citations.html#yuan2016" id="id1"><span>[Yuan2016]</span></a>
+(<a class="reference external" href="https://academic.oup.com/gji/article/206/3/1599/2583519">Link to paper</a>)
+Appendix sections A1 and A2 for the mathematical derivation and expresssions
+that define misfit and adjoint source.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
-<p>The following code snippets illustrates the basic usage of the double
-difference multitaper misfit function.</p>
-<p>Note that double difference implementations can take a set of windows for the
-second set of waveforms, independent of the first set of windows. Windows
-are compared in order, so both <code class="docutils literal notranslate"><span class="pre">windows</span></code> and <code class="docutils literal notranslate"><span class="pre">windows_2</span></code> need to be the same
-length.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>In the following code snippet, we use the ‘R’ component of the same station
-in liue of waveforms from a second station. In practice, the second set of
-waveforms should come from a completely different station.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="s2">&quot;multitaper_dd&quot;</span>
+</pre></div>
 </div>
+<p>The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+<a class="reference external" href="autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigMultitaper">Config</a>
+object for additional configuration parameters.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyadjoint</span>
 
 <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
@@ -273,15 +264,13 @@ waveforms should come from a completely different station.</p>
 <span class="n">obs_2</span> <span class="o">=</span> <span class="n">obs_2</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;R&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">syn_2</span> <span class="o">=</span> <span class="n">syn_2</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;R&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;multitaper_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
-                              <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span> <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
-                              <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;cos&quot;</span><span class="p">)</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;multitaper_dd&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
+                              <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">)</span>
 
 <span class="c1"># Calculating double-difference adjoint source returns two adjoint sources</span>
 <span class="n">adj_src</span><span class="p">,</span> <span class="n">adj_src_2</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[(</span><span class="mf">800.</span><span class="p">,</span> <span class="mf">900.</span><span class="p">)],</span>
-    <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;double_difference&quot;</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span>
-    <span class="n">windows_2</span><span class="o">=</span><span class="p">[(</span><span class="mf">800.</span><span class="p">,</span> <span class="mf">900.</span><span class="p">)]</span>
+    <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span> <span class="n">windows_2</span><span class="o">=</span><span class="p">[(</span><span class="mf">800.</span><span class="p">,</span> <span class="mf">900.</span><span class="p">)]</span>
     <span class="p">)</span>
 </pre></div>
 </div>
@@ -293,12 +282,12 @@ waveforms should come from a completely different station.</p>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="citations.html">
+          <a class="next-page" href="new_adjsrc.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">Citations</div>
+                <div class="title">Add a New Adjoint Source</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

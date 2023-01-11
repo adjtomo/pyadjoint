@@ -176,6 +176,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -238,12 +239,15 @@
           <h1>Source code for pyadjoint.adjoint_source_types.waveform_misfit</h1><div class="highlight"><pre>
 <span></span><span class="ch">#!/usr/bin/env python3</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Simple waveform misfit and adjoint source.</span>
+<span class="sd">Simple waveform-based misfit and adjoint source. Contains options for</span>
+<span class="sd">&#39;waveform&#39; and &#39;convolution&#39; misfit functions, as well as their double</span>
+<span class="sd">difference counterparts</span>
 
-<span class="sd">.. note::</span>
-<span class="sd">    This file serves as the template for generation of new adjoint sources.</span>
-<span class="sd">    Copy-paste file and adjust name, description and underlying calculation</span>
-<span class="sd">    function to generate new adjoint source.</span>
+<span class="sd">This one function takes care of implementation for multiple misfit functions:</span>
+<span class="sd">    - &#39;waveform&#39;: Waveform misfit from [Tromp2005]_</span>
+<span class="sd">    - &#39;convolution&#39;: Waveform convolution misfit from [Choi2011]_</span>
+<span class="sd">    - &#39;waveform_dd&#39;: Double difference waveform misfit from [Yuan2016]_</span>
+<span class="sd">    - &#39;convolution_dd&#39;: Double difference convolution misfit</span>
 
 <span class="sd">:authors:</span>
 <span class="sd">    adjTomo Dev Team (adjtomo@gmail.com), 2023</span>
@@ -259,8 +263,7 @@
 
 
 <div class="viewcode-block" id="calculate_adjoint_source"><a class="viewcode-back" href="../../../autoapi/pyadjoint/adjoint_source_types/waveform_misfit/index.html#pyadjoint.adjoint_source_types.waveform_misfit.calculate_adjoint_source">[docs]</a><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">windows</span><span class="p">,</span>
-                             <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                             <span class="n">synthetic_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">windows_2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                             <span class="n">observed_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">windows_2</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate adjoint source for the waveform-based misfit measurements.</span>
 
@@ -274,12 +277,6 @@
 <span class="sd">    :param windows: [(left, right),...] representing left and right window</span>
 <span class="sd">        borders to be tapered in units of seconds since first sample in data</span>
 <span class="sd">        array</span>
-<span class="sd">    :type choice: str</span>
-<span class="sd">    :param choice: Flag to turn on station pair calculations. Requires</span>
-<span class="sd">        `observed_2`, `synthetic_2`, `windows_2`. Available:</span>
-
-<span class="sd">        - &#39;double_difference&#39;: Double difference waveform misfit from [Yuan2016]_</span>
-<span class="sd">        - &#39;convolution&#39;: Waveform convolution misfit from [Choi2011]_</span>
 <span class="sd">    :type observed_2: obspy.core.trace.Trace</span>
 <span class="sd">    :param observed_2: second observed waveform to calculate adjoint sources</span>
 <span class="sd">        from station pairs</span>
@@ -294,9 +291,19 @@
     <span class="k">assert</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;ConfigWaveform&quot;</span><span class="p">),</span> \
         <span class="s2">&quot;Incorrect configuration class passed to Waveform misfit&quot;</span>
 
-    <span class="n">choices</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution&quot;</span><span class="p">,</span> <span class="s2">&quot;waveform_dd&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution_dd&quot;</span><span class="p">]</span>
-    <span class="k">assert</span> <span class="n">choice</span> <span class="ow">in</span> <span class="n">choices</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;`choice` must be in </span><span class="si">{</span><span class="n">choices</span><span class="si">}</span><span class="s2">, not </span><span class="si">{</span><span class="n">choice</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;performing waveform caluclation with choice: `</span><span class="si">{</span><span class="n">choice</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+    <span class="n">adjsrc_types</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution&quot;</span><span class="p">,</span> <span class="s2">&quot;waveform_dd&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution_dd&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="n">adjsrc_types</span><span class="p">,</span> \
+        <span class="sa">f</span><span class="s2">&quot;`config.adjsrc_type` must be in </span><span class="si">{</span><span class="n">adjsrc_types</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;performing misfit caluclation with adjoint source type: &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;`</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span><span class="si">}</span><span class="s2">`&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="p">[</span><span class="n">observed_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="p">,</span> <span class="n">windows_2</span><span class="p">]:</span>
+            <span class="k">assert</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="p">(</span>
+                <span class="s2">&quot;Double difference measurements require a second set of &quot;</span>
+                <span class="s2">&quot;waveforms and windows (`observed_2`, `synthetic_2`, &quot;</span>
+                <span class="s2">&quot;`windows_2`)&quot;</span>
+            <span class="p">)</span>
 
     <span class="c1"># Dictionary of values to be used to fill out the adjoint source class</span>
     <span class="n">ret_val</span> <span class="o">=</span> <span class="p">{}</span>
@@ -311,7 +318,7 @@
     <span class="n">misfit_sum</span> <span class="o">=</span> <span class="mf">0.0</span>
 
     <span class="c1"># Sets up for double difference misfit types</span>
-    <span class="k">if</span> <span class="s2">&quot;dd&quot;</span> <span class="ow">in</span> <span class="n">choice</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
         <span class="n">adj_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">nlen_data</span><span class="p">)</span>
 
     <span class="c1"># Loop over time windows and calculate misfit for each window range</span>
@@ -333,7 +340,7 @@
 
         <span class="c1"># Prepare double difference waveforms if requested.</span>
         <span class="c1"># Repeat the steps above for second set of waveforms</span>
-        <span class="k">if</span> <span class="s2">&quot;dd&quot;</span> <span class="ow">in</span> <span class="n">choice</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
             <span class="n">left_sample_2</span><span class="p">,</span> <span class="n">right_sample_2</span><span class="p">,</span> <span class="n">nlen_2</span> <span class="o">=</span> \
                 <span class="n">get_window_info</span><span class="p">(</span><span class="n">windows_2</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">dt</span><span class="p">)</span>
 
@@ -351,10 +358,10 @@
                          <span class="n">taper_type</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">taper_type</span><span class="p">)</span>
 
             <span class="c1"># Diff the two sets of waveforms</span>
-            <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;waveform_dd&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">==</span> <span class="s2">&quot;waveform_dd&quot;</span><span class="p">:</span>
                 <span class="n">diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span> <span class="o">-</span> <span class="n">s_2</span><span class="p">)</span> <span class="o">-</span> <span class="p">(</span><span class="n">d</span> <span class="o">-</span> <span class="n">d_2</span><span class="p">)</span>
             <span class="c1"># Convolve the two sets of waveforms</span>
-            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;convolution_dd&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">==</span> <span class="s2">&quot;convolution_dd&quot;</span><span class="p">:</span>
                 <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">d_2</span><span class="p">,</span> <span class="s2">&quot;same&quot;</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">s_2</span><span class="p">,</span> <span class="s2">&quot;same&quot;</span><span class="p">)</span>
             <span class="c1"># Check at the top of function should avoid this</span>
             <span class="k">else</span><span class="p">:</span>
@@ -362,10 +369,10 @@
         <span class="c1"># Addressing a single set of waveforms</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Convolve the two waveforms</span>
-            <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;convolution&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">==</span> <span class="s2">&quot;convolution&quot;</span><span class="p">:</span>
                 <span class="n">diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">d</span><span class="p">,</span> <span class="s2">&quot;same&quot;</span><span class="p">)</span>
             <span class="c1"># Difference the two waveforms</span>
-            <span class="k">elif</span> <span class="n">choice</span> <span class="o">==</span> <span class="s2">&quot;waveform&quot;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">==</span> <span class="s2">&quot;waveform&quot;</span><span class="p">:</span>
                 <span class="n">diff</span> <span class="o">=</span> <span class="n">s</span> <span class="o">-</span> <span class="n">d</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">NotImplementedError</span>
@@ -382,7 +389,7 @@
         <span class="c1"># Include some information about each window&#39;s total misfit,</span>
         <span class="c1"># since its already calculated</span>
         <span class="n">win_stats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">choice</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="n">left_sample</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">adjsrc_type</span><span class="p">,</span> <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="n">left_sample</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span>
              <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="n">right_sample</span> <span class="o">*</span> <span class="n">dt</span><span class="p">,</span> <span class="s2">&quot;misfit&quot;</span><span class="p">:</span> <span class="n">misfit_win</span><span class="p">,</span>
              <span class="s2">&quot;difference&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">diff</span><span class="p">)}</span>
         <span class="p">)</span>
@@ -390,7 +397,7 @@
 
         <span class="c1"># If doing differential measurements, add some information about</span>
         <span class="c1"># second set of waveforms</span>
-        <span class="k">if</span> <span class="s2">&quot;dd&quot;</span> <span class="ow">in</span> <span class="n">choice</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
             <span class="n">win_stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;right_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">right_sample_2</span> <span class="o">*</span> <span class="n">dt</span>
             <span class="n">win_stats</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s2">&quot;left_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">left_sample_2</span> <span class="o">*</span> <span class="n">dt</span>
             <span class="n">adj_2</span><span class="p">[</span><span class="n">left_sample_2</span><span class="p">:</span> <span class="n">right_sample_2</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="n">diff</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">nlen_2</span><span class="p">]</span>
@@ -399,7 +406,7 @@
     <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;misfit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">misfit_sum</span>
     <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;window_stats&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">win_stats</span>
     <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;adjoint_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">adj</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="k">if</span> <span class="s2">&quot;dd&quot;</span> <span class="ow">in</span> <span class="n">choice</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">double_difference</span><span class="p">:</span>
         <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;adjoint_source_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">adj_2</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">ret_val</span></div>

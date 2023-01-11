@@ -1,11 +1,11 @@
 Waveform Misfit
 ===============
 
+
 .. warning::
 
     Please refer to the original paper [Tromp2005]_ for rigorous mathematical
-    derivations of this misfit function. This documentation page only serves to
-    summarize their results for the purpose of explaining the underlying code.
+    derivations of this misfit function.
 
 This is the simplest of all misfits and is defined as the squared difference
 between observed and synthetic data.
@@ -36,15 +36,21 @@ The adjoint source for the same receiver and component is given by
 
 .. note::
 
-    This particular implementation here uses
+    This particular implementation uses
     `Simpson's rule <http://en.wikipedia.org/wiki/Simpson's_rule>`_
     to evaluate the definite integral.
 
 Usage
 `````
 
-The following code snippets illustrates the basic usage of the waveform
-misfit function.
+::
+
+    adjsrc_type = "waveform"
+
+The following code snippet illustrates the basic usage of the waveform
+misfit function. See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigWaveform>`__
+object for additional configuration parameters.
 
 .. code:: python
 
@@ -54,11 +60,10 @@ misfit function.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
-                                  max_period=100., taper_percentage=0.3,
-                                  taper_type="cos")
+    config = pyadjoint.get_config(adjsrc_type="waveform", min_period=20.,
+                                  max_period=100.)
 
-    adj_src = pyadjoint.calculate_adjoint_source(config=config, choice="waveform",
+    adj_src = pyadjoint.calculate_adjoint_source(config=config,
                                                  observed=obs, synthetic=syn,
                                                  windows=[(800., 900.)]
                                                  )

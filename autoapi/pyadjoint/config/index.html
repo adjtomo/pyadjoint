@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citations.html">Citations</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -240,6 +241,9 @@
           <section id="module-pyadjoint.config">
 <span id="pyadjoint-config"></span><h1><a class="reference internal" href="#module-pyadjoint.config" title="pyadjoint.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.config</span></code></a><a class="headerlink" href="#module-pyadjoint.config" title="Permalink to this heading"></a></h1>
 <p>Configuration object for Pyadjoint.</p>
+<p>To add new adjoint sources, you will need to
+add a name, function and config to <cite>ADJSRC_TYPES</cite>, <cite>get_config</cite> and
+<cite>get_function</cite>, respectively.</p>
 <dl class="field-list simple">
 <dt class="field-odd">authors</dt>
 <dd class="field-odd"><p>adjTomo Dev Team (<a class="reference external" href="mailto:adjtomo&#37;&#52;&#48;gmail&#46;com">adjtomo<span>&#64;</span>gmail<span>&#46;</span>com</a>), 2022
@@ -290,9 +294,33 @@ Lion Krischer (<a class="reference external" href="mailto:krischer&#37;&#52;&#48
 <tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.config.get_config" title="pyadjoint.config.get_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_config</span></code></a>(adjsrc_type, min_period, max_period, **kwargs)</p></td>
 <td><p>Defines two common parameters for all configuration objects and then</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyadjoint.config.get_function" title="pyadjoint.config.get_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_function</span></code></a>(adjsrc_type)</p></td>
+<td><p>Wrapper for getting the correct adjoint source function based on the</p></td>
+</tr>
 </tbody>
 </table>
 </div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h3>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.config.ADJSRC_TYPES" title="pyadjoint.config.ADJSRC_TYPES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ADJSRC_TYPES</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py data">
+<dt class="sig sig-object py" id="pyadjoint.config.ADJSRC_TYPES">
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ADJSRC_TYPES</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">['waveform',</span> <span class="pre">'convolution',</span> <span class="pre">'exponentiated_phase',</span> <span class="pre">'cc_traveltime',</span> <span class="pre">'multitaper',</span> <span class="pre">'waveform_dd',...</span></em><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ADJSRC_TYPES"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ADJSRC_TYPES" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="pyadjoint.config.get_config">
 <span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjsrc_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#get_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.get_config" title="Permalink to this definition"></a></dt>
@@ -301,33 +329,51 @@ reassigns self to a sub Config class which dictates its own required
 parameters</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="pyadjoint.config.get_function">
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">get_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">adjsrc_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#get_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.get_function" title="Permalink to this definition"></a></dt>
+<dd><p>Wrapper for getting the correct adjoint source function based on the
+<cite>adjsrc_type</cite>. Many adjoint sources share functions with different flags
+so this function takes care of the logic of choosing which.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>adjsrc_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – choice of adjoint source</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>function</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>calculate_adjoint_source function for the correct adjoint source
+type</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="pyadjoint.config.ConfigWaveform">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ConfigWaveform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ConfigWaveform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ConfigWaveform" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ConfigWaveform</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double_difference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ConfigWaveform"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ConfigWaveform" title="Permalink to this definition"></a></dt>
 <dd><p>Waveform misfit function required parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>min_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Minimum period of the filtered input data in seconds.</p></li>
 <li><p><strong>max_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Maximum period of the filtered input data in seconds.</p></li>
-<li><p><strong>taper_percentage</strong> – Percentage of a time window needs to be</p></li>
+<li><p><strong>taper_percentage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Percentage of a time window needs to be
+tapered at two ends, to remove the non-zero values for adjoint
+source and for fft.</p></li>
+<li><p><strong>taper_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+list for available taper types</p></li>
+<li><p><strong>double_difference</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – flag to turn on double difference measurements,
+which signals to the main calc function whether additional waveforms
+are required at input</p></li>
 </ul>
 </dd>
-</dl>
-<p>tapered at two ends, to remove the non-zero values for adjoint
-source and for fft.
-:type taper_percentage: float
-:param taper_type: Taper type, see <cite>pyaadjoint.utils.TAPER_COLLECTION</cite></p>
-<blockquote>
-<div><p>for a list of available taper types</p>
-</div></blockquote>
-<dl class="field-list simple">
 </dl>
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyadjoint.config.ConfigExponentiatedPhase">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ConfigExponentiatedPhase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wtr_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ConfigExponentiatedPhase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ConfigExponentiatedPhase" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ConfigExponentiatedPhase</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wtr_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double_difference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ConfigExponentiatedPhase"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ConfigExponentiatedPhase" title="Permalink to this definition"></a></dt>
 <dd><p>Exponentiated Phase misfit function required parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -337,10 +383,13 @@ source and for fft.
 <li><p><strong>taper_percentage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Percentage of a time window needs to be
 tapered at two ends, to remove the non-zero values for adjoint
 source and for fft.</p></li>
-<li><p><strong>taper_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – Taper type, see <cite>pyaadjoint.utils.TAPER_COLLECTION</cite>
-for a list of available taper types</p></li>
+<li><p><strong>taper_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+list for available taper types</p></li>
 <li><p><strong>wtr_env</strong> – float</p></li>
 <li><p><strong>wtr_env</strong> – window taper envelope amplitude scaling</p></li>
+<li><p><strong>double_difference</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – flag to turn on double difference measurements,
+which signals to the main calc function whether additional waveforms
+are required at input</p></li>
 </ul>
 </dd>
 </dl>
@@ -348,33 +397,27 @@ for a list of available taper types</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyadjoint.config.ConfigCCTraveltime">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ConfigCCTraveltime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cc_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_sigma_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dlna_sigma_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ConfigCCTraveltime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ConfigCCTraveltime" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ConfigCCTraveltime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cc_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_sigma_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dlna_sigma_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double_difference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ConfigCCTraveltime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ConfigCCTraveltime" title="Permalink to this definition"></a></dt>
 <dd><p>Cross-correlation Traveltime misfit function required parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>min_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Minimum period of the filtered input data in seconds.</p></li>
 <li><p><strong>max_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Maximum period of the filtered input data in seconds.</p></li>
-<li><p><strong>taper_percentage</strong> – Percentage of a time window needs to be</p></li>
-</ul>
-</dd>
-</dl>
-<p>tapered at two ends, to remove the non-zero values for adjoint
-source and for fft.
-:type taper_percentage: float
-:param taper_type: Taper type, see <cite>pyaadjoint.utils.TAPER_COLLECTION</cite></p>
-<blockquote>
-<div><p>for a list of available taper types</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+<li><p><strong>taper_percentage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Percentage of a time window needs to be
+tapered at two ends, to remove the non-zero values for adjoint
+source and for fft.</p></li>
+<li><p><strong>taper_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+list for available taper types</p></li>
 <li><p><strong>measure_type</strong> – measurement type used in calculation of misfit,
 dt(travel time), am(dlnA), wf(full waveform)</p></li>
 <li><p><strong>measure_type</strong> – string</p></li>
 <li><p><strong>use_cc_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – use cross correlation errors for normalization</p></li>
 <li><p><strong>dt_sigma_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – minimum travel time error allowed</p></li>
 <li><p><strong>dlna_sigma_min</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – minimum amplitude error allowed</p></li>
+<li><p><strong>double_difference</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – flag to turn on double difference measurements,
+which signals to the main calc function whether additional waveforms
+are required at input</p></li>
 </ul>
 </dd>
 </dl>
@@ -382,27 +425,18 @@ dt(travel time), am(dlnA), wf(full waveform)</p></li>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="pyadjoint.config.ConfigMultitaper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ConfigMultitaper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lnpt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transfunc_waterlevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipower_costaper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cycle_in_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mt_nw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_taper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_fac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_fac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_max_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_sigma_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dlna_sigma_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cc_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mt_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ConfigMultitaper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ConfigMultitaper" title="Permalink to this definition"></a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyadjoint.config.</span></span><span class="sig-name descname"><span class="pre">ConfigMultitaper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_period</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lnpt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transfunc_waterlevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ipower_costaper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_cycle_in_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'hann'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">taper_percentage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mt_nw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_taper</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_fac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase_step</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">err_fac</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_max_scale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measure_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'dt'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dt_sigma_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dlna_sigma_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_cc_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_mt_error</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">double_difference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../_modules/pyadjoint/config.html#ConfigMultitaper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.config.ConfigMultitaper" title="Permalink to this definition"></a></dt>
 <dd><p>Multitaper misfit function required parameters</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>min_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Minimum period of the filtered input data in seconds.</p></li>
 <li><p><strong>max_period</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Maximum period of the filtered input data in seconds.</p></li>
-<li><p><strong>taper_percentage</strong> – Percentage of a time window needs to be</p></li>
-</ul>
-</dd>
-</dl>
-<p>tapered at two ends, to remove the non-zero values for adjoint
-source and for fft.
-:type taper_percentage: float
-:param taper_type: Taper type, see <cite>pyaadjoint.utils.TAPER_COLLECTION</cite></p>
-<blockquote>
-<div><p>for a list of available taper types</p>
-</div></blockquote>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
+<li><p><strong>taper_percentage</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – Percentage of a time window needs to be
+tapered at two ends, to remove the non-zero values for adjoint
+source and for fft.</p></li>
+<li><p><strong>taper_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+list for available taper types</p></li>
 <li><p><strong>measure_type</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.11)"><em>str</em></a>) – measurement type used in calculation of misfit,
 dt(travel time), am(dlnA), wf(full waveform)</p></li>
 <li><p><strong>use_cc_error</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – use cross correlation errors for normalization</p></li>
@@ -430,6 +464,9 @@ too large and MTM reverts to CCTM misfit</p></li>
 <li><p><strong>err_fac</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – percentange of error at which error is too large</p></li>
 <li><p><strong>dt_max_scale</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – used to calculate maximum allowable time shift</p></li>
 <li><p><strong>phase_step</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.11)"><em>float</em></a>) – maximum step for cycle skip correction (?)</p></li>
+<li><p><strong>double_difference</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.11)"><em>bool</em></a>) – flag to turn on double difference measurements,
+which signals to the main calc function whether additional waveforms
+are required at input</p></li>
 </ul>
 </dd>
 </dl>
@@ -479,13 +516,18 @@ too large and MTM reverts to CCTM misfit</p></li>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint.config</span></code></a><ul>
 <li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
 <li><a class="reference internal" href="#classes">Classes</a></li>
-<li><a class="reference internal" href="#functions">Functions</a><ul>
+<li><a class="reference internal" href="#functions">Functions</a></li>
+<li><a class="reference internal" href="#attributes">Attributes</a><ul>
+<li><a class="reference internal" href="#pyadjoint.config.ADJSRC_TYPES"><code class="docutils literal notranslate"><span class="pre">ADJSRC_TYPES</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.config.get_config"><code class="docutils literal notranslate"><span class="pre">get_config()</span></code></a></li>
+<li><a class="reference internal" href="#pyadjoint.config.get_function"><code class="docutils literal notranslate"><span class="pre">get_function()</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.config.ConfigWaveform"><code class="docutils literal notranslate"><span class="pre">ConfigWaveform</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.config.ConfigExponentiatedPhase"><code class="docutils literal notranslate"><span class="pre">ConfigExponentiatedPhase</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.config.ConfigCCTraveltime"><code class="docutils literal notranslate"><span class="pre">ConfigCCTraveltime</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.config.ConfigMultitaper"><code class="docutils literal notranslate"><span class="pre">ConfigMultitaper</span></code></a></li>
+<li><a class="reference internal" href="#pyadjoint.config.ADJSRC_TYPES">ADJSRC_TYPES</a></li>
 <li><a class="reference internal" href="#pyadjoint.config.get_config">get_config</a></li>
+<li><a class="reference internal" href="#pyadjoint.config.get_function">get_function</a></li>
 <li><a class="reference internal" href="#pyadjoint.config.ConfigWaveform">ConfigWaveform</a></li>
 <li><a class="reference internal" href="#pyadjoint.config.ConfigExponentiatedPhase">ConfigExponentiatedPhase</a></li>
 <li><a class="reference internal" href="#pyadjoint.config.ConfigCCTraveltime">ConfigCCTraveltime</a></li>

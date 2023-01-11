@@ -24,7 +24,7 @@ Functions
 
 
 
-.. py:function:: calculate_adjoint_source(observed, synthetic, config, windows, plot=False, plot_filename=None, choice=None, observed_2=None, synthetic_2=None, windows_2=None, **kwargs)
+.. py:function:: calculate_adjoint_source(observed, synthetic, config, windows, plot=False, plot_filename=None, observed_2=None, synthetic_2=None, windows_2=None, **kwargs)
 
    Central function of Pyadjoint used to calculate adjoint sources and misfit.
 
@@ -53,12 +53,6 @@ Functions
    :param plot_filename: If given, the plot of the adjoint source will be
        saved there. Only used if ``plot`` is ``True``.
    :type plot_filename: str
-   :type choice: str
-   :param choice: Flag to turn on station pair calculations. Requires
-       `observed_2`, `synthetic_2`, `windows_2`. Available:
-       - 'double_difference': Double difference waveform misfit from
-           Yuan et al. 2016
-       - 'convolved': Waveform convolution misfit from Choi & Alkhalifah (2011)
    :type observed_2: obspy.core.trace.Trace
    :param observed_2: second observed waveform to calculate adjoint sources
        from station pairs

@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -239,65 +240,61 @@
         <article role="main">
           <section id="usage">
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h1>
-<p>The first step is to import ObsPy and <code class="docutils literal notranslate"><span class="pre">Pyadjoint</span></code>.</p>
+<p>This page illustrates how to calculate misfit and generate adjoint sources
+using Pyadjoint. Pyadjoint is mainly dependent on
+<a class="reference external" href="https://docs.obspy.org/">ObsPy</a> for seismic data handling.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">obspy</span>
 <span class="kn">import</span> <span class="nn">pyadjoint</span>
 </pre></div>
 </div>
-<p><code class="docutils literal notranslate"><span class="pre">Pyadjoint</span></code> expects the data to be fully preprocessed thus both
-observed and synthetic data are expected to have exactly the same
-length, sampling rate, and spectral content.</p>
-<p><code class="docutils literal notranslate"><span class="pre">Pyadjoint</span></code> does not care about the actual components in question; it will
-use two traces and calculate misfit values and adjoint sources for them. To
-provide a familiar nomenclature we will always talk about observed and
-synthetic data even though the workflow is independent of what the data
-represents.</p>
+<p>Pyadjoint expects data to be fully preprocessed beforehand. Observed and
+synthetic data are expected to have exactly the same length, sampling rate, and
+spectral content. It is up to the User to input correctly formatted data.</p>
+<p>Pyadjoint is generic and does not care what traces are provided. Despite this,
+we will talk about traces as “observed” and “synthetic.”</p>
 <section id="example-data">
 <h2>Example Data<a class="headerlink" href="#example-data" title="Permalink to this heading"></a></h2>
-<p>The package comes with a helper function to get some example data used for
-illustrative and debugging purposes.</p>
+<p>The package comes with example data used for illustrative and debugging
+purposes. See the <a class="reference external" href="example_dataset.html">Example Dataset</a> page for an
+explanation of where this data came from.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
-<span class="c1"># Select the vertical components of both.</span>
+
+<span class="c1"># Pyadjoint requires individual components, not data streams</span>
+<span class="c1"># Data are available in R, T and Z components</span>
 <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 </pre></div>
 </div>
 </section>
+<hr class="docutils" />
 <section id="config">
 <h2>Config<a class="headerlink" href="#config" title="Permalink to this heading"></a></h2>
-<p>Each misfit function requires a corresponding <code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code>
-class to control optional processing parameters. The
-<a class="reference internal" href="autoapi/pyadjoint/config/index.html#pyadjoint.config.get_config" title="pyadjoint.config.get_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_config()</span></code></a> function provides a wrapper for grabbing
-the appropriate Config.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
+<p>Each misfit function requires a corresponding configuration class to control
+optional processing parameters. The <a class="reference internal" href="autoapi/pyadjoint/config/index.html#pyadjoint.config.get_config" title="pyadjoint.config.get_config"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_config()</span></code></a>
+function provides a wrapper for grabbing the appropriate Config object.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
                               <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A list of available adjoint source types can be found using the
-<a class="reference internal" href="autoapi/pyadjoint/index.html#pyadjoint.discover_adjoint_sources" title="pyadjoint.discover_adjoint_sources"><code class="xref py py-meth docutils literal notranslate"><span class="pre">discover_adjoint_sources()</span></code></a> function.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">discover_adjoint_sources</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-<span class="go">dict_keys([&#39;cc_traveltime_misfit&#39;, &#39;exponentiated_phase_misfit&#39;, &#39;multitaper_misfit&#39;, &#39;waveform_misfit&#39;])</span>
-</pre></div>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Some of these functions allow for modifiers such as the use of
-double difference measurements. See individual misfit function pages for
-options.</p>
-</div>
+<p>See the <a class="reference external" href="_modules/pyadjoint/config.html#ADJSRC_TYPES">adjoint source type list</a>
+for the definitive names of available adjoint sources (<code class="docutils literal notranslate"><span class="pre">adjsrc_type</span></code>).
+The navigation bar to the left also provides explanations of each adjoint source.</p>
 <p>Many types of adjoint sources have additional arguments that can be passed to
 it. See the <a class="reference internal" href="autoapi/pyadjoint/config/index.html#module-pyadjoint.config" title="pyadjoint.config"><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code></a> page for available keyword arguments
 and descriptions.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span>
                               <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span> <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                               <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;cos&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
-<section id="calculate-adjoint-source">
-<h2>Calculate Adjoint Source<a class="headerlink" href="#calculate-adjoint-source" title="Permalink to this heading"></a></h2>
+<hr class="docutils" />
+<section id="calculating-adjoint-sources">
+<h2>Calculating Adjoint Sources<a class="headerlink" href="#calculating-adjoint-sources" title="Permalink to this heading"></a></h2>
 <p>Essentially all of <code class="docutils literal notranslate"><span class="pre">Pyadjoint</span></code>’s functionality is accessed through its
-central <a class="reference internal" href="autoapi/pyadjoint/main/index.html#pyadjoint.main.calculate_adjoint_source" title="pyadjoint.main.calculate_adjoint_source"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_adjoint_source()</span></code></a> function.</p>
+central <a class="reference internal" href="autoapi/pyadjoint/main/index.html#pyadjoint.main.calculate_adjoint_source" title="pyadjoint.main.calculate_adjoint_source"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_adjoint_source()</span></code></a> function. This function
+takes the previously defined Config class, the observed and synthetic waveforms,
+and a list of time windows.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">adj_src</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
     <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
     <span class="c1"># Pass observed and synthetic data traces.</span>
@@ -307,7 +304,8 @@ central <a class="reference internal" href="autoapi/pyadjoint/main/index.html#py
     <span class="p">)</span>
 </pre></div>
 </div>
-<p>The function returns an <a class="reference internal" href="autoapi/pyadjoint/adjoint_source/index.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointSource</span></code></a> object.</p>
+<p>The function returns an <a class="reference internal" href="autoapi/pyadjoint/adjoint_source/index.html#pyadjoint.adjoint_source.AdjointSource" title="pyadjoint.adjoint_source.AdjointSource"><code class="xref py py-class docutils literal notranslate"><span class="pre">AdjointSource</span></code></a> object
+which has a number of useful attributes for understanding misfit.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">adj_src</span><span class="p">)</span>
 <span class="go">&#39;waveform_misfit&#39; Adjoint Source for channel MXZ at station SY.DBO</span>
 <span class="go">    misfit: 4.263e-11</span>
@@ -327,10 +325,64 @@ central <a class="reference internal" href="autoapi/pyadjoint/main/index.html#py
 <span class="go">[{&#39;type&#39;: &#39;waveform&#39;, &#39;left&#39;: 800.0, &#39;right&#39;: 901.0, &#39;misfit&#39;: 4.263067857359352e-11, &#39;difference&#39;: 1.519230269510467e-08}]</span>
 </pre></div>
 </div>
+<section id="time-windows">
+<h3>Time Windows<a class="headerlink" href="#time-windows" title="Permalink to this heading"></a></h3>
+<p>Time windows are typically used in misfit quantification to isolate portions
+of waveforms that include signals of interest.</p>
+<p>Individual time windows represent the start and end time (units: s) of a
+window in which to consider waveform misfit, and multiple overlapping time
+windows can be included in the final adjoint source.</p>
+<p>For example, to include multiple windows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">windows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="mi">500</span><span class="p">),</span> <span class="p">(</span><span class="mi">325</span><span class="p">,</span> <span class="mi">552</span><span class="p">)]</span>
+<span class="n">adj_src</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="n">windows</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<p>To calculate misfit on the <strong>entire trace</strong>, we need to consider all time steps
+in the trace:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">windows</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">npts</span> <span class="o">*</span> <span class="n">obs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">dt</span><span class="p">)]</span>
+</pre></div>
+</div>
 </section>
+<section id="double-difference-measurements">
+<h3>Double Difference Measurements<a class="headerlink" href="#double-difference-measurements" title="Permalink to this heading"></a></h3>
+<p>Double difference misfit functions, defined by <a class="reference internal" href="citations.html#yuan2016" id="id1"><span>[Yuan2016]</span></a>, construct misfit
+and adjoint sources from differential measurements between stations to reduce
+the influence of systematic errors from source and stations. ‘Differential’ is
+defined as “between pairs of stations, from a common source.”</p>
+<p>Double difference measurements require a second set of observed and synthetic
+waveforms, as well as windows for this second set of waveforms. The new
+windows can be independent of the first set of windows, but must contain
+the same number of windows. Each window will be compared in order.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In the following code snippet, we use the ‘R’ component of the same station
+in lieu of waveforms from a second station. In practice, the second set of
+waveforms should come from a completely different station.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obs_2</span><span class="p">,</span> <span class="n">syn_2</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
+<span class="n">obs_2</span> <span class="o">=</span> <span class="n">obs_2</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;R&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">syn_2</span> <span class="o">=</span> <span class="n">syn_2</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;R&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+<span class="n">adj_src</span><span class="p">,</span> <span class="n">adj_src_2</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span>
+    <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="p">[(</span><span class="mf">800.</span><span class="p">,</span> <span class="mf">900.</span><span class="p">)]</span>
+    <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="p">,</span><span class="n">syn_2</span><span class="p">,</span> <span class="n">windows_2</span><span class="o">=</span><span class="p">[(</span><span class="mf">800.</span><span class="p">,</span> <span class="mf">900.</span><span class="p">,)]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Double difference misfit functions result in two adjoint sources, one for each
+station in the pair of waveforms. Valid double difference adjoint source types
+will end in <code class="docutils literal notranslate"><span class="pre">_dd</span></code>.</p>
+</div>
+</section>
+</section>
+<hr class="docutils" />
 <section id="plotting-adjoint-sources">
 <h2>Plotting Adjoint Sources<a class="headerlink" href="#plotting-adjoint-sources" title="Permalink to this heading"></a></h2>
-<p>All adjoint source types can also be plotted during the calculation. The
+<p>All adjoint source types can be plotted during calculation. The
 type of plot produced depends on the type of misfit measurement and
 adjoint source.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pyadjoint</span><span class="o">.</span><span class="n">calculate_adjoint_source</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span> <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span>
@@ -413,7 +465,11 @@ documentation for more details.</p>
 <li><a class="reference internal" href="#">Usage</a><ul>
 <li><a class="reference internal" href="#example-data">Example Data</a></li>
 <li><a class="reference internal" href="#config">Config</a></li>
-<li><a class="reference internal" href="#calculate-adjoint-source">Calculate Adjoint Source</a></li>
+<li><a class="reference internal" href="#calculating-adjoint-sources">Calculating Adjoint Sources</a><ul>
+<li><a class="reference internal" href="#time-windows">Time Windows</a></li>
+<li><a class="reference internal" href="#double-difference-measurements">Double Difference Measurements</a></li>
+</ul>
+</li>
 <li><a class="reference internal" href="#plotting-adjoint-sources">Plotting Adjoint Sources</a></li>
 <li><a class="reference internal" href="#saving-to-disk">Saving to Disk</a></li>
 </ul>

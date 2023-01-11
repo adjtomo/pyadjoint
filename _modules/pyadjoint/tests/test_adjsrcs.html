@@ -176,6 +176,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -241,8 +242,8 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="kn">import</span> <span class="nn">pytest</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">calculate_adjoint_source</span><span class="p">,</span> <span class="n">get_config</span>
-<span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">get_example_data</span>
+<span class="kn">from</span> <span class="nn">pyadjoint.config</span> <span class="kn">import</span> <span class="n">get_config</span>
+<span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">get_example_data</span><span class="p">,</span> <span class="n">calculate_adjoint_source</span>
 
 
 <span class="c1"># plot constant to create figures for comparison</span>
@@ -288,11 +289,11 @@
 <span class="sd">    Test the waveform misfit function</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">)</span>
     <span class="n">adjsrc</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span><span class="p">(</span>
         <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
-        <span class="n">windows</span><span class="o">=</span><span class="n">example_window</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">PLOT</span><span class="p">,</span> <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span>
+        <span class="n">windows</span><span class="o">=</span><span class="n">example_window</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">PLOT</span><span class="p">,</span>
         <span class="n">plot_filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/waveform_misfit.png&quot;</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="n">adjsrc</span><span class="o">.</span><span class="n">adjoint_source</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
@@ -307,13 +308,13 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
     <span class="n">obs_2</span><span class="p">,</span> <span class="n">syn_2</span> <span class="o">=</span> <span class="n">example_2_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_dd&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">)</span>
     <span class="n">adjsrcs</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span><span class="p">(</span>
         <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
         <span class="n">windows</span><span class="o">=</span><span class="n">example_window</span><span class="p">,</span>  <span class="n">plot</span><span class="o">=</span><span class="n">PLOT</span><span class="p">,</span>
         <span class="n">plot_filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/waveform_2_misfit.png&quot;</span><span class="p">,</span>
-        <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;waveform_dd&quot;</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span>
+        <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span>
         <span class="n">windows_2</span><span class="o">=</span><span class="n">example_window</span>
     <span class="p">)</span>
     <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">adjsrcs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
@@ -323,38 +324,39 @@
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">adjsrc</span><span class="o">.</span><span class="n">windows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adjsrc</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span></div>
 
+
 <div class="viewcode-block" id="test_convolved_waveform_misfit"><a class="viewcode-back" href="../../../autoapi/pyadjoint/tests/test_adjsrcs/index.html#pyadjoint.tests.test_adjsrcs.test_convolved_waveform_misfit">[docs]</a><span class="k">def</span> <span class="nf">test_convolved_waveform_misfit</span><span class="p">(</span><span class="n">example_data</span><span class="p">,</span> <span class="n">example_window</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test the waveform misfit function</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;convolution&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">)</span>
     <span class="n">adjsrc</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span><span class="p">(</span>
         <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
         <span class="n">windows</span><span class="o">=</span><span class="n">example_window</span><span class="p">,</span>  <span class="n">plot</span><span class="o">=</span><span class="n">PLOT</span><span class="p">,</span>
         <span class="n">plot_filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/conv_misfit.png&quot;</span><span class="p">,</span>
-        <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;convolution&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">assert</span> <span class="n">adjsrc</span><span class="o">.</span><span class="n">adjoint_source</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
     <span class="k">assert</span> <span class="n">adjsrc</span><span class="o">.</span><span class="n">misfit</span> <span class="o">&gt;=</span> <span class="mf">0.0</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">adjsrc</span><span class="o">.</span><span class="n">windows</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adjsrc</span><span class="o">.</span><span class="n">adjoint_source</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span></div>
 
+
 <div class="viewcode-block" id="test_dd_convolved_waveform_misfit"><a class="viewcode-back" href="../../../autoapi/pyadjoint/tests/test_adjsrcs/index.html#pyadjoint.tests.test_adjsrcs.test_dd_convolved_waveform_misfit">[docs]</a><span class="k">def</span> <span class="nf">test_dd_convolved_waveform_misfit</span><span class="p">(</span><span class="n">example_data</span><span class="p">,</span> <span class="n">example_2_data</span><span class="p">,</span>
-                                   <span class="n">example_window</span><span class="p">):</span>
+                                      <span class="n">example_window</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Test the waveform misfit function</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
     <span class="n">obs_2</span><span class="p">,</span> <span class="n">syn_2</span> <span class="o">=</span> <span class="n">example_2_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;waveform_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;convolution_dd&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">)</span>
     <span class="n">adjsrcs</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span><span class="p">(</span>
         <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span> <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span>
         <span class="n">windows</span><span class="o">=</span><span class="n">example_window</span><span class="p">,</span>  <span class="n">plot</span><span class="o">=</span><span class="n">PLOT</span><span class="p">,</span>
         <span class="n">plot_filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/conv_dd_misfit.png&quot;</span><span class="p">,</span>
-        <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;convolution_dd&quot;</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span>
+        <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span>
         <span class="n">windows_2</span><span class="o">=</span><span class="n">example_window</span>
     <span class="p">)</span>
 
@@ -371,7 +373,7 @@
 <span class="sd">    Test the waveform misfit function</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;cc_traveltime_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;cc_traveltime&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">)</span>
     <span class="n">adjsrc</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span><span class="p">(</span>
         <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
@@ -391,13 +393,12 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
     <span class="n">obs_2</span><span class="p">,</span> <span class="n">syn_2</span> <span class="o">=</span> <span class="n">example_2_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;cc_traveltime_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;cc_traveltime_dd&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">)</span>
     <span class="n">adjsrcs</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span><span class="p">(</span>
         <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="n">example_window</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">PLOT</span><span class="p">,</span>
-        <span class="n">plot_filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/dd_cctm.png&quot;</span><span class="p">,</span>
-        <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;double_difference&quot;</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span>
+        <span class="n">plot_filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/dd_cctm.png&quot;</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span>
         <span class="n">windows_2</span><span class="o">=</span><span class="n">example_window</span>
     <span class="p">)</span>
 
@@ -415,7 +416,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;multitaper_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;multitaper&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">,</span> <span class="n">min_cycle_in_window</span><span class="o">=</span><span class="mf">3.</span><span class="p">,</span> 
                      <span class="n">use_cc_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -441,7 +442,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
     <span class="n">obs_2</span><span class="p">,</span> <span class="n">syn_2</span> <span class="o">=</span> <span class="n">example_2_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;multitaper_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;multitaper_dd&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">,</span> <span class="n">min_cycle_in_window</span><span class="o">=</span><span class="mf">3.</span><span class="p">,</span> 
                      <span class="n">use_cc_error</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
@@ -449,8 +450,7 @@
         <span class="n">observed</span><span class="o">=</span><span class="n">obs</span><span class="p">,</span> <span class="n">synthetic</span><span class="o">=</span><span class="n">syn</span><span class="p">,</span>
         <span class="n">config</span><span class="o">=</span><span class="n">cfg</span><span class="p">,</span> <span class="n">windows</span><span class="o">=</span><span class="n">example_window</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="n">PLOT</span><span class="p">,</span>
         <span class="n">plot_filename</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">/dd_multitaper_misfit.png&quot;</span><span class="p">,</span> 
-        <span class="n">choice</span><span class="o">=</span><span class="s2">&quot;double_difference&quot;</span><span class="p">,</span> <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span>
-        <span class="n">windows_2</span><span class="o">=</span><span class="n">example_window</span>
+        <span class="n">observed_2</span><span class="o">=</span><span class="n">obs_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="o">=</span><span class="n">syn_2</span><span class="p">,</span> <span class="n">windows_2</span><span class="o">=</span><span class="n">example_window</span>
     <span class="p">)</span>
 
     <span class="k">assert</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">adjsrcs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span>
@@ -468,7 +468,7 @@
 <span class="sd">    Test the waveform misfit function</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">example_data</span>
-    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;exponentiated_phase_misfit&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;exponentiated_phase&quot;</span><span class="p">,</span> <span class="n">min_period</span><span class="o">=</span><span class="mf">30.</span><span class="p">,</span>
                      <span class="n">max_period</span><span class="o">=</span><span class="mf">75.</span><span class="p">)</span>
 
     <span class="n">adjsrc</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span><span class="p">(</span>

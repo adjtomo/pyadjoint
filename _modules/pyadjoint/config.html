@@ -176,6 +176,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -240,6 +241,10 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Configuration object for Pyadjoint.</span>
 
+<span class="sd">To add new adjoint sources, you will need to</span>
+<span class="sd">add a name, function and config to `ADJSRC_TYPES`, `get_config` and</span>
+<span class="sd">`get_function`, respectively.</span>
+
 <span class="sd">:authors:</span>
 <span class="sd">    adjTomo Dev Team (adjtomo@gmail.com), 2022</span>
 <span class="sd">    Youyi Ruan (youyir@princeton.edu), 2016</span>
@@ -248,8 +253,16 @@
 <span class="sd">    GNU General Public License, Version 3</span>
 <span class="sd">    (http://www.gnu.org/copyleft/gpl.html)</span>
 <span class="sd">&quot;&quot;&quot;</span>
-<span class="kn">from</span> <span class="nn">pyadjoint</span> <span class="kn">import</span> <span class="n">discover_adjoint_sources</span>
 <span class="kn">from</span> <span class="nn">pyadjoint.utils.signal</span> <span class="kn">import</span> <span class="n">TAPER_COLLECTION</span>
+
+<span class="c1"># Constants defining the available adjoint source types in this package and</span>
+<span class="c1"># their verbose names. New adjoint sources need to be added here.</span>
+<div class="viewcode-block" id="ADJSRC_TYPES"><a class="viewcode-back" href="../../autoapi/pyadjoint/index.html#pyadjoint.config.ADJSRC_TYPES">[docs]</a><span class="n">ADJSRC_TYPES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution&quot;</span><span class="p">,</span> <span class="s2">&quot;exponentiated_phase&quot;</span><span class="p">,</span> <span class="s2">&quot;cc_traveltime&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;multitaper&quot;</span><span class="p">,</span> <span class="s2">&quot;waveform_dd&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution_dd&quot;</span><span class="p">,</span> <span class="s2">&quot;cc_traveltime_dd&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;multitaper_dd&quot;</span><span class="p">,</span>
+    <span class="c1"># &gt;&gt;&gt; ADD NEW ADJOINT SOURCES HERE</span>
+<span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="get_config"><a class="viewcode-back" href="../../autoapi/pyadjoint/index.html#pyadjoint.config.get_config">[docs]</a><span class="k">def</span> <span class="nf">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -259,21 +272,32 @@
 <span class="sd">    parameters</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">adjsrc_type</span> <span class="o">=</span> <span class="n">adjsrc_type</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>  <span class="c1"># allow for case-insensitivity</span>
-    <span class="n">adjsrc_types</span> <span class="o">=</span> <span class="n">discover_adjoint_sources</span><span class="p">()</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
-
+    <span class="k">assert</span><span class="p">(</span><span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="n">ADJSRC_TYPES</span><span class="p">),</span> \
+        <span class="sa">f</span><span class="s2">&quot;`adjsrc_type` must be in </span><span class="si">{</span><span class="n">ADJSRC_TYPES</span><span class="si">}</span><span class="s2">, not </span><span class="si">{</span><span class="n">adjsrc_type</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">assert</span><span class="p">(</span><span class="n">min_period</span> <span class="o">&lt;</span> <span class="n">max_period</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;`min_period` must be &lt; `max_period`&quot;</span>
 
-    <span class="k">if</span> <span class="n">adjsrc_type</span> <span class="o">==</span> <span class="s2">&quot;waveform_misfit&quot;</span><span class="p">:</span>
-        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigWaveform</span><span class="p">(</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="o">==</span> <span class="s2">&quot;exponentiated_phase_misfit&quot;</span><span class="p">:</span>
-        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigExponentiatedPhase</span><span class="p">(</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="o">==</span> <span class="s2">&quot;cc_traveltime_misfit&quot;</span><span class="p">:</span>
-        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigCCTraveltime</span><span class="p">(</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="o">==</span> <span class="s2">&quot;multitaper_misfit&quot;</span><span class="p">:</span>
-        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigMultitaper</span><span class="p">(</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="c1"># Determine how to address double difference argument in Config object</span>
+    <span class="n">dd</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="s2">&quot;dd&quot;</span> <span class="ow">in</span> <span class="n">adjsrc_type</span><span class="p">)</span>
+
+    <span class="c1"># Logic tree to determine what type of Config object is required, and</span>
+    <span class="c1"># any sub-arguments required</span>
+    <span class="k">if</span> <span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;waveform_dd&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution_dd&quot;</span><span class="p">]:</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigWaveform</span><span class="p">(</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">double_difference</span><span class="o">=</span><span class="n">dd</span><span class="p">,</span>
+                             <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;exponentiated_phase&quot;</span><span class="p">,</span> <span class="s2">&quot;exponentiated_phase_dd&quot;</span><span class="p">]:</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigExponentiatedPhase</span><span class="p">(</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span>
+                                       <span class="n">double_difference</span><span class="o">=</span><span class="n">dd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cc_traveltime&quot;</span><span class="p">,</span> <span class="s2">&quot;cc_traveltime_dd&quot;</span><span class="p">]:</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigCCTraveltime</span><span class="p">(</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">double_difference</span><span class="o">=</span><span class="n">dd</span><span class="p">,</span>
+                                 <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;multitaper&quot;</span><span class="p">,</span> <span class="s2">&quot;multitaper_dd&quot;</span><span class="p">]:</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">ConfigMultitaper</span><span class="p">(</span><span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">double_difference</span><span class="o">=</span><span class="n">dd</span><span class="p">,</span>
+                               <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="c1"># &gt;&gt;&gt; ADD NEW ADJOINT SOURCES HERE</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;adjoint source type must be in &quot;</span>
-                                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">adjsrc_types</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                                  <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ADJSRC_TYPES</span><span class="si">}</span><span class="s2">, not </span><span class="si">{</span><span class="n">adjsrc_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
     <span class="c1"># Set the adjoint source type as an attribute for check functions and plots</span>
     <span class="n">cfg</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="n">adjsrc_type</span>
@@ -288,6 +312,43 @@
     <span class="k">return</span> <span class="n">cfg</span></div>
 
 
+<div class="viewcode-block" id="get_function"><a class="viewcode-back" href="../../autoapi/pyadjoint/index.html#pyadjoint.config.get_function">[docs]</a><span class="k">def</span> <span class="nf">get_function</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Wrapper for getting the correct adjoint source function based on the</span>
+<span class="sd">    `adjsrc_type`. Many adjoint sources share functions with different flags</span>
+<span class="sd">    so this function takes care of the logic of choosing which.</span>
+
+<span class="sd">    :type adjsrc_type: str</span>
+<span class="sd">    :param adjsrc_type: choice of adjoint source</span>
+<span class="sd">    :rtype: function</span>
+<span class="sd">    :return: calculate_adjoint_source function for the correct adjoint source</span>
+<span class="sd">        type</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">assert</span><span class="p">(</span><span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="n">ADJSRC_TYPES</span><span class="p">),</span> \
+        <span class="sa">f</span><span class="s2">&quot;`adjsrc_type` must be in </span><span class="si">{</span><span class="n">ADJSRC_TYPES</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;waveform&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;waveform_dd&quot;</span><span class="p">,</span> <span class="s2">&quot;convolution_dd&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span> <span class="nn">pyadjoint.adjoint_source_types.waveform_misfit</span> <span class="kn">import</span> \
+            <span class="n">calculate_adjoint_source</span>
+        <span class="n">fct</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span>
+    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cc_traveltime&quot;</span><span class="p">,</span> <span class="s2">&quot;cc_traveltime_dd&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span> <span class="nn">pyadjoint.adjoint_source_types.cc_traveltime_misfit</span> <span class="kn">import</span> \
+            <span class="n">calculate_adjoint_source</span>
+        <span class="n">fct</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span>
+    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;exponentiated_phase&quot;</span><span class="p">,</span> <span class="s2">&quot;exponentiated_phase_dd&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span> <span class="nn">pyadjoint.adjoint_source_types.exponentiated_phase_misfit</span> <span class="kn">import</span> \
+            <span class="n">calculate_adjoint_source</span>
+        <span class="n">fct</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span>
+    <span class="k">elif</span> <span class="n">adjsrc_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;multitaper&quot;</span><span class="p">,</span> <span class="s2">&quot;multitaper_dd&quot;</span><span class="p">]:</span>
+        <span class="kn">from</span> <span class="nn">pyadjoint.adjoint_source_types.multitaper_misfit</span> <span class="kn">import</span> \
+            <span class="n">calculate_adjoint_source</span>
+        <span class="n">fct</span> <span class="o">=</span> <span class="n">calculate_adjoint_source</span>
+    <span class="c1"># &gt;&gt;&gt; ADD NEW ADJOINT SOURCES HERE</span>
+
+    <span class="k">return</span> <span class="n">fct</span></div>
+
+
 <div class="viewcode-block" id="ConfigWaveform"><a class="viewcode-back" href="../../autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigWaveform">[docs]</a><span class="k">class</span> <span class="nc">ConfigWaveform</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Waveform misfit function required parameters</span>
@@ -297,19 +358,26 @@
 <span class="sd">    :param max_period: Maximum period of the filtered input data in seconds.</span>
 <span class="sd">    :type max_period: float</span>
 <span class="sd">    :param taper_percentage: Percentage of a time window needs to be</span>
-<span class="sd">    tapered at two ends, to remove the non-zero values for adjoint</span>
-<span class="sd">    source and for fft.</span>
+<span class="sd">        tapered at two ends, to remove the non-zero values for adjoint</span>
+<span class="sd">        source and for fft.</span>
 <span class="sd">    :type taper_percentage: float</span>
-<span class="sd">    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`</span>
-<span class="sd">        for a list of available taper types</span>
+<span class="sd">    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION</span>
+<span class="sd">        list for available taper types</span>
 <span class="sd">    :type taper_type: str</span>
+<span class="sd">    :type double_difference: bool</span>
+<span class="sd">    :param double_difference: flag to turn on double difference measurements,</span>
+<span class="sd">        which signals to the main calc function whether additional waveforms</span>
+<span class="sd">        are required at input</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;hann&quot;</span><span class="p">,</span>
-                 <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">):</span>
+                 <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">double_difference</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_period</span> <span class="o">=</span> <span class="n">min_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_period</span> <span class="o">=</span> <span class="n">max_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">taper_type</span> <span class="o">=</span> <span class="n">taper_type</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">taper_percentage</span> <span class="o">=</span> <span class="n">taper_percentage</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">taper_percentage</span> <span class="o">=</span> <span class="n">taper_percentage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">double_difference</span> <span class="o">=</span> <span class="n">double_difference</span>
+        <span class="c1"># To be overwritten by get_config()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="ConfigExponentiatedPhase"><a class="viewcode-back" href="../../autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigExponentiatedPhase">[docs]</a><span class="k">class</span> <span class="nc">ConfigExponentiatedPhase</span><span class="p">:</span>
@@ -324,19 +392,26 @@
 <span class="sd">        tapered at two ends, to remove the non-zero values for adjoint</span>
 <span class="sd">        source and for fft.</span>
 <span class="sd">    :type taper_percentage: float</span>
-<span class="sd">    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`</span>
-<span class="sd">        for a list of available taper types</span>
+<span class="sd">    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION</span>
+<span class="sd">        list for available taper types</span>
 <span class="sd">    :type taper_type: str</span>
 <span class="sd">    :param wtr_env: float</span>
 <span class="sd">    :param wtr_env: window taper envelope amplitude scaling</span>
+<span class="sd">    :type double_difference: bool</span>
+<span class="sd">    :param double_difference: flag to turn on double difference measurements,</span>
+<span class="sd">        which signals to the main calc function whether additional waveforms</span>
+<span class="sd">        are required at input</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;hann&quot;</span><span class="p">,</span>
-                 <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">wtr_env</span><span class="o">=</span><span class="mf">0.2</span><span class="p">):</span>
+                 <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">wtr_env</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">double_difference</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_period</span> <span class="o">=</span> <span class="n">min_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_period</span> <span class="o">=</span> <span class="n">max_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">taper_type</span> <span class="o">=</span> <span class="n">taper_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">taper_percentage</span> <span class="o">=</span> <span class="n">taper_percentage</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wtr_env</span> <span class="o">=</span> <span class="n">wtr_env</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wtr_env</span> <span class="o">=</span> <span class="n">wtr_env</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">double_difference</span> <span class="o">=</span> <span class="n">double_difference</span>
+        <span class="c1"># To be overwritten by get_config()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="ConfigCCTraveltime"><a class="viewcode-back" href="../../autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigCCTraveltime">[docs]</a><span class="k">class</span> <span class="nc">ConfigCCTraveltime</span><span class="p">:</span>
@@ -348,11 +423,11 @@
 <span class="sd">    :param max_period: Maximum period of the filtered input data in seconds.</span>
 <span class="sd">    :type max_period: float</span>
 <span class="sd">    :param taper_percentage: Percentage of a time window needs to be</span>
-<span class="sd">    tapered at two ends, to remove the non-zero values for adjoint</span>
-<span class="sd">    source and for fft.</span>
+<span class="sd">        tapered at two ends, to remove the non-zero values for adjoint</span>
+<span class="sd">        source and for fft.</span>
 <span class="sd">    :type taper_percentage: float</span>
-<span class="sd">    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`</span>
-<span class="sd">        for a list of available taper types</span>
+<span class="sd">    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION</span>
+<span class="sd">        list for available taper types</span>
 <span class="sd">    :type taper_type: str</span>
 <span class="sd">    :param measure_type: measurement type used in calculation of misfit,</span>
 <span class="sd">        dt(travel time), am(dlnA), wf(full waveform)</span>
@@ -363,10 +438,14 @@
 <span class="sd">    :type dt_sigma_min: float</span>
 <span class="sd">    :param dlna_sigma_min: minimum amplitude error allowed</span>
 <span class="sd">    :type dlna_sigma_min: float</span>
+<span class="sd">    :type double_difference: bool</span>
+<span class="sd">    :param double_difference: flag to turn on double difference measurements,</span>
+<span class="sd">        which signals to the main calc function whether additional waveforms</span>
+<span class="sd">        are required at input</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;hann&quot;</span><span class="p">,</span>
                  <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">measure_type</span><span class="o">=</span><span class="s2">&quot;dt&quot;</span><span class="p">,</span> <span class="n">use_cc_error</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                 <span class="n">dt_sigma_min</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dlna_sigma_min</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+                 <span class="n">dt_sigma_min</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dlna_sigma_min</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">double_difference</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_period</span> <span class="o">=</span> <span class="n">min_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_period</span> <span class="o">=</span> <span class="n">max_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">taper_type</span> <span class="o">=</span> <span class="n">taper_type</span>
@@ -374,8 +453,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">measure_type</span> <span class="o">=</span> <span class="n">measure_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">use_cc_error</span> <span class="o">=</span> <span class="n">use_cc_error</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt_sigma_min</span> <span class="o">=</span> <span class="n">dt_sigma_min</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dlna_sigma_min</span> <span class="o">=</span> <span class="n">dlna_sigma_min</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">dlna_sigma_min</span> <span class="o">=</span> <span class="n">dlna_sigma_min</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">double_difference</span> <span class="o">=</span> <span class="n">double_difference</span>
+        <span class="c1"># To be overwritten by get_config()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="kc">None</span></div>
+        
 
 <div class="viewcode-block" id="ConfigMultitaper"><a class="viewcode-back" href="../../autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigMultitaper">[docs]</a><span class="k">class</span> <span class="nc">ConfigMultitaper</span><span class="p">:</span>
     <span class="sd">&quot;&quot;&quot;</span>
@@ -386,11 +468,11 @@
 <span class="sd">    :param max_period: Maximum period of the filtered input data in seconds.</span>
 <span class="sd">    :type max_period: float</span>
 <span class="sd">    :param taper_percentage: Percentage of a time window needs to be</span>
-<span class="sd">    tapered at two ends, to remove the non-zero values for adjoint</span>
-<span class="sd">    source and for fft.</span>
+<span class="sd">        tapered at two ends, to remove the non-zero values for adjoint</span>
+<span class="sd">        source and for fft.</span>
 <span class="sd">    :type taper_percentage: float</span>
-<span class="sd">    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`</span>
-<span class="sd">        for a list of available taper types</span>
+<span class="sd">    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION</span>
+<span class="sd">        list for available taper types</span>
 <span class="sd">    :type taper_type: str</span>
 <span class="sd">    :param measure_type: measurement type used in calculation of misfit,</span>
 <span class="sd">        dt(travel time), am(dlnA), wf(full waveform)</span>
@@ -435,6 +517,10 @@
 <span class="sd">    :type dt_max_scale: float</span>
 <span class="sd">    :param phase_step: maximum step for cycle skip correction (?)</span>
 <span class="sd">    :type phase_step: float</span>
+<span class="sd">    :type double_difference: bool</span>
+<span class="sd">    :param double_difference: flag to turn on double difference measurements,</span>
+<span class="sd">        which signals to the main calc function whether additional waveforms</span>
+<span class="sd">        are required at input</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_period</span><span class="p">,</span> <span class="n">max_period</span><span class="p">,</span> <span class="n">lnpt</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
                  <span class="n">transfunc_waterlevel</span><span class="o">=</span><span class="mf">1.0E-10</span><span class="p">,</span> <span class="n">water_threshold</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span>
@@ -442,7 +528,8 @@
                  <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">mt_nw</span><span class="o">=</span><span class="mf">4.0</span><span class="p">,</span> <span class="n">num_taper</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">dt_fac</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>
                  <span class="n">phase_step</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">err_fac</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">dt_max_scale</span><span class="o">=</span><span class="mf">3.5</span><span class="p">,</span>
                  <span class="n">measure_type</span><span class="o">=</span><span class="s2">&quot;dt&quot;</span><span class="p">,</span> <span class="n">dt_sigma_min</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">dlna_sigma_min</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-                 <span class="n">use_cc_error</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_mt_error</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">use_cc_error</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">use_mt_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">double_difference</span><span class="o">=</span><span class="kc">False</span>
+                 <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_period</span> <span class="o">=</span> <span class="n">min_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_period</span> <span class="o">=</span> <span class="n">max_period</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">taper_type</span> <span class="o">=</span> <span class="n">taper_type</span>
@@ -463,7 +550,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">phase_step</span> <span class="o">=</span> <span class="n">phase_step</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dt_fac</span> <span class="o">=</span> <span class="n">dt_fac</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">err_fac</span> <span class="o">=</span> <span class="n">err_fac</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dt_max_scale</span> <span class="o">=</span> <span class="n">dt_max_scale</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dt_max_scale</span> <span class="o">=</span> <span class="n">dt_max_scale</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">double_difference</span> <span class="o">=</span> <span class="n">double_difference</span>
+
+        <span class="c1"># To be overwritten by get_config()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="kc">None</span></div>
+
 
 </pre></div>
         </article>

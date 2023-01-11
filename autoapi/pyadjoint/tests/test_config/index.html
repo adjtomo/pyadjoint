@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../../citations.html">Citations</a></li>
 <li class="toctree-l1 current has-children"><a class="reference internal" href="../../../index.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
 <li class="toctree-l2 current has-children"><a class="reference internal" href="../../index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
@@ -260,6 +261,12 @@
 <tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.tests.test_config.test_incorrect_inputs" title="pyadjoint.tests.test_config.test_incorrect_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_incorrect_inputs</span></code></a>()</p></td>
 <td><p>Make sure that incorrect input parameters are error'd</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyadjoint.tests.test_config.test_adjsrc_types" title="pyadjoint.tests.test_config.test_adjsrc_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_adjsrc_types</span></code></a>()</p></td>
+<td><p>Check that all adjoint sources have the correct format</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyadjoint.tests.test_config.test_get_functions" title="pyadjoint.tests.test_config.test_get_functions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">test_get_functions</span></code></a>()</p></td>
+<td><p>Get correct functions based on adjoint source types</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -280,6 +287,18 @@ the correct parameters</p>
 <dt class="sig sig-object py" id="pyadjoint.tests.test_config.test_incorrect_inputs">
 <span class="sig-prename descclassname"><span class="pre">pyadjoint.tests.test_config.</span></span><span class="sig-name descname"><span class="pre">test_incorrect_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pyadjoint/tests/test_config.html#test_incorrect_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.tests.test_config.test_incorrect_inputs" title="Permalink to this definition"></a></dt>
 <dd><p>Make sure that incorrect input parameters are error’d</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyadjoint.tests.test_config.test_adjsrc_types">
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.tests.test_config.</span></span><span class="sig-name descname"><span class="pre">test_adjsrc_types</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pyadjoint/tests/test_config.html#test_adjsrc_types"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.tests.test_config.test_adjsrc_types" title="Permalink to this definition"></a></dt>
+<dd><p>Check that all adjoint sources have the correct format</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyadjoint.tests.test_config.test_get_functions">
+<span class="sig-prename descclassname"><span class="pre">pyadjoint.tests.test_config.</span></span><span class="sig-name descname"><span class="pre">test_get_functions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/pyadjoint/tests/test_config.html#test_get_functions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyadjoint.tests.test_config.test_get_functions" title="Permalink to this definition"></a></dt>
+<dd><p>Get correct functions based on adjoint source types</p>
 </dd></dl>
 
 </section>
@@ -329,9 +348,13 @@ the correct parameters</p>
 <li><a class="reference internal" href="#pyadjoint.tests.test_config.test_all_configs"><code class="docutils literal notranslate"><span class="pre">test_all_configs()</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.tests.test_config.test_config_set_correctly"><code class="docutils literal notranslate"><span class="pre">test_config_set_correctly()</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.tests.test_config.test_incorrect_inputs"><code class="docutils literal notranslate"><span class="pre">test_incorrect_inputs()</span></code></a></li>
+<li><a class="reference internal" href="#pyadjoint.tests.test_config.test_adjsrc_types"><code class="docutils literal notranslate"><span class="pre">test_adjsrc_types()</span></code></a></li>
+<li><a class="reference internal" href="#pyadjoint.tests.test_config.test_get_functions"><code class="docutils literal notranslate"><span class="pre">test_get_functions()</span></code></a></li>
 <li><a class="reference internal" href="#pyadjoint.tests.test_config.test_all_configs">test_all_configs</a></li>
 <li><a class="reference internal" href="#pyadjoint.tests.test_config.test_config_set_correctly">test_config_set_correctly</a></li>
 <li><a class="reference internal" href="#pyadjoint.tests.test_config.test_incorrect_inputs">test_incorrect_inputs</a></li>
+<li><a class="reference internal" href="#pyadjoint.tests.test_config.test_adjsrc_types">test_adjsrc_types</a></li>
+<li><a class="reference internal" href="#pyadjoint.tests.test_config.test_get_functions">test_get_functions</a></li>
 </ul>
 </li>
 </ul>

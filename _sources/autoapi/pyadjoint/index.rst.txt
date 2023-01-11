@@ -51,11 +51,11 @@ Functions
 
 .. autoapisummary::
 
-   pyadjoint.discover_adjoint_sources
    pyadjoint.calculate_adjoint_source
    pyadjoint.get_example_data
    pyadjoint.plot_adjoint_source
    pyadjoint.get_config
+   pyadjoint.get_function
 
 
 
@@ -70,6 +70,7 @@ Attributes
    pyadjoint.ch
    pyadjoint.FORMAT
    pyadjoint.formatter
+   pyadjoint.ADJSRC_TYPES
 
 
 .. py:data:: __version__
@@ -91,13 +92,6 @@ Attributes
    Bases: :py:obj:`UserWarning`
 
    Base class for all Pyadjoint warnings.
-
-
-.. py:function:: discover_adjoint_sources()
-
-   Discovers the available adjoint sources in the package. This should work
-   regardless of whether Pyadjoint is checked out from git, packaged as .egg
-   etc.
 
 
 .. py:data:: logger
@@ -191,7 +185,7 @@ Attributes
 
 
 
-.. py:function:: calculate_adjoint_source(observed, synthetic, config, windows, plot=False, plot_filename=None, choice=None, observed_2=None, synthetic_2=None, windows_2=None, **kwargs)
+.. py:function:: calculate_adjoint_source(observed, synthetic, config, windows, plot=False, plot_filename=None, observed_2=None, synthetic_2=None, windows_2=None, **kwargs)
 
    Central function of Pyadjoint used to calculate adjoint sources and misfit.
 
@@ -220,12 +214,6 @@ Attributes
    :param plot_filename: If given, the plot of the adjoint source will be
        saved there. Only used if ``plot`` is ``True``.
    :type plot_filename: str
-   :type choice: str
-   :param choice: Flag to turn on station pair calculations. Requires
-       `observed_2`, `synthetic_2`, `windows_2`. Available:
-       - 'double_difference': Double difference waveform misfit from
-           Yuan et al. 2016
-       - 'convolved': Waveform convolution misfit from Choi & Alkhalifah (2011)
    :type observed_2: obspy.core.trace.Trace
    :param observed_2: second observed waveform to calculate adjoint sources
        from station pairs
@@ -293,4 +281,22 @@ Attributes
    reassigns self to a sub Config class which dictates its own required
    parameters
 
+
+.. py:function:: get_function(adjsrc_type)
+
+   Wrapper for getting the correct adjoint source function based on the
+   `adjsrc_type`. Many adjoint sources share functions with different flags
+   so this function takes care of the logic of choosing which.
+
+   :type adjsrc_type: str
+   :param adjsrc_type: choice of adjoint source
+   :rtype: function
+   :return: calculate_adjoint_source function for the correct adjoint source
+       type
+
+
+.. py:data:: ADJSRC_TYPES
+   :annotation: = ['waveform', 'convolution', 'exponentiated_phase', 'cc_traveltime', 'multitaper', 'waveform_dd',...
+
+   
 

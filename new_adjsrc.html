@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="Citations" href="citations.html" /><link rel="prev" title="Double Difference Multitaper Misfit" href="dd_mtm.html" />
 
     <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
-        <title>&lt;no title&gt; - Pyadjoint documentation</title>
+        <title>Add a New Adjoint Source - Pyadjoint documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
     <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
@@ -135,7 +135,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -176,7 +176,8 @@
 <li class="toctree-l1"><a class="reference internal" href="dd_mtm.html">Double Difference Multitaper Misfit</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
-<ul>
+<ul class="current">
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -231,20 +232,129 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
         </div>
         <article role="main">
-          
+          <section id="add-a-new-adjoint-source">
+<h1>Add a New Adjoint Source<a class="headerlink" href="#add-a-new-adjoint-source" title="Permalink to this heading"></a></h1>
+<p>The following page provides a brief overview on adding new adjoint sources to
+this package.</p>
+<section id="naming">
+<h2>Naming<a class="headerlink" href="#naming" title="Permalink to this heading"></a></h2>
+<p>New adjoint sources should be named in snake case and not match an existing
+adjoint source type. For example, the instantaneous phase misfit should have</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="s2">&quot;instantaneous_phase&quot;</span>
+</pre></div>
+</div>
+<p>Double difference adjoint sources must end in ‘_dd’, so a double difference
+instantaneous phase misfit should be</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="s2">&quot;instantaneous_phase_dd&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="adjoint-source-type">
+<h2>Adjoint Source Type<a class="headerlink" href="#adjoint-source-type" title="Permalink to this heading"></a></h2>
+<p>New adjoint sources should be placed in
+<code class="docutils literal notranslate"><span class="pre">pyadjoint.pyadjoint.adjoint_source_types</span></code>.</p>
+<p>Have a look at existing adjoint sources to learn their code structure, but at
+the simplest the new adjoint source file should have a function
+<code class="docutils literal notranslate"><span class="pre">calculate_adjoint_source()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Each adjoint source file must contain a calculate_adjoint_source()</span>
+<span class="c1"># function. It must take config, observed, synthetic, and windows.</span>
+<span class="c1"># Other optional keyword arguments are possible.</span>
+<span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">windows</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Some information defining the adjoint source</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># This function must return a dictionary</span>
+    <span class="n">ret_val</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># &gt;&gt;&gt; calculate `misfit` and `adjoint_source` here</span>
+
+    <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;misfit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="c1"># ...</span>
+    <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;adjoint_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="c1"># ...</span>
+
+    <span class="k">return</span> <span class="n">ret_val</span>
+</pre></div>
+</div>
+<p>The main processing function expects two keys in the return dictionary,
+<code class="docutils literal notranslate"><span class="pre">misfit</span></code> and <code class="docutils literal notranslate"><span class="pre">adjoint_source</span></code>. Misfit is a float value representing the
+total misfit calculated. Adjoint source should be a NumPy array representing
+the calculated adjoint source.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The adjoint source returned by <code class="docutils literal notranslate"><span class="pre">calculate_adjoint_source</span></code> <strong>must</strong> be
+time reversed with respect to the synthetic waveform</p>
+</div>
+<section id="double-difference">
+<h3>Double Difference<a class="headerlink" href="#double-difference" title="Permalink to this heading"></a></h3>
+<p>Double difference adjoint sources require additional inputs and outputs.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">calculate_adjoint_source</span><span class="p">(</span><span class="n">observed</span><span class="p">,</span> <span class="n">synthetic</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">windows</span><span class="p">,</span>
+                             <span class="n">observed_2</span><span class="p">,</span> <span class="n">synthetic_2</span><span class="p">,</span> <span class="n">windows_2</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Some information defining the adjoint source</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ret_val</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># &gt;&gt;&gt; calculate `misfit`, `adjoint_source` and `adjoint_source_2` here</span>
+
+    <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;misfit&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="c1"># ...</span>
+    <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;adjoint_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="c1"># ...</span>
+    <span class="n">ret_val</span><span class="p">[</span><span class="s2">&quot;adjoint_source_2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="c1"># ...</span>
+
+    <span class="k">return</span> <span class="n">ret_val</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="config">
+<h2>Config<a class="headerlink" href="#config" title="Permalink to this heading"></a></h2>
+<p>You must include your new adjoint source type in the config file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If your new adjoint source type is a double difference technique, then
+<code class="docutils literal notranslate"><span class="pre">adjsrc_type</span></code> must end in <code class="docutils literal notranslate"><span class="pre">_dd</span></code> (e.g,. ‘waveform_dd’). Pyadjoint will
+recognize this and treat the remaining logic accordingly.</p>
+</div>
+<ol class="arabic simple">
+<li><p>Add new <code class="docutils literal notranslate"><span class="pre">adjsrc_type</span></code> to the constant list in <code class="docutils literal notranslate"><span class="pre">ADJSRC_TYPES</span></code></p></li>
+<li><p>Add new adjoint source to the <code class="docutils literal notranslate"><span class="pre">get_config()</span></code> function. If your adjoint source
+requires it’s own Config object (due to special parameters), you will need to
+create one.</p></li>
+<li><p>Add new adjoint source to the <code class="docutils literal notranslate"><span class="pre">get_function()</span></code> function. This allows
+Pyadjoint to find the correct function based on the name of the adjoint source.</p></li>
+</ol>
+</section>
+</section>
+
         </article>
       </div>
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="citations.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Citations</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="dd_mtm.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Double Difference Multitaper Misfit</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -263,8 +373,32 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Add a New Adjoint Source</a><ul>
+<li><a class="reference internal" href="#naming">Naming</a></li>
+<li><a class="reference internal" href="#adjoint-source-type">Adjoint Source Type</a><ul>
+<li><a class="reference internal" href="#double-difference">Double Difference</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#config">Config</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

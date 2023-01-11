@@ -177,6 +177,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">MISCELLANEOUS</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="new_adjsrc.html">Add a New Adjoint Source</a></li>
 <li class="toctree-l1"><a class="reference internal" href="citations.html">Citations</a></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/index.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
 <li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/pyadjoint/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">pyadjoint</span></code></a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
@@ -242,8 +243,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Please refer to the original paper <a class="reference internal" href="citations.html#tromp2005" id="id1"><span>[Tromp2005]</span></a> for rigorous mathematical
-derivations of this misfit function. This documentation page only serves to
-summarize their results for the purpose of explaining the underlying code.</p>
+derivations of this misfit function.</p>
 </div>
 <p>Traveltime misfits simply measure the squared traveltime difference.
 The misfit <span class="math notranslate nohighlight">\(\chi(\mathbf{m})\)</span> for a given Earth model <span class="math notranslate nohighlight">\(\mathbf{m}\)</span>
@@ -254,24 +254,27 @@ and a single receiver and component is given by</p>
 </div>
 <p><span class="math notranslate nohighlight">\(T^{obs}\)</span> is the observed traveltime, and <span class="math notranslate nohighlight">\(T(\mathbf{m})\)</span> the
 predicted traveltime in Earth model <span class="math notranslate nohighlight">\(\mathbf{m}\)</span>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
 <p>In practice traveltime are measured by cross correlating observed and
 predicted waveforms. This particular implementation here measures cross
 correlation time shifts with subsample accuracy with a fitting procedure
-explained in <a class="reference internal" href="citations.html#deichmann1992" id="id2"><span>[Deichmann1992]</span></a>. For more details see the documentation of the
-<code class="xref py py-func docutils literal notranslate"><span class="pre">xcorr_pick_correction()</span></code> function and the
-corresponding
+explained in <a class="reference internal" href="citations.html#deichmann1992" id="id2"><span>[Deichmann1992]</span></a>. For more details see the documentation of
+the <code class="xref py py-func docutils literal notranslate"><span class="pre">xcorr_pick_correction()</span></code> function
+and the corresponding
 <a class="reference external" href="http://docs.obspy.org/tutorial/code_snippets/xcorr_pick_correction.html">Tutorial</a>.</p>
+</div>
 <p>The adjoint source for the same receiver and component is then given by</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[f^{\dagger}(t) = - \left[ T^{obs} - T(\mathbf{m}) \right] ~ \frac{1}{N} ~
-\partial_t \mathbf{s}(T - t, \mathbf{m})\]</div>
+\partial_t \mathbf{s}(T - t, \mathbf{m}),\]</div>
 </div>
-<p><span class="math notranslate nohighlight">\(N\)</span> is a normalization factor given by</p>
+<p>where <span class="math notranslate nohighlight">\(N\)</span> is a normalization factor defined as</p>
 <div class="math-wrapper docutils container">
 <div class="math notranslate nohighlight">
 \[N = \int_0^T ~ \mathbf{s}(t, \mathbf{m}) ~
-\partial^2_t \mathbf{s}(t, \mathbf{m}) dt\]</div>
+\partial^2_t \mathbf{s}(t, \mathbf{m}) dt.\]</div>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -281,21 +284,26 @@ details, please see <a class="reference internal" href="citations.html#tromp2005
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>This particular implementation here uses
+<p>This particular implementation uses
 <a class="reference external" href="http://en.wikipedia.org/wiki/Simpson's_rule">Simpson’s rule</a>
 to evaluate the definite integral.</p>
 </div>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this heading"></a></h2>
-<p>The following code snippets illustrates the basic usage of the cross correlation
-traveltime misfit function.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">adjsrc_type</span> <span class="o">=</span> <span class="s2">&quot;cc_traveltime&quot;</span>
+</pre></div>
+</div>
+<p>The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+<a class="reference external" href="autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigCCTraveltime">Config</a>
+object for additional configuration parameters.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyadjoint</span>
 
 <span class="n">obs</span><span class="p">,</span> <span class="n">syn</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_example_data</span><span class="p">()</span>
 <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">syn</span> <span class="o">=</span> <span class="n">syn</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="s2">&quot;Z&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
-<span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;cc_traveltime_misfit&quot;</span><span class="p">,</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">pyadjoint</span><span class="o">.</span><span class="n">get_config</span><span class="p">(</span><span class="n">adjsrc_type</span><span class="o">=</span><span class="s2">&quot;cc_traveltime&quot;</span><span class="p">,</span>
                               <span class="n">min_period</span><span class="o">=</span><span class="mf">20.</span><span class="p">,</span> <span class="n">max_period</span><span class="o">=</span><span class="mf">100.</span><span class="p">,</span>
                               <span class="n">taper_percentage</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">taper_type</span><span class="o">=</span><span class="s2">&quot;cos&quot;</span><span class="p">)</span>
 

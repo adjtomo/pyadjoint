@@ -7,11 +7,6 @@
 
    Exponentiated phase misfit function and adjoint source.
 
-   TODO
-       - write description
-       - add citation for bozdag paper
-       - write additional parameters
-
    :authors:
        adjtomo Dev Team (adjtomo@gmail.com), 2022
        Yanhua O. Yuan (yanhuay@princeton.edu), 2016
@@ -33,33 +28,6 @@ Functions
 
 
 
-Attributes
-~~~~~~~~~~
-
-.. autoapisummary::
-
-   pyadjoint.adjoint_source_types.exponentiated_phase_misfit.VERBOSE_NAME
-   pyadjoint.adjoint_source_types.exponentiated_phase_misfit.DESCRIPTION
-   pyadjoint.adjoint_source_types.exponentiated_phase_misfit.ADDITIONAL_PARAMETERS
-
-
-.. py:data:: VERBOSE_NAME
-   :annotation: = Exponentiated Phase Misfit
-
-   
-
-.. py:data:: DESCRIPTION
-   :annotation: = 
-
-
-   
-
-.. py:data:: ADDITIONAL_PARAMETERS
-   :annotation: = 
-
-
-   
-
 .. py:function:: calculate_adjoint_source(observed, synthetic, config, windows, adjoint_src=True, window_stats=True, **kwargs)
 
    Calculate adjoint source for the exponentiated phase misfit.
@@ -68,7 +36,7 @@ Attributes
    :param observed: observed waveform to calculate adjoint source
    :type synthetic:  obspy.core.trace.Trace
    :param synthetic: synthetic waveform to calculate adjoint source
-   :type config: pyadjoint.config.ConfigCCTraveltime
+   :type config: pyadjoint.config.ConfigExponentiatedPhase
    :param config: Config class with parameters to control processing
    :type windows: list of tuples
    :param windows: [(left, right),...] representing left and right window
