@@ -85,7 +85,7 @@ phase misfit function.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="exponentiated_phase_misfit",
+    config = pyadjoint.get_config(adjsrc_type="exponentiated_phase",
                                   min_period=20., max_period=100.,
                                   taper_percentage=0.3, taper_type="cos")
 

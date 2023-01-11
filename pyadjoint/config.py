@@ -18,18 +18,12 @@ from pyadjoint.utils.signal import TAPER_COLLECTION
 
 # Constants defining the available adjoint source types in this package and
 # their verbose names. New adjoint sources need to be added here.
-ADJSRC_TYPES = {
-    "waveform": "Waveform Misfit",
-    "convolution": "Convolution Misfit",
-    "exponentiated_phase": "Exponentiated Phase Misfit",
-    "cc_traveltime": "Cross Correlation Traveltime Misfit",
-    "multitaper": "Multitaper Misfit",
-    "waveform_dd": "Waveform Double Difference Misfit",
-    "convolution_dd": "Convolution Double Difference Misfit",
-    "cc_traveltime_dd": "Cross Correlation Traveltime Double Difference Misfit",
-    "multitaper_dd": "Multitaper Double Difference Misfit",
+ADJSRC_TYPES = [
+    "waveform", "convolution", "exponentiated_phase", "cc_traveltime",
+    "multitaper", "waveform_dd", "convolution_dd", "cc_traveltime_dd",
+    "multitaper_dd",
     # >>> ADD NEW ADJOINT SOURCES HERE
-}
+]
 
 
 def get_config(adjsrc_type, min_period, max_period, **kwargs):
@@ -39,8 +33,8 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
     parameters
     """
     adjsrc_type = adjsrc_type.lower()  # allow for case-insensitivity
-    assert(adjsrc_type in ADJSRC_TYPES.keys()), \
-        f"`adjsrc_type` must be in {ADJSRC_TYPES.keys()}, not {adjsrc_type}"
+    assert(adjsrc_type in ADJSRC_TYPES), \
+        f"`adjsrc_type` must be in {ADJSRC_TYPES}, not {adjsrc_type}"
     assert(min_period < max_period), f"`min_period` must be < `max_period`"
 
     # Determine how to address double difference argument in Config object
@@ -64,11 +58,10 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
     # >>> ADD NEW ADJOINT SOURCES HERE
     else:
         raise NotImplementedError(f"adjoint source type must be in "
-                                  f"{ADJSRC_TYPES.keys()}, not {adjsrc_type}")
+                                  f"{ADJSRC_TYPES}, not {adjsrc_type}")
 
     # Set the adjoint source type as an attribute for check functions and plots
     cfg.adjsrc_type = adjsrc_type
-    cfg.verbose_name = ADJSRC_TYPES[adjsrc_type]
 
     # Perform some parameter checks
     if "measure_type" in vars(cfg):
@@ -92,8 +85,8 @@ def get_function(adjsrc_type):
     :return: calculate_adjoint_source function for the correct adjoint source
         type
     """
-    assert(adjsrc_type in ADJSRC_TYPES.keys()), \
-        f"`adjsrc_type` must be in {ADJSRC_TYPES.keys()}"
+    assert(adjsrc_type in ADJSRC_TYPES), \
+        f"`adjsrc_type` must be in {ADJSRC_TYPES}"
 
     if adjsrc_type in ["waveform", "convolution",
                        "waveform_dd", "convolution_dd"]:
@@ -129,8 +122,8 @@ class ConfigWaveform:
     tapered at two ends, to remove the non-zero values for adjoint
     source and for fft.
     :type taper_percentage: float
-    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-        for a list of available taper types
+    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+        list for available taper types
     :type taper_type: str
     :type double_difference: bool
     :param double_difference: flag to turn on double difference measurements,
@@ -146,7 +139,6 @@ class ConfigWaveform:
         self.double_difference = double_difference
         # To be overwritten by get_config()
         self.adjsrc_type = None
-        self.verbose_name = None
 
 
 class ConfigExponentiatedPhase:
@@ -161,8 +153,8 @@ class ConfigExponentiatedPhase:
         tapered at two ends, to remove the non-zero values for adjoint
         source and for fft.
     :type taper_percentage: float
-    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-        for a list of available taper types
+    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+        list for available taper types
     :type taper_type: str
     :param wtr_env: float
     :param wtr_env: window taper envelope amplitude scaling
@@ -181,7 +173,6 @@ class ConfigExponentiatedPhase:
         self.double_difference = double_difference
         # To be overwritten by get_config()
         self.adjsrc_type = None
-        self.verbose_name = None
 
 
 class ConfigCCTraveltime:
@@ -196,8 +187,8 @@ class ConfigCCTraveltime:
     tapered at two ends, to remove the non-zero values for adjoint
     source and for fft.
     :type taper_percentage: float
-    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-        for a list of available taper types
+    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+        list for available taper types
     :type taper_type: str
     :param measure_type: measurement type used in calculation of misfit,
         dt(travel time), am(dlnA), wf(full waveform)
@@ -227,8 +218,7 @@ class ConfigCCTraveltime:
         self.double_difference = double_difference
         # To be overwritten by get_config()
         self.adjsrc_type = None
-        self.verbose_name = None
-
+        
 
 class ConfigMultitaper:
     """
@@ -242,8 +232,8 @@ class ConfigMultitaper:
     tapered at two ends, to remove the non-zero values for adjoint
     source and for fft.
     :type taper_percentage: float
-    :param taper_type: Taper type, see `pyaadjoint.utils.TAPER_COLLECTION`
-        for a list of available taper types
+    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+        list for available taper types
     :type taper_type: str
     :param measure_type: measurement type used in calculation of misfit,
         dt(travel time), am(dlnA), wf(full waveform)
@@ -326,4 +316,5 @@ class ConfigMultitaper:
 
         # To be overwritten by get_config()
         self.adjsrc_type = None
-        self.verbose_name = None
+
+

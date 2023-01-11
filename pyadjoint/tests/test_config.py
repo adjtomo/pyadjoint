@@ -12,7 +12,7 @@ from pyadjoint import (get_config, get_function, adjoint_source_types,
 
 def test_all_configs():
     """Test importing all configs based on available types"""
-    for adj_src_type in ADJSRC_TYPES.keys():
+    for adj_src_type in ADJSRC_TYPES:
         get_config(adjsrc_type=adj_src_type, min_period=1, max_period=10)
 
 
@@ -57,5 +57,5 @@ def test_adjsrc_types():
 
 def test_get_functions():
     """Get correct functions based on adjoint source types"""
-    for adjsrc_type in ADJSRC_TYPES.keys():
+    for adjsrc_type in ADJSRC_TYPES:
         assert(callable(get_function(adjsrc_type)))

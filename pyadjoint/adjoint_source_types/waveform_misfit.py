@@ -150,7 +150,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         # Include some information about each window's total misfit,
         # since its already calculated
         win_stats.append(
-            {"type": config.verbose_name, "left": left_sample * dt,
+            {"type": config.adjsrc_type, "left": left_sample * dt,
              "right": right_sample * dt, "misfit": misfit_win,
              "difference": np.mean(diff)}
         )

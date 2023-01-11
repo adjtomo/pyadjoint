@@ -170,7 +170,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
 
         # Store some information for each window
         win_stats.append(
-            {"type": config.verbose_name,
+            {"type": config.adjsrc_type,
              "left": left_sample * dt, "right": right_sample * dt,
              "measurement_type": config.measure_type, "tshift": tshift,
              "misfit_dt": misfit_p, "sigma_dt": sigma_dt, "dlna": dlna,

@@ -54,7 +54,7 @@ class AdjointSource:
         :param starttime: starttime of adjoint source
         :type starttime: obspy.UTCDateTime
         """
-        if adjsrc_type not in ADJSRC_TYPES.keys():
+        if adjsrc_type not in ADJSRC_TYPES:
             raise ValueError(f"Unknown adjoint source type {adjsrc_type}")
 
         self.adjsrc_type = adjsrc_type

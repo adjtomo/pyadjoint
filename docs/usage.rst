@@ -34,33 +34,24 @@ explanation of where this data came from.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
+------------------------------
+
 Config
 ~~~~~~
 
-Each misfit function requires a corresponding :class:`~pyadjoint.config.Config`
-class to control optional processing parameters. The
-:meth:`~pyadjoint.config.get_config` function provides a wrapper for grabbing
-the appropriate Config object.
+Each misfit function requires a corresponding configuration class to control
+optional processing parameters. The :meth:`~pyadjoint.config.get_config`
+function provides a wrapper for grabbing the appropriate Config object.
 
 .. code:: python
 
-    config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
+    config = pyadjoint.get_config(adjsrc_type="waveform", min_period=20.,
                                   max_period=100.)
 
-A list of available adjoint sources can be found at the :doc:`~available` page.
+See the `adjoint source type list <_modules/pyadjoint/config.html#ADJSRC_TYPES>`__
+for the definitive names of available adjoint sources (``adjsrc_type``).
+The navigation bar to the left also provides explanations of each adjoint source.
 
-
-.. code:: python
-
-    >>> print(pyadjoint.discover_adjoint_sources().keys())
-    dict_keys(['cc_traveltime_misfit', 'exponentiated_phase_misfit', 'multitaper_misfit', 'waveform_misfit'])
-
-
-.. note::
-
-    Some of these functions allow for modifiers such as the use of
-    double difference measurements. See the 'double difference' section below
-    for more explanation
 
 Many types of adjoint sources have additional arguments that can be passed to
 it. See the :mod:`~pyadjoint.config` page for available keyword arguments
@@ -68,9 +59,13 @@ and descriptions.
 
 .. code:: python
 
-    config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
+    config = pyadjoint.get_config(adjsrc_type="waveform", min_period=20.,
                                   max_period=100., taper_percentage=0.3,
                                   taper_type="cos")
+
+
+------------------------------
+
 
 Calculating Adjoint Sources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -116,7 +111,7 @@ which has a number of useful attributes for understanding misfit.
 
 
 Time Windows
-~~~~~~~~~~~~
+------------
 
 Time windows are typically used in misfit quantification to isolate portions
 of waveforms that include signals of interest.
@@ -143,7 +138,7 @@ in the trace:
 
 
 Double Difference Measurements
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------------
 
 Double difference misfit functions, defined by [Yuan2016]_, construct misfit
 and adjoint sources from differential measurements between stations to reduce
@@ -172,9 +167,13 @@ the same number of windows. Each window will be compared in order.
         config=config, observed=obs, synthetic=syn, windows=[(800., 900.)]
         observed_2=obs_2, synthetic_2,syn_2, windows_2=[(800., 900.,)]
         )
+.. note::
 
-Double difference misfit functions result in two adjoint sources, one for each
-station in the pair of waveforms.
+    Double difference misfit functions result in two adjoint sources, one for each
+    station in the pair of waveforms. Valid double difference adjoint source types
+    will end in ``_dd``.
+
+------------------------------
 
 Plotting Adjoint Sources
 ~~~~~~~~~~~~~~~~~~~~~~~~

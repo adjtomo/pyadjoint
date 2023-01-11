@@ -119,8 +119,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         f[left_sample:right_sample] = adj_real[0:nlen_w] + adj_imag[0:nlen_w]
 
         win_stats.append(
-            {"type": config.verbose_name, "measurement_type": "dt",
-            "left": left_sample * dt, "right": right_sample * dt,
+            {"type": config.adjsrc_type, "measurement_type": "dt",
+             "left": left_sample * dt, "right": right_sample * dt,
              "diff_real": np.mean(diff_real[0:nlen_w]),
              "diff_imag": np.mean(diff_imag[0:nlen_w]),
              "misfit_real": misfit_real, "misfit_imag": misfit_imag
