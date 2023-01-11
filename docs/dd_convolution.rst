@@ -49,13 +49,6 @@ The following code snippet illustrates the basic usage of the waveform
 misfit function.
 
 
-.. note::
-
-    In the following code snippet, we use the 'R' component of the same station
-    in lieu of waveforms from a second station. In practice, the second set of
-    waveforms should come from a completely different station.
-
-
 .. code:: python
 
     import pyadjoint
@@ -68,15 +61,13 @@ misfit function.
     obs_2 = obs_2.select(component="R")[0]
     syn_2 = syn_2.select(component="R")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
-                                  max_period=100., taper_percentage=0.3,
-                                  taper_type="cos")
+    config = pyadjoint.get_config(adjsrc_type="convolution_dd", min_period=20.,
+                                  max_period=100.)
 
     # Calculating double-difference adjoint source returns two adjoint sources
     adj_src, adj_src_2 = pyadjoint.calculate_adjoint_source(
         config=config, observed=obs, synthetic=syn, windows=[(800., 900.)],
-        choice="convolution_dd", observed_2=obs_2, synthetic_2=syn_2,
-        windows_2=[(800., 900.)]
+        observed_2=obs_2, synthetic_2=syn_2, windows_2=[(800., 900.)]
         )
 
 

@@ -155,9 +155,6 @@ waveforms, as well as windows for this second set of waveforms. The new
 windows can be independent of the first set of windows, but must contain
 the same number of windows. Each window will be compared in order.
 
-The ``choice`` parameter in the :func:`~pyadjoint.main.calculate_adjoint_source`
-function signals to Pyadjoint modifications to the input arguments may be
-required. See individual adjoint sources for their respective usage.
 
 .. note::
 
@@ -173,7 +170,6 @@ required. See individual adjoint sources for their respective usage.
 
     adj_src, adj_src_2 = pyadjoint.calculate_adjoint_source(
         config=config, observed=obs, synthetic=syn, windows=[(800., 900.)]
-        choice="double_difference",
         observed_2=obs_2, synthetic_2,syn_2, windows_2=[(800., 900.,)]
         )
 

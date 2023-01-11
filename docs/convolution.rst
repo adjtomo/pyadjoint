@@ -40,12 +40,10 @@ misfit function.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="waveform_misfit", min_period=20.,
-                                  max_period=100., taper_percentage=0.3,
-                                  taper_type="cos")
+    config = pyadjoint.get_config(adjsrc_type="convolution", min_period=20.,
+                                  max_period=100.)
 
     adj_src = pyadjoint.calculate_adjoint_source(config=config,
-                                                 choice="convolution",
                                                  observed=obs, synthetic=syn,
                                                  windows=[(800., 900.)]
                                                  )

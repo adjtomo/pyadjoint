@@ -86,14 +86,12 @@ CCTM misfit function.
     obs_2 = obs_2.select(component="R")[0]
     syn_2 = syn_2.select(component="R")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="cc_traveltime_misfit",
-                                  min_period=20., max_period=100.,
-                                  taper_percentage=0.3, taper_type="cos")
+    config = pyadjoint.get_config(adjsrc_type="cc_traveltime_dd",
+                                  min_period=20., max_period=100.)
 
     # Calculating double-difference adjoint source returns two adjoint sources
     adj_src, adj_src_2 = pyadjoint.calculate_adjoint_source(
         config=config, observed=obs, synthetic=syn, windows=[(800., 900.)],
-        choice="double_difference", observed_2=obs_2, synthetic_2=syn_2,
-        windows_2=[(800., 900.)]
+        observed_2=obs_2, synthetic_2=syn_2, windows_2=[(800., 900.)]
         )
 

@@ -67,7 +67,7 @@ traveltime misfit function.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="cc_traveltime_misfit",
+    config = pyadjoint.get_config(adjsrc_type="cc_traveltime",
                                   min_period=20., max_period=100.,
                                   taper_percentage=0.3, taper_type="cos")
 

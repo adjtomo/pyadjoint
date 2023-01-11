@@ -2,6 +2,10 @@
 """
 Configuration object for Pyadjoint.
 
+To add new adjoint sources, you will need to
+add a name, function and config to `ADJSRC_TYPES`, `get_config` and
+`get_function`, respectively.
+
 :authors:
     adjTomo Dev Team (adjtomo@gmail.com), 2022
     Youyi Ruan (youyir@princeton.edu), 2016
@@ -23,7 +27,8 @@ ADJSRC_TYPES = {
     "waveform_dd": "Waveform Double Difference Misfit",
     "convolution_dd": "Convolution Double Difference Misfit",
     "cc_traveltime_dd": "Cross Correlation Traveltime Double Difference Misfit",
-    "multitaper_dd": "Multitaper Double Difference Misfit"
+    "multitaper_dd": "Multitaper Double Difference Misfit",
+    # >>> ADD NEW ADJOINT SOURCES HERE
 }
 
 
@@ -56,6 +61,7 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
     elif adjsrc_type in ["multitaper", "multitaper_dd"]:
         cfg = ConfigMultitaper(min_period, max_period, double_difference=dd,
                                **kwargs)
+    # >>> ADD NEW ADJOINT SOURCES HERE
     else:
         raise NotImplementedError(f"adjoint source type must be in "
                                   f"{ADJSRC_TYPES.keys()}, not {adjsrc_type}")
@@ -106,6 +112,7 @@ def get_function(adjsrc_type):
         from pyadjoint.adjoint_source_types.multitaper_misfit import \
             calculate_adjoint_source
         fct = calculate_adjoint_source
+    # >>> ADD NEW ADJOINT SOURCES HERE
 
     return fct
 

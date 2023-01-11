@@ -8,7 +8,7 @@ Multitaper Misfit
 
 The misfit :math:`\chi_P(\mathbf{m})` measures frequency-dependent phase
 differences estimated with multitaper methods. For a given Earth model
-:math:`\mathbf{m}`and a single receiver, :math:`\chi_P(\mathbf{m})` is given by
+:math:`\mathbf{m}` and a single receiver, :math:`\chi_P(\mathbf{m})` is given by
 
 .. math::
 
@@ -60,9 +60,8 @@ misfit function.
     obs = obs.select(component="Z")[0]
     syn = syn.select(component="Z")[0]
 
-    config = pyadjoint.get_config(adjsrc_type="multitaper_misfit", min_period=20.,
-                                  max_period=100., taper_percentage=0.3,
-                                  taper_type="cos")
+    config = pyadjoint.get_config(adjsrc_type="multitaper", min_period=20.,
+                                  max_period=100.)
 
     adj_src = pyadjoint.calculate_adjoint_source(config=config,
                                                  observed=obs, synthetic=syn,
