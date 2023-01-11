@@ -62,8 +62,14 @@ waveform misfits,
 Usage
 `````
 
-The following code snippet illustrates the basic usage of the waveform
-misfit function.
+::
+
+    adjsrc_type = "waveform_dd"
+
+The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigWaveform>`__
+object for additional configuration parameters.
 
 .. code:: python
 

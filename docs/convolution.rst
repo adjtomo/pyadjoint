@@ -25,8 +25,14 @@ component is given by
 Usage
 `````
 
+::
+
+    adjsrc_type = "convolution"
+
 The following code snippet illustrates the basic usage of the convolution
-misfit function.
+misfit function.  See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigWaveform>`__
+object for additional configuration parameters.
 
 .. note::
     The convolution misfit code piggybacks on the waveform misfit and

@@ -11,8 +11,14 @@ that define misfit and adjoint source.
 Usage
 `````
 
-The following code snippet illustrates the basic usage of the double
-difference multitaper misfit function.
+::
+
+    adjsrc_type = "multitaper_dd"
+
+The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigMultitaper>`__
+object for additional configuration parameters.
 
 .. code:: python
 

@@ -74,8 +74,14 @@ receiver and component is given by:
 Usage
 `````
 
-The following code snippet illustrates the basic usage of the exponentiated
-phase misfit function.
+::
+
+    adjsrc_type = "exponentiated_phase"
+
+The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigExponentiatedPhase>`__
+object for additional configuration parameters.
 
 .. code:: python
 

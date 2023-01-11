@@ -56,8 +56,14 @@ where :math:`N` is a normalization factor defined as
 Usage
 `````
 
+::
+
+    adjsrc_type = "cc_traveltime"
+
 The following code snippet illustrates the basic usage of the cross correlation
-traveltime misfit function.
+traveltime misfit function.  See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigCCTraveltime>`__
+object for additional configuration parameters.
 
 .. code:: python
 

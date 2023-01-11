@@ -5,6 +5,7 @@
 - Added a docs page on available adjoint sources
 - Added a subsection on time windows and double difference measurements
 - Updated Usage code snippets to match new call structure defined below
+- Added new page for adding new adjoint source
 
 ### Call Structure
 - Config now control adjoint source type and the logic tree that follows for 

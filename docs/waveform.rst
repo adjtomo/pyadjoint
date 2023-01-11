@@ -1,6 +1,7 @@
 Waveform Misfit
 ===============
 
+
 .. warning::
 
     Please refer to the original paper [Tromp2005]_ for rigorous mathematical
@@ -42,8 +43,14 @@ The adjoint source for the same receiver and component is given by
 Usage
 `````
 
+::
+
+    adjsrc_type = "waveform"
+
 The following code snippet illustrates the basic usage of the waveform
-misfit function.
+misfit function. See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigWaveform>`__
+object for additional configuration parameters.
 
 .. code:: python
 

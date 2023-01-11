@@ -49,8 +49,14 @@ in which :math:`h_k(t)` is one (the :math:`k` th) of multi-tapers.
 Usage
 `````
 
-The following code snippet illustrates the basic usage of the multitaper
-misfit function.
+::
+
+    adjsrc_type = "multitaper"
+
+The following code snippet illustrates the basic usage of the cross correlation
+traveltime misfit function.  See the corresponding
+`Config <autoapi/pyadjoint/config/index.html#pyadjoint.config.ConfigMultitaper>`__
+object for additional configuration parameters.
 
 .. code:: python
 
