@@ -4,6 +4,12 @@ Simple waveform-based misfit and adjoint source. Contains options for
 'waveform' and 'convolution' misfit functions, as well as their double
 difference counterparts
 
+This one function takes care of implementation for multiple misfit functions:
+    - 'waveform': Waveform misfit from [Tromp2005]_
+    - 'convolution': Waveform convolution misfit from [Choi2011]_
+    - 'waveform_dd': Double difference waveform misfit from [Yuan2016]_
+    - 'convolution_dd': Double difference convolution misfit
+
 :authors:
     adjTomo Dev Team (adjtomo@gmail.com), 2023
     Yanhua O. Yuan (yanhuay@princeton.edu), 2017
@@ -32,15 +38,6 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
     :param windows: [(left, right),...] representing left and right window
         borders to be tapered in units of seconds since first sample in data
         array
-    :type choice: str
-    :param choice: Flag to turn on station pair calculations. Double difference
-        misfit functions (ending in '_dd') require the following parameters:
-        `observed_2`, `synthetic_2`, `windows_2`. Available choices are:
-
-        - 'waveform': Waveform misfit from [Tromp2005]_
-        - 'convolution': Waveform convolution misfit from [Choi2011]_
-        - 'waveform_dd': Double difference waveform misfit from [Yuan2016]_
-        - 'convolution_dd': Double difference convolution misfit
     :type observed_2: obspy.core.trace.Trace
     :param observed_2: second observed waveform to calculate adjoint sources
         from station pairs

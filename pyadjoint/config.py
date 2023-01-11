@@ -34,38 +34,31 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
     parameters
     """
     adjsrc_type = adjsrc_type.lower()  # allow for case-insensitivity
-    assert(adjsrc_type in ADJSRC_TYPES.keys), \
-        f"`adjsrc_type` must be in {ADJSRC_TYPES.keys()}"
+    assert(adjsrc_type in ADJSRC_TYPES.keys()), \
+        f"`adjsrc_type` must be in {ADJSRC_TYPES.keys()}, not {adjsrc_type}"
     assert(min_period < max_period), f"`min_period` must be < `max_period`"
+
+    # Determine how to address double difference argument in Config object
+    dd = bool("dd" in adjsrc_type)
 
     # Logic tree to determine what type of Config object is required, and
     # any sub-arguments required
-    if adjsrc_type == "waveform":
-        cfg = ConfigWaveform(min_period, max_period, **kwargs)
-    elif adjsrc_type == "convolution":
-        cfg = ConfigWaveform(min_period, max_period, **kwargs)
-    elif adjsrc_type == "exponentiated_phase":
-        cfg = ConfigExponentiatedPhase(min_period, max_period, **kwargs)
-    elif adjsrc_type == "cc_traveltime":
-        cfg = ConfigCCTraveltime(min_period, max_period, **kwargs)
-    elif adjsrc_type == "multitaper":
-        cfg = ConfigMultitaper(min_period, max_period, **kwargs)
-    # Double difference Configs
-    elif adjsrc_type == "waveform_dd":
-        cfg = ConfigWaveform(min_period, max_period, double_difference=True,
+    if adjsrc_type in ["waveform", "convolution",
+                       "waveform_dd", "convolution_dd"]:
+        cfg = ConfigWaveform(min_period, max_period, double_difference=dd,
                              **kwargs)
-    elif adjsrc_type == "convolution_dd":
-        cfg = ConfigWaveform(min_period, max_period, double_difference=True,
-                             **kwargs)
-    elif adjsrc_type == "cc_traveltime_dd":
-        cfg = ConfigCCTraveltime(min_period, max_period, double_difference=True,
+    elif adjsrc_type in ["exponentiated_phase", "exponentiated_phase_dd"]:
+        cfg = ConfigExponentiatedPhase(min_period, max_period,
+                                       double_difference=dd, **kwargs)
+    elif adjsrc_type in ["cc_traveltime", "cc_traveltime_dd"]:
+        cfg = ConfigCCTraveltime(min_period, max_period, double_difference=dd,
                                  **kwargs)
-    elif adjsrc_type == "multitaper_dd":
-        cfg = ConfigMultitaper(min_period, max_period,  double_difference=True,
+    elif adjsrc_type in ["multitaper", "multitaper_dd"]:
+        cfg = ConfigMultitaper(min_period, max_period, double_difference=dd,
                                **kwargs)
     else:
         raise NotImplementedError(f"adjoint source type must be in "
-                                  f"{ADJSRC_TYPES.keys()}")
+                                  f"{ADJSRC_TYPES.keys()}, not {adjsrc_type}")
 
     # Set the adjoint source type as an attribute for check functions and plots
     cfg.adjsrc_type = adjsrc_type
@@ -79,6 +72,42 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
         f"`taper_type` must be in {TAPER_COLLECTION}"
 
     return cfg
+
+
+def get_function(adjsrc_type):
+    """
+    Wrapper for getting the correct adjoint source function based on the
+    `adjsrc_type`. Many adjoint sources share functions with different flags
+    so this function takes care of the logic of choosing which.
+
+    :type adjsrc_type: str
+    :param adjsrc_type: choice of adjoint source
+    :rtype: function
+    :return: calculate_adjoint_source function for the correct adjoint source
+        type
+    """
+    assert(adjsrc_type in ADJSRC_TYPES.keys()), \
+        f"`adjsrc_type` must be in {ADJSRC_TYPES.keys()}"
+
+    if adjsrc_type in ["waveform", "convolution",
+                       "waveform_dd", "convolution_dd"]:
+        from pyadjoint.adjoint_source_types.waveform_misfit import \
+            calculate_adjoint_source
+        fct = calculate_adjoint_source
+    elif adjsrc_type in ["cc_traveltime", "cc_traveltime_dd"]:
+        from pyadjoint.adjoint_source_types.cc_traveltime_misfit import \
+            calculate_adjoint_source
+        fct = calculate_adjoint_source
+    elif adjsrc_type in ["exponentiated_phase", "exponentiated_phase_dd"]:
+        from pyadjoint.adjoint_source_types.exponentiated_phase_misfit import \
+            calculate_adjoint_source
+        fct = calculate_adjoint_source
+    elif adjsrc_type in ["multitaper", "multitaper_dd"]:
+        from pyadjoint.adjoint_source_types.multitaper_misfit import \
+            calculate_adjoint_source
+        fct = calculate_adjoint_source
+
+    return fct
 
 
 class ConfigWaveform:

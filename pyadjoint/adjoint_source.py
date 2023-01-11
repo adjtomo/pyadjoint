@@ -11,7 +11,7 @@ Central interfaces for ``Pyadjoint``, misfit measurement package.
 import numpy as np
 import obspy
 
-from pyadjoint import discover_adjoint_sources
+from pyadjoint.config import ADJSRC_TYPES
 
 
 class AdjointSource:
@@ -54,8 +54,7 @@ class AdjointSource:
         :param starttime: starttime of adjoint source
         :type starttime: obspy.UTCDateTime
         """
-        adj_srcs = discover_adjoint_sources()
-        if adjsrc_type not in adj_srcs.keys():
+        if adjsrc_type not in ADJSRC_TYPES.keys():
             raise ValueError(f"Unknown adjoint source type {adjsrc_type}")
 
         self.adjsrc_type = adjsrc_type
@@ -177,7 +176,7 @@ class AdjointSource:
         :type coordinates: list
         """
         # Import here to not have a global dependency on pyasdf
-        from pyasdf.exceptions import NoStationXMLForStation
+        from pyasdf.exceptions import NoStationXMLForStation  # NOQA
 
         # Convert the adjoint source to SPECFEM format
         l = len(self.adjoint_source)
