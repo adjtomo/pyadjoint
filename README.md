@@ -1,5 +1,6 @@
 # Pyadjoint
 
+[![PyPI Version](https://img.shields.io/pypi/v/pyadjoint.svg)](https://pypi.python.org/pypi/pyadjoint)
 
 ### Misfit measurement and adjoint source generation
 
