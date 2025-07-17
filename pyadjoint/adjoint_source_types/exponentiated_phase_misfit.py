@@ -11,7 +11,7 @@ Exponentiated phase misfit function and adjoint source.
 import numpy as np
 
 from scipy import signal
-from scipy.integrate import simps
+from scipy.integrate import simpson
 
 from pyadjoint.utils.signal import get_window_info, window_taper
 
@@ -94,8 +94,8 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
         diff_imag = hilbt_d/env_d_wtr - hilbt_s/env_s_wtr
 
         # Integrate with the composite Simpson's rule.
-        misfit_real = 0.5 * simps(y=diff_real**2, dx=dt)
-        misfit_imag = 0.5 * simps(y=diff_imag**2, dx=dt)
+        misfit_real = 0.5 * simpson(y=diff_real**2, dx=dt)
+        misfit_imag = 0.5 * simpson(y=diff_imag**2, dx=dt)
 
         misfit_sum += misfit_real + misfit_imag
 

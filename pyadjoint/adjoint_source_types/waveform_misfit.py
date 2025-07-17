@@ -18,7 +18,7 @@ This one function takes care of implementation for multiple misfit functions:
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
 import numpy as np
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from pyadjoint import logger
 from pyadjoint.utils.signal import get_window_info, window_taper
 
@@ -139,7 +139,7 @@ def calculate_adjoint_source(observed, synthetic, config, windows,
                 raise NotImplementedError
 
         # Integrate with the composite Simpson's rule.
-        misfit_win = 0.5 * simps(y=diff**2, dx=dt)
+        misfit_win = 0.5 * simpson(y=diff**2, dx=dt)
         misfit_sum += misfit_win
 
         # Taper again for smooth connection of windows adjoint source
