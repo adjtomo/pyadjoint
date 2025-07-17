@@ -11,7 +11,7 @@ Multitaper based phase and amplitude misfit and adjoint source.
     BSD 3-Clause ("BSD New" or "BSD Simplified")
 """
 import numpy as np
-from scipy.integrate import simps
+from scipy.integrate import simpson
 
 from pyadjoint import logger
 from pyadjoint.utils.dpss import dpss_windows
@@ -214,8 +214,8 @@ class MultitaperMisfit:
                 # Misfit is defined as the error-weighted measurements
                 dtau_mtm_weigh_sqr = dtau_mtm ** 2 * wp_w
                 dlna_mtm_weigh_sqr = dlna_mtm ** 2 * wq_w
-                misfit_p = 0.5 * 2.0 * simps(y=dtau_mtm_weigh_sqr, dx=df)
-                misfit_q = 0.5 * 2.0 * simps(y=dlna_mtm_weigh_sqr, dx=df)
+                misfit_p = 0.5 * 2.0 * simpson(y=dtau_mtm_weigh_sqr, dx=df)
+                misfit_q = 0.5 * 2.0 * simpson(y=dlna_mtm_weigh_sqr, dx=df)
 
                 logger.info("calculating misfit and adjoint source with MTM")
                 fp_t, fq_t = self.calculate_mt_adjsrc(
@@ -463,7 +463,7 @@ class MultitaperMisfit:
                 # Misfit is defined as the error-weighted measurements
                 # TODO dlna misfit not calculated, only phase (dtau)
                 dtau_mtm_weigh_sqr = dtau_mtm ** 2 * wp_w
-                misfit_p = 0.5 * 2.0 * simps(y=dtau_mtm_weigh_sqr, dx=df)
+                misfit_p = 0.5 * 2.0 * simpson(y=dtau_mtm_weigh_sqr, dx=df)
 
                 logger.info("calculate double difference adjoint source w/ MTM")
                 fp_t, fp_2_t = self.calculate_dd_mt_adjsrc(

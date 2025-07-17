@@ -5,7 +5,7 @@ cross correlation traveltime misfit function
 import numpy as np
 import warnings
 from obspy.signal.cross_correlation import xcorr_pick_correction
-from scipy.integrate import simps
+from scipy.integrate import simpson
 from pyadjoint import logger
 
 
@@ -98,12 +98,12 @@ def calculate_cc_adjsrc(s, tshift, dlna, dt, sigma_dt=1., sigma_dlna=0.5,
 
     # Calculate adjoint sources for both time shift and amplitude anomaly
     dsdt = np.gradient(s, dt)
-    nnorm = simps(y=dsdt * dsdt, dx=dt)
+    nnorm = simpson(y=dsdt * dsdt, dx=dt)
     # note: Princeton ver. of code has a -1 on `fp`  because they have a '-' on 
     #   `nnorm`. Current format follows original Krischer code implementation
     fp[0:n] = dsdt[0:n] * tshift / nnorm / sigma_dt ** 2
 
-    mnorm = simps(y=s * s, dx=dt)
+    mnorm = simpson(y=s * s, dx=dt)
     fq[0:n] = -1.0 * s[0:n] * dlna / mnorm / sigma_dlna ** 2
 
     return misfit_p, misfit_q, fp, fq
@@ -240,7 +240,7 @@ def calculate_dd_cc_adjsrc(s, s_2, tshift, dlna, dt, sigma_dt=1.,
 
     # Integrate the product of gradients
     # FIXME: Is `dsdt` supposed to be `dsdt_cc`? Need to check equations
-    nnorm = simps(y=dsdt * dsdt_cc_2, dx=dt)
+    nnorm = simpson(y=dsdt * dsdt_cc_2, dx=dt)
 
     # note: Princeton ver. of code has a -1 on `fp`  because they have a '-' on
     #   `nnorm`. Current format follows original Krischer code implementation

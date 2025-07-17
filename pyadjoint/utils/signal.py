@@ -90,7 +90,8 @@ def sanity_check_waveforms(observed, synthetic):
         raise PyadjointError("Observed and synthetic data must have the same "
                              "starttime.")
 
-    ptp = sorted([observed.data.ptp(), synthetic.data.ptp()])
+    # Calculate Peak-to-Peak (PTP)
+    ptp = sorted([np.ptp(observed.data), np.ptp(synthetic.data)])
     if ptp[1] / ptp[0] >= 5:
         warnings.warn("The amplitude difference between data and "
                       "synthetic is fairly large.", PyadjointWarning)
