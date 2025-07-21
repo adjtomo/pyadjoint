@@ -271,5 +271,57 @@ def process_cycle_skipping(phi_w, nfreq_max, nfreq_min, wvec, phase_step=1.5):
 
     return phi_w
 
+def matlab_range(start, stop, step):
+    """
+    Simple function emulating the behaviour of Matlab's colon notation.
 
+    This is very similar to np.arange(), except that the endpoint is included
+    if it would be the logical next sample. Useful for translating Matlab code
+    to Python.
+    """
+    # Some tolerance
+    if (abs(stop - start) / step) % 1 < 1e-7:
+        return np.linspace(
+            start, stop, int(round((stop - start) / step)) + 1, endpoint=True
+        )
+    return np.arange(start, stop, step)
 
+def window_trace(trace, window, taper, taper_ratio, taper_type):
+    """
+    Helper function to taper a window within a data trace.
+
+    This function modifies the passed trace object in-place.
+
+    :param trace: The trace to be tapered.
+    :type trace: :class:`obspy.core.trace.Trace`
+    :param window: Tuples with UCTDateTime objects for start and end time
+        and potentially a weight as well
+    :type window: Tuple with UCTDateTime objects
+    :param taper: True if you want to apply tapering
+    :type taper: binary
+    :param taper_percentage: Decimal percentage of taper at one end (ranging
+        from ``0.0`` (0%) to ``0.5`` (50%)).
+    :type taper_percentage: float
+    :param taper_type: The taper type, supports anything
+        :meth:`obspy.core.trace.Trace.taper` can use.
+    :type taper_type: str
+
+    Any additional keyword arguments are passed to the
+    :meth:`obspy.core.trace.Trace.taper` method.
+    """
+    s, e = trace.stats.starttime, trace.stats.endtime
+   # print(window)
+   # print(trace)
+    # print(s+window[0], s+window[1])
+    # print(taper)
+    trace.trim(s + window[0], s + window[1])
+    # print(trace)
+    # print(len(trace))
+    # print(taper_ratio,taper_type)
+    if taper:
+        trace.taper(max_percentage=taper_ratio, type=taper_type, side='both')
+   # print(len(trace))
+    #
+    trace.trim(s, e, pad=True, fill_value=0.0)
+    # Enable method chaining.
+    return trace

@@ -221,10 +221,16 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, windows,
     right_window_border = min(x_range, right_window_border)
 
     plt.subplot(211)
-    plt.plot(observed.times(), observed.data, color="0.2", label="Observed",
+    # REVISED by YAOSHI add the normalization for data
+    print(observed.times().min(), observed.times().max(), len(observed.times()))
+    plt.plot(observed.times(), observed.data / np.abs(observed.data).max(), color="0.2", label="Observed",
              lw=2)
-    plt.plot(synthetic.times(), synthetic.data, color="#bb474f",
+    plt.plot(synthetic.times(), synthetic.data / np.abs(synthetic.data).max(), color="#bb474f",
              label="Synthetic", lw=2)
+    # plt.plot(observed.times(), observed.data / np.abs(observed.data).max(), color="0.2", label="Observed",
+    #          lw=2)
+    # plt.plot(synthetic.times(), synthetic.data / np.abs(synthetic.data).max(), color="#bb474f",
+    #          label="Synthetic", lw=2)
     for window in windows:
         re = patches.Rectangle((window[0], plt.ylim()[0]),
                                window[1] - window[0],
@@ -234,25 +240,31 @@ def plot_adjoint_source(observed, synthetic, adjoint_source, misfit, windows,
 
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
-    plt.xlim(left_window_border, right_window_border)
+    # REVISED by YAOSHI
+    # plt.xlim(left_window_border, right_window_border)
 
+    # REVISED by YAOSHI
     # Determine min and max amplitudes within the time window
-    obs_win = observed.data[int(left_window_border):int(right_window_border)]
-    syn_win = synthetic.data[int(left_window_border):int(right_window_border)]
-    ylim = max([max(np.abs(obs_win)), max(np.abs(syn_win))])
-    plt.ylim(-ylim, ylim)
+    # obs_win = observed.data[int(left_window_border):int(right_window_border)]
+    # syn_win = synthetic.data[int(left_window_border):int(right_window_border)]
+    # ylim = max([max(np.abs(obs_win)), max(np.abs(syn_win))])
+    # plt.ylim(-ylim, ylim)
 
     plt.subplot(212)
-    plt.plot(observed.times(), adjoint_source[::-1], color="#2f8d5b", lw=2,
-             label="Adjoint Source")
+    # REVISED by YAOSHI, Delete the reverse, to keep the figure consisitent with the data
+    plt.plot(observed.times(), adjoint_source / np.abs(adjoint_source).max(), color="#2f8d5b", lw=2,
+            label="Adjoint Source")
+    # plt.plot(observed.times(), adjoint_source[::-1], color="#2f8d5b", lw=2,
+    #          label="Adjoint Source")
     plt.grid()
     plt.legend(fancybox=True, framealpha=0.5)
 
     # No time reversal for comparison with data
-    plt.xlim(left_window_border, right_window_border)
+    # Revised by YAOSHI, comment the xlim and ylim to show all data
+    # plt.xlim(left_window_border, right_window_border)
     plt.xlabel("Time (seconds)")
-    ylim = max(map(abs, plt.ylim()))
-    plt.ylim(-ylim, ylim)
+    # ylim = max(map(abs, plt.ylim()))
+    # plt.ylim(-ylim, ylim)
 
     plt.suptitle("%s Adjoint Source with a Misfit of %.3g" % (
         adjoint_source_name, misfit))
