@@ -45,7 +45,7 @@ def calculate_cc_shift(d, s, dt, use_cc_error=True, dt_sigma_min=1.0,
     # Uncertainty estimate based on cross-correlations to be used for norm.
     if use_cc_error:
         sigma_dt, sigma_dlna = calculate_cc_error(d=d, s=s, dt=dt,
-                                                  cc_shift=tshift, dlna=dlna,
+                                                  cc_shift=ishift, dlna=dlna,
                                                   dt_sigma_min=dt_sigma_min,
                                                   dlna_sigma_min=dlna_sigma_min
                                                   )

@@ -896,7 +896,7 @@ class MultitaperMisfit:
         # Create transfer function
         trans_func = np.zeros(self.nlen_f, dtype=complex)
         for i in range(nfreq_min, nfreq_max):
-            if abs(bot_tf[i]) < wtr_use:
+            if abs(bot_tf[i]) >= wtr_use:
                 trans_func[i] = top_tf[i] / bot_tf[i]
             else:
                 trans_func[i] = top_tf[i] / (bot_tf[i] + wtr_use)
