@@ -18,10 +18,11 @@ from pyadjoint.utils.signal import TAPER_COLLECTION
 
 # Constants defining the available adjoint source types in this package and
 # their verbose names. New adjoint sources need to be added here.
+# REVISED by YAOSHI
 ADJSRC_TYPES = [
     "waveform", "convolution", "exponentiated_phase", "cc_traveltime",
-    "multitaper", "waveform_dd", "convolution_dd", "cc_traveltime_dd",
-    "multitaper_dd",
+    "multitaper", "tf_phase", "ccc", "waveform_dd", "convolution_dd", "cc_traveltime_dd",
+    "multitaper_dd", "tf_phase_dd", "ccc_dd"
     # >>> ADD NEW ADJOINT SOURCES HERE
 ]
 
@@ -55,6 +56,13 @@ def get_config(adjsrc_type, min_period, max_period, **kwargs):
     elif adjsrc_type in ["multitaper", "multitaper_dd"]:
         cfg = ConfigMultitaper(min_period, max_period, double_difference=dd,
                                **kwargs)
+    # REVISED by YAOSHI
+    elif adjsrc_type in ["tf_phase", "tf_phase_dd"]:
+        cfg = ConfigTFPhase(min_period, max_period, double_difference=dd,
+                               **kwargs)
+    elif adjsrc_type in ["ccc", "ccc_dd"]:
+        cfg = ConfigTFPhase(min_period, max_period, double_difference=dd,
+                                **kwargs)
     # >>> ADD NEW ADJOINT SOURCES HERE
     else:
         raise NotImplementedError(f"adjoint source type must be in "
@@ -103,6 +111,15 @@ def get_function(adjsrc_type):
         fct = calculate_adjoint_source
     elif adjsrc_type in ["multitaper", "multitaper_dd"]:
         from pyadjoint.adjoint_source_types.multitaper_misfit import \
+            calculate_adjoint_source
+        fct = calculate_adjoint_source
+    # REVISED by YAOSHI
+    elif adjsrc_type in ["tf_phase", "tf_phase_dd"]:
+        from pyadjoint.adjoint_source_types.tf_phase_misfit import \
+            calculate_adjoint_source
+        fct = calculate_adjoint_source
+    elif adjsrc_type in ["ccc", "ccc_dd"]:
+        from pyadjoint.adjoint_source_types.ccc_misfit import \
             calculate_adjoint_source
         fct = calculate_adjoint_source
     # >>> ADD NEW ADJOINT SOURCES HERE
@@ -317,4 +334,66 @@ class ConfigMultitaper:
         # To be overwritten by get_config()
         self.adjsrc_type = None
 
+class ConfigTFPhase:
+    """
+    Time Frequency Phase misfit function required parameters
 
+    :param min_period: Minimum period of the filtered input data in seconds.
+    :type min_period: float
+    :param max_period: Maximum period of the filtered input data in seconds.
+    :type max_period: float
+    :param taper_percentage: Percentage of a time window needs to be
+        tapered at two ends, to remove the non-zero values for adjoint
+        source and for fft.
+    :type taper_percentage: float
+    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+        list for available taper types
+    :type taper_type: str
+    :param wtr_env: float
+    :param wtr_env: window taper envelope amplitude scaling
+    :type double_difference: bool
+    :param double_difference: flag to turn on double difference measurements,
+        which signals to the main calc function whether additional waveforms
+        are required at input
+    """
+    def __init__(self, min_period, max_period, taper_type="hann",
+                 taper_percentage=0.3, double_difference=False):
+        self.min_period = min_period
+        self.max_period = max_period
+        self.taper_type = taper_type
+        self.taper_percentage = taper_percentage
+        self.double_difference = double_difference
+        # To be overwritten by get_config()
+        self.adjsrc_type = None
+
+class ConfigCCC:
+    """
+    Cross correlation coefficient misfit function required parameters
+
+    :param min_period: Minimum period of the filtered input data in seconds.
+    :type min_period: float
+    :param max_period: Maximum period of the filtered input data in seconds.
+    :type max_period: float
+    :param taper_percentage: Percentage of a time window needs to be
+        tapered at two ends, to remove the non-zero values for adjoint
+        source and for fft.
+    :type taper_percentage: float
+    :param taper_type: taper type, see pyadjoint.utils.signal.TAPER_COLLECTION
+        list for available taper types
+    :type taper_type: str
+    :param wtr_env: float
+    :param wtr_env: window taper envelope amplitude scaling
+    :type double_difference: bool
+    :param double_difference: flag to turn on double difference measurements,
+        which signals to the main calc function whether additional waveforms
+        are required at input
+    """
+    def __init__(self, min_period, max_period, taper_type="hann",
+                 taper_percentage=0.3, double_difference=False):
+        self.min_period = min_period
+        self.max_period = max_period
+        self.taper_type = taper_type
+        self.taper_percentage = taper_percentage
+        self.double_difference = double_difference
+        # To be overwritten by get_config()
+        self.adjsrc_type = None
